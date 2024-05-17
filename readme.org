@@ -1,6 +1,11 @@
 #+title: DERP: Deep recursive parameter estimation
 #+author: Alexander E. Zarebski
 
+This repository contains the code to simulate a database of
+phylogenetic trees that will be used in a machine learning project in
+which a neural network will be trained to solve phylodynamics
+problems.
+
 * Roadmap
 
 - [ ] Provide a single database file and some helper functions to read
