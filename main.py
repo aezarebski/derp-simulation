@@ -1,16 +1,25 @@
 from Bio import Phylo
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import h5py
 from lxml import etree
+import numpy as np
 import os
 import pickle
+import re
 import subprocess
 
 
 REMASTER_XML = "src/remaster-template.xml"
 NUM_WORKERS = 4
-NUM_SIMS = 2
+NUM_SIMS = 10
 SIM_DIR = "out/simulation/remaster"
 SIM_PICKLE_DIR = "out/simulation/pickle"
+DB_PATH = "out/dataset-demo.hdf5"
+
+
+if os.path.exists(DB_PATH):
+    # To prevent overwriting existing data throw an exception.
+    raise Exception(f"File {DB_PATH} already exists.")
 
 
 def _update_attr(root, xpath: str, attr: str, val) -> None:
@@ -127,35 +136,61 @@ def run_simulations(num_sims):
     run_beast2_simulations_parallel(simulation_xml_list, num_jobs=NUM_WORKERS)
     if not os.path.exists(SIM_PICKLE_DIR):
         os.makedirs(SIM_PICKLE_DIR)
-
     # NOTE we only record a single simulation per iteration to avoid
     # memory issues with large trees.
-    for ix, sim_xml, params in zip(
-        range(1, num_sims + 1), simulation_xml_list, params_list
+    pickle_files = [f"{SIM_PICKLE_DIR}/{ix:06d}.pickle" for ix in range(1, num_sims + 1)]
+    for sim_pickle, sim_xml, params in zip(
+        pickle_files, simulation_xml_list, params_list
     ):
         result = {
             "parameters": params,
             "simulation_xml": sim_xml,
             "simulation_results": read_simulation_results(sim_xml),
         }
-        simulation_pickle = f"{SIM_PICKLE_DIR}/{ix:06d}.pickle"
-        with open(simulation_pickle, "wb") as f:
+        with open(sim_pickle, "wb") as f:
             pickle.dump(result, f)
+    return pickle_files
+
+
+def _tree_to_uint8(tree):
+    return np.frombuffer(pickle.dumps(tree), dtype='uint8')
+
+
+def create_database(pickle_files):
+    db_conn = h5py.File(DB_PATH, "w")
+    parameter_keys = ["birth_rate", "death_rate", "sampling_rate"]
+    for pf in pickle_files:
+        ix_str = re.search(r"\d{6}", pf).group(0)
+        print(f"Processing record {ix_str}")
+        with open(pf, "rb") as f:
+            foobar = pickle.load(f)
+            rec_grp = db_conn.create_group(f"record_{ix_str}")
+            rec_grp.attrs["simulation_xml"] = foobar["simulation_xml"]
+            in_grp = rec_grp.create_group("input")
+            in_grp.create_dataset("tree", data=_tree_to_uint8(foobar["simulation_results"]["tree"]))
+            out_grp = rec_grp.create_group("output")
+            params_grp = out_grp.create_group("parameters")
+            params_grp.create_dataset("epidemic_duration", data=foobar["parameters"]["epidemic_duration"])
+            for key in parameter_keys:
+                param_grp = params_grp.create_group(key)
+                param_grp.create_dataset("values", data=foobar["parameters"][key]["values"])
+                param_grp.create_dataset("change_times", data=foobar["parameters"][key]["change_times"])
+
+    db_conn.close()
 
 
 def main():
-    run_simulations(NUM_SIMS)
-    # record_simulations(NUM_SIMS)
+    create_database(run_simulations(NUM_SIMS))
 
 
 if __name__ == "__main__":
     main()
 
 
-# import json
-# foo = open("out/simulation/pickle/000001.pickle", "rb")
-# foobar = pickle.load(foo)
-# foobar["simulation_results"]["tree"]  = str(pickle.dumps( foobar["simulation_results"]["tree"] ))
-# with open("demo-obj.json", "w") as f:
-#     # pretty print the dictionary called foobar
-#     json.dump(foobar, f, indent=4)
+
+# foo = h5py.File(DB_PATH, "r")
+# pickle.loads(foo['record_000001']['input']['tree'][...].tobytes())
+# foo['record_000001']['output']['parameters']['epidemic_duration'][()]
+# foo['record_000001']['output']['parameters']['birth_rate']['values'][()]
+# foo['record_000001']['output']['parameters']['birth_rate']['change_times'][()]
+# foo.close()
