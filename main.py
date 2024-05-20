@@ -83,7 +83,10 @@ def write_simulation_xml(simulation_xml, parameters):
         )
     _update_attr(b, ".//trajectory", "maxTime", parameters["epidemic_duration"])
     _update_attr(
-        b, ".//logger[@mode='tree']", "fileName", simulation_xml.replace(".xml", ".tree")
+        b,
+        ".//logger[@mode='tree']",
+        "fileName",
+        simulation_xml.replace(".xml", ".tree"),
     )
     _update_attr(
         b, ".//logger[not(@mode)]", "fileName", simulation_xml.replace(".xml", ".traj")
@@ -127,8 +130,7 @@ def run_simulations(num_sims):
     if not os.path.exists(SIM_DIR):
         os.makedirs(SIM_DIR)
     simulation_xml_list = [
-        f"{SIM_DIR}/{sim_num:06d}.xml"
-        for sim_num in range(1, num_sims + 1)
+        f"{SIM_DIR}/{sim_num:06d}.xml" for sim_num in range(1, num_sims + 1)
     ]
     for sim_xml, params in zip(simulation_xml_list, params_list):
         write_simulation_xml(sim_xml, params)
@@ -138,7 +140,9 @@ def run_simulations(num_sims):
         os.makedirs(SIM_PICKLE_DIR)
     # NOTE we only record a single simulation per iteration to avoid
     # memory issues with large trees.
-    pickle_files = [f"{SIM_PICKLE_DIR}/{ix:06d}.pickle" for ix in range(1, num_sims + 1)]
+    pickle_files = [
+        f"{SIM_PICKLE_DIR}/{ix:06d}.pickle" for ix in range(1, num_sims + 1)
+    ]
     for sim_pickle, sim_xml, params in zip(
         pickle_files, simulation_xml_list, params_list
     ):
@@ -153,7 +157,7 @@ def run_simulations(num_sims):
 
 
 def _tree_to_uint8(tree):
-    return np.frombuffer(pickle.dumps(tree), dtype='uint8')
+    return np.frombuffer(pickle.dumps(tree), dtype="uint8")
 
 
 def create_database(pickle_files):
@@ -167,14 +171,22 @@ def create_database(pickle_files):
             rec_grp = db_conn.create_group(f"record_{ix_str}")
             rec_grp.attrs["simulation_xml"] = foobar["simulation_xml"]
             in_grp = rec_grp.create_group("input")
-            in_grp.create_dataset("tree", data=_tree_to_uint8(foobar["simulation_results"]["tree"]))
+            in_grp.create_dataset(
+                "tree", data=_tree_to_uint8(foobar["simulation_results"]["tree"])
+            )
             out_grp = rec_grp.create_group("output")
             params_grp = out_grp.create_group("parameters")
-            params_grp.create_dataset("epidemic_duration", data=foobar["parameters"]["epidemic_duration"])
+            params_grp.create_dataset(
+                "epidemic_duration", data=foobar["parameters"]["epidemic_duration"]
+            )
             for key in parameter_keys:
                 param_grp = params_grp.create_group(key)
-                param_grp.create_dataset("values", data=foobar["parameters"][key]["values"])
-                param_grp.create_dataset("change_times", data=foobar["parameters"][key]["change_times"])
+                param_grp.create_dataset(
+                    "values", data=foobar["parameters"][key]["values"]
+                )
+                param_grp.create_dataset(
+                    "change_times", data=foobar["parameters"][key]["change_times"]
+                )
 
     db_conn.close()
 
@@ -185,7 +197,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
 # foo = h5py.File(DB_PATH, "r")
