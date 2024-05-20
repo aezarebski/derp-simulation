@@ -9,8 +9,11 @@ import re
 import subprocess
 
 
+np.random.seed(42)
+
+
 REMASTER_XML = "src/remaster-template.xml"
-NUM_WORKERS = 4
+NUM_WORKERS = 1
 NUM_SIMS = 10
 SIM_DIR = "out/simulation/remaster"
 SIM_PICKLE_DIR = "out/simulation/pickle"
@@ -30,13 +33,32 @@ def _update_attr(root, xpath: str, attr: str, val) -> None:
 
 
 def random_remaster_parameters():
-    parameters = {}
-    parameters["epidemic_duration"] = 10
-    parameters["num_changes"] = 3
-    parameters["birth_rate"] = {"values": [0.3, 0.3, 0.3], "change_times": [3.0, 6.0]}
-    parameters["death_rate"] = {"values": [0.1, 0.1, 0.1], "change_times": [3.0, 6.0]}
-    parameters["sampling_rate"] = {"values": [0.1], "change_times": []}
-    return parameters
+    """
+    Generate random parameters for the remaster model.
+
+    This is where the simulation is configured, so if you want to
+    change the model used this is the function you want to edit.
+    """
+    p = {}
+    p["epidemic_duration"] = np.random.randint(20, 40 + 1)
+    p["num_changes"] = np.random.randint(2, 5 + 1)
+    cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
+    p["change_times"] = cts
+    # Epidemic parameterisation
+    p["r0"] = np.random.uniform(1.0, 2.0, size=p["num_changes"] + 1)
+    p["net_removal_rate"] = 1 / np.random.uniform(2.0, 14.0)
+    p["sampling_prop"] = np.random.uniform(0.05, 0.95, size=p["num_changes"] + 1)
+    # Rate parameterisation
+    p["birth_rate"] = {"values": p["r0"] * p["net_removal_rate"], "change_times": cts}
+    p["death_rate"] = {
+        "values": p["net_removal_rate"] * (1 - p["sampling_prop"]),
+        "change_times": cts,
+    }
+    p["sampling_rate"] = {
+        "values": p["net_removal_rate"] * p["sampling_prop"],
+        "change_times": cts,
+    }
+    return p
 
 
 def write_simulation_xml(simulation_xml, parameters):
@@ -48,7 +70,7 @@ def write_simulation_xml(simulation_xml, parameters):
         "rate",
         " ".join([str(br) for br in parameters["birth_rate"]["values"]]),
     )
-    if parameters["birth_rate"]["change_times"]:
+    if parameters["birth_rate"]["change_times"].shape[0] > 0:
         _update_attr(
             b,
             ".//reaction[@id='lambdaReaction']",
@@ -61,7 +83,7 @@ def write_simulation_xml(simulation_xml, parameters):
         "rate",
         " ".join([str(dr) for dr in parameters["death_rate"]["values"]]),
     )
-    if parameters["death_rate"]["change_times"]:
+    if parameters["death_rate"]["change_times"].shape[0] > 0:
         _update_attr(
             b,
             ".//reaction[@id='muReaction']",
@@ -74,7 +96,7 @@ def write_simulation_xml(simulation_xml, parameters):
         "rate",
         " ".join([str(sr) for sr in parameters["sampling_rate"]["values"]]),
     )
-    if parameters["sampling_rate"]["change_times"]:
+    if parameters["sampling_rate"]["change_times"].shape[0] > 0:
         _update_attr(
             b,
             ".//reaction[@id='psiReaction']",
@@ -99,6 +121,7 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         """
         $ ./lib/beast/bin/beast -seed 1 -overwrite <simulation_xml>
         """
+        print(f"Running simulation: {simulation_xml}")
         command = ["./lib/beast/bin/beast", "-seed", "1", "-overwrite", simulation_xml]
         try:
             result = subprocess.run(command, check=True, capture_output=True, text=True)
