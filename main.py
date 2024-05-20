@@ -45,17 +45,29 @@ def random_remaster_parameters():
     cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
     p["change_times"] = cts
     # Epidemic parameterisation
-    p["r0"] = np.random.uniform(1.0, 2.0, size=p["num_changes"] + 1)
-    p["net_removal_rate"] = 1 / np.random.uniform(2.0, 14.0)
-    p["sampling_prop"] = np.random.uniform(0.05, 0.95, size=p["num_changes"] + 1)
+    p["r0"] = {
+        "values": np.random.uniform(1.0, 2.0, size=p["num_changes"] + 1),
+        "change_times": cts
+    }
+    p["net_removal_rate"] = {
+        "values": 1 / np.random.uniform(2.0, 14.0),
+        "change_times": []
+    }
+    p["sampling_prop"] = {
+        "values": np.random.uniform(0.05, 0.95, size=p["num_changes"] + 1),
+        "change_times": cts
+    }
     # Rate parameterisation
-    p["birth_rate"] = {"values": p["r0"] * p["net_removal_rate"], "change_times": cts}
+    p["birth_rate"] = {
+        "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
+        "change_times": cts
+    }
     p["death_rate"] = {
-        "values": p["net_removal_rate"] * (1 - p["sampling_prop"]),
+        "values": p["net_removal_rate"]["values"] * (1 - p["sampling_prop"]["values"]),
         "change_times": cts,
     }
     p["sampling_rate"] = {
-        "values": p["net_removal_rate"] * p["sampling_prop"],
+        "values": p["net_removal_rate"]["values"] * p["sampling_prop"]["values"],
         "change_times": cts,
     }
     return p
@@ -185,7 +197,8 @@ def _tree_to_uint8(tree):
 
 def create_database(pickle_files):
     db_conn = h5py.File(DB_PATH, "w")
-    parameter_keys = ["birth_rate", "death_rate", "sampling_rate"]
+    parameter_keys = ["birth_rate", "death_rate", "sampling_rate",
+                      "r0", "net_removal_rate", "sampling_prop"]
     for pf in pickle_files:
         ix_str = re.search(r"\d{6}", pf).group(0)
         print(f"Processing record {ix_str}")
