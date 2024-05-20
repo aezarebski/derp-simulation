@@ -42,3 +42,14 @@ problems.
   + [ ] Write some helper functions to read data out of the database
     in an efficient way.
   + [ ] Document how to use the database file and heler functions.
+
+* Notes
+
+1. Activate the =derp= environment in conda and run =python main.py=
+   to run the whole compute. This will produce a bunch of pickle
+   files, each containing a single record of the dataset and a HDF5
+   file which contains the pickled trees as binary blobs and the
+   various parameters and statistics that we might be interested in
+   estimating from those trees. The relevant files are all defined at
+   the start of =main.py= as global variables.
+2. Run =python clean.py= to remove output to start again fresh.
