@@ -10,29 +10,20 @@ problems.
 
 - [-] Provide a single database file and some helper functions to read
   trees out and their associated metadata.
-  + [ ] Establish the prior distribution to draw simulation parameters
+  + [X] Establish the prior distribution to draw simulation parameters
     from, these will need to be sufficiently large to cover the range
     of plausible values for the use cases.
-  + [ ] Put the whole computational pipeline into snakemake so it is
-    easy to maintain in the future. During development we can use some
-    small examples and just run them with shell scripts.
-    * [ ] Include a helper script to lint the codebase.
   + [ ] Estimate an appropriate size of the database, we can use
     10,000 as a working number of samples.
-  + [ ] There should be some visualisation functionality to help inspect the resulting data set.
-    * [ ] Histograms of the simulation parameters used
-    * [ ] Histograms of the properties of the trees resulting
-    * [ ] Correlations between the properties
-    * [ ] Visulisations of the individual trees simulated
   + [-] Store the trees and metadata in a single database file.
     * [X] Write a function that simulates the simulation parameters:
       - number of rate changes
       - duration of epidemic
       - birth, death and sampling rates
-    * [ ] Write a function that takes the metadata and simulates an
+    * [X] Write a function that takes the metadata and simulates an
       epidemic with remaster.
-      - [ ] the remaster template file to run the simulation
-      - [ ] the code to load the simulation parameters into the
+      - [X] the remaster template file to run the simulation
+      - [X] the code to load the simulation parameters into the
         template
     * [ ] Write a function that processes the epidemic simulation to
       extract the desired features: prevalence, reproduction number,
@@ -42,6 +33,7 @@ problems.
   + [ ] Write some helper functions to read data out of the database
     in an efficient way.
   + [ ] Document how to use the database file and heler functions.
+  + [ ] Put a CLI on the =main.py= script.
 
 * Notes
 
@@ -52,4 +44,5 @@ problems.
    various parameters and statistics that we might be interested in
    estimating from those trees. The relevant files are all defined at
    the start of =main.py= as global variables.
-2. Run =python clean.py= to remove output to start again fresh.
+2. Run =python clean.py= to remove output to start again fresh. Run
+   =black main.py= to lint the main script.
