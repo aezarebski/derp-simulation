@@ -36,7 +36,7 @@ problems.
       into the database.
   + [ ] Write some helper functions to read data out of the database
     in an efficient way.
-  + [ ] Document how to use the database file and heler functions.
+  + [ ] Document how to use the database file and helper functions.
   + [ ] Put a CLI on the =main.py= script.
 
 * Notes
@@ -48,5 +48,10 @@ problems.
    various parameters and statistics that we might be interested in
    estimating from those trees. The relevant files are all defined at
    the start of =main.py= as global variables.
-2. Run =python clean.py= to remove output to start again fresh. Run
-   =black main.py= to lint the main script.
+2. To set up BEAST2 to do the simulation you can run the
+   =src/setuplib.sh= script which will download BEAST2. Run =python
+   clean.py= to remove output to start again fresh. Run =black
+   main.py= to lint the main script.
+3. If you want a GUI to inspect the output HDF5 file, the [[https://github.com/HDFGroup/hdf-compass][HDFCompass]]
+   tool provides a simple way to inspect the data that has been
+   generated.
