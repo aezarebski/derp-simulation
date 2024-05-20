@@ -263,11 +263,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# foo = h5py.File(DB_PATH, "r")
-# pickle.loads(foo['record_000001']['input']['tree'][...].tobytes())
-# foo['record_000001']['output']['parameters']['epidemic_duration'][()]
-# foo['record_000001']['output']['parameters']['birth_rate']['values'][()]
-# foo['record_000001']['output']['parameters']['birth_rate']['change_times'][()]
-# foo.close()
