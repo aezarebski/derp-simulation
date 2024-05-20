@@ -25,10 +25,14 @@ problems.
       - [X] the remaster template file to run the simulation
       - [X] the code to load the simulation parameters into the
         template
-    * [ ] Write a function that processes the epidemic simulation to
-      extract the desired features: prevalence, reproduction number,
-      and cumulative infections.
-    * [ ] Write a function that loads all the data from one simulation
+    * [X] Write a function that processes the epidemic simulation to
+      extract the desired features:
+      - [X] prevalence
+      - [X] time of last sequence
+      - [X] tree height
+      - [X] reproduction number
+      - [X] cumulative infections
+    * [X] Write a function that loads all the data from one simulation
       into the database.
   + [ ] Write some helper functions to read data out of the database
     in an efficient way.

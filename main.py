@@ -4,6 +4,7 @@ import h5py
 from lxml import etree
 import numpy as np
 import os
+import pandas as pd
 import pickle
 import re
 import subprocess
@@ -157,7 +158,23 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
 def read_simulation_results(simulation_xml):
     tree_generator = Phylo.parse(simulation_xml.replace("xml", "tree"), "nexus")
     tree = next(tree_generator).root
-    return {"tree": tree}
+    traj_file = simulation_xml.replace("xml", "traj")
+    # read the time of the last sequenced sample and the prevalence at
+    # that time.
+    traj_df = pd.read_csv(traj_file, sep="\t")
+    psi_df = traj_df[traj_df["population"] == "Psi"]
+    psi_df = psi_df[psi_df["value"] == psi_df["value"].max()]
+    psi_df = psi_df[psi_df["t"] == psi_df["t"].min()]
+    last_psi_time = psi_df["t"].values[0]
+    last_rows = traj_df[traj_df["t"] == last_psi_time]
+    last_X = last_rows[last_rows["population"] == "X"]["value"].values[0]
+    last_Psi = last_rows[last_rows["population"] == "Psi"]["value"].values[0]
+    last_Mu = last_rows[last_rows["population"] == "Mu"]["value"].values[0]
+    return {"tree": tree,
+            "tree_height": max(tree.depths().values()),
+            "present": last_psi_time,
+            "present_prevalence": last_X,
+            "present_cumulative": last_Psi + last_Mu + last_X}
 
 
 def run_simulations(num_sims):
@@ -210,6 +227,12 @@ def create_database(pickle_files):
             in_grp.create_dataset(
                 "tree", data=_tree_to_uint8(foobar["simulation_results"]["tree"])
             )
+            in_grp.create_dataset(
+                "tree_height", data=foobar["simulation_results"]["tree_height"]
+            )
+            in_grp.create_dataset(
+                "present", data=foobar["simulation_results"]["present"]
+            )
             out_grp = rec_grp.create_group("output")
             params_grp = out_grp.create_group("parameters")
             params_grp.create_dataset(
@@ -223,7 +246,14 @@ def create_database(pickle_files):
                 param_grp.create_dataset(
                     "change_times", data=foobar["parameters"][key]["change_times"]
                 )
-
+            out_grp.create_dataset(
+                "present_prevalence",
+                data=foobar["simulation_results"]["present_prevalence"],
+            )
+            out_grp.create_dataset(
+                "present_cumulative",
+                data=foobar["simulation_results"]["present_cumulative"],
+            )
     db_conn.close()
 
 
