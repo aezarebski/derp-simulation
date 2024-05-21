@@ -29,12 +29,10 @@ problems.
       - [X] the code to load the simulation parameters into the
         template
     * [X] Write a function that processes the epidemic simulation to
-      extract the desired features:
-      - [X] prevalence
-      - [X] time of last sequence
-      - [X] tree height
-      - [X] reproduction number
-      - [X] cumulative infections
+      extract the desired features for input/output.
+    * [ ] Split the creation of the intermediate pickle files across
+      multiple workers in the same way we split the BEAST2
+      simulations.
     * [X] Write a function that loads all the data from one simulation
       into the database.
   + [X] Document how to use the database file.
