@@ -1,5 +1,6 @@
 from Bio import Phylo
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import datetime
 import h5py
 from lxml import etree
 import numpy as np
@@ -219,9 +220,11 @@ def create_database(pickle_files):
     db_conn = h5py.File(DB_PATH, "w")
     parameter_keys = ["birth_rate", "death_rate", "sampling_rate",
                       "r0", "net_removal_rate", "sampling_prop"]
+    num_sims = 0
     for pf in pickle_files:
         if not os.path.exists(pf):
             continue
+        num_sims += 1
         ix_str = re.search(r"\d{6}", pf).group(0)
         print(f"Processing record {ix_str}")
         with open(pf, "rb") as f:
@@ -259,6 +262,8 @@ def create_database(pickle_files):
                 "present_cumulative",
                 data=foobar["simulation_results"]["present_cumulative"],
             )
+    db_conn.attrs['num_simulations'] = num_sims
+    db_conn.attrs['creation_date'] = datetime.datetime.now().isoformat()
     db_conn.close()
 
 

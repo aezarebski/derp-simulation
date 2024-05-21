@@ -15,7 +15,10 @@ problems.
     of plausible values for the use cases.
   + [ ] Estimate an appropriate size of the database, we can use
     10,000 as a working number of samples.
-  + [-] Store the trees and metadata in a single database file.
+  + [X] This should be robust to failed simulations and include basic
+    metadata of the simulation such as the dataset size and the date
+    it was created.
+  + [X] Store the trees and metadata in a single database file.
     * [X] Write a function that simulates the simulation parameters:
       - number of rate changes
       - duration of epidemic
