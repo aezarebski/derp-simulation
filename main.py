@@ -191,21 +191,24 @@ def run_simulations(num_sims):
     if not os.path.exists(SIM_PICKLE_DIR):
         os.makedirs(SIM_PICKLE_DIR)
     # NOTE we only record a single simulation per iteration to avoid
-    # memory issues with large trees.
+    # memory issues with large trees. If the tree file is missing,
+    # then we skip this simulation.
     pickle_files = [
         f"{SIM_PICKLE_DIR}/{ix:06d}.pickle" for ix in range(1, num_sims + 1)
     ]
     for sim_pickle, sim_xml, params in zip(
         pickle_files, sim_xml_list, params_list
     ):
-        result = {
-            "parameters": params,
-            "simulation_xml": sim_xml,
-            "simulation_results": read_simulation_results(sim_xml),
-        }
-        with open(sim_pickle, "wb") as f:
-            pickle.dump(result, f)
-    return pickle_files
+        tree_file = os.path.basename(sim_xml).replace(".xml", ".tree")
+        if os.path.exists(f"{SIM_DIR}/{tree_file}"):
+            result = {
+                "parameters": params,
+                "simulation_xml": sim_xml,
+                "simulation_results": read_simulation_results(sim_xml),
+            }
+            with open(sim_pickle, "wb") as f:
+                pickle.dump(result, f)
+    return [f for f in pickle_files if os.path.exists(f)]
 
 
 def _tree_to_uint8(tree):
@@ -217,6 +220,8 @@ def create_database(pickle_files):
     parameter_keys = ["birth_rate", "death_rate", "sampling_rate",
                       "r0", "net_removal_rate", "sampling_prop"]
     for pf in pickle_files:
+        if not os.path.exists(pf):
+            continue
         ix_str = re.search(r"\d{6}", pf).group(0)
         print(f"Processing record {ix_str}")
         with open(pf, "rb") as f:
@@ -258,7 +263,8 @@ def create_database(pickle_files):
 
 
 def main():
-    create_database(run_simulations(NUM_SIMS))
+    sim_pickles = run_simulations(NUM_SIMS)
+    create_database(sim_pickles)
 
 
 if __name__ == "__main__":
