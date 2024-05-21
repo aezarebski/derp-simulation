@@ -181,13 +181,13 @@ def run_simulations(num_sims):
     params_list = [random_remaster_parameters() for _ in range(num_sims)]
     if not os.path.exists(SIM_DIR):
         os.makedirs(SIM_DIR)
-    simulation_xml_list = [
+    sim_xml_list = [
         f"{SIM_DIR}/{sim_num:06d}.xml" for sim_num in range(1, num_sims + 1)
     ]
-    for sim_xml, params in zip(simulation_xml_list, params_list):
+    for sim_xml, params in zip(sim_xml_list, params_list):
         write_simulation_xml(sim_xml, params)
 
-    run_beast2_simulations_parallel(simulation_xml_list, num_jobs=NUM_WORKERS)
+    run_beast2_simulations_parallel(sim_xml_list, num_jobs=NUM_WORKERS)
     if not os.path.exists(SIM_PICKLE_DIR):
         os.makedirs(SIM_PICKLE_DIR)
     # NOTE we only record a single simulation per iteration to avoid
@@ -196,7 +196,7 @@ def run_simulations(num_sims):
         f"{SIM_PICKLE_DIR}/{ix:06d}.pickle" for ix in range(1, num_sims + 1)
     ]
     for sim_pickle, sim_xml, params in zip(
-        pickle_files, simulation_xml_list, params_list
+        pickle_files, sim_xml_list, params_list
     ):
         result = {
             "parameters": params,
