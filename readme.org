@@ -82,4 +82,6 @@ db_conn.close()
    main.py= to lint the main script.
 3. If you want a GUI to inspect the output HDF5 file, the [[https://github.com/HDFGroup/hdf-compass][HDFCompass]]
    tool provides a simple way to inspect the data that has been
-   generated.
+   generated. There is some basic information about the simulation
+   stored as attributes in the HDF5 file. This includes the date of
+   creation and the size of the dataset.
