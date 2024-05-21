@@ -15,8 +15,8 @@ np.random.seed(42)
 
 
 REMASTER_XML = "src/remaster-template.xml"
-NUM_WORKERS = 1
-NUM_SIMS = 10
+NUM_WORKERS = 4
+NUM_SIMS = 80
 SIM_DIR = "out/simulation/remaster"
 SIM_PICKLE_DIR = "out/simulation/pickle"
 DB_PATH = "out/dataset-demo.hdf5"
@@ -180,6 +180,30 @@ def read_simulation_results(simulation_xml):
     }
 
 
+def pickle_simulation_result(sim_pickle, sim_xml, params):
+    tree_file = os.path.basename(sim_xml).replace(".xml", ".tree")
+    if os.path.exists(f"{SIM_DIR}/{tree_file}"):
+        result = {
+            "parameters": params,
+            "simulation_xml": sim_xml,
+            "simulation_results": read_simulation_results(sim_xml),
+        }
+        with open(sim_pickle, "wb") as f:
+            pickle.dump(result, f)
+        return sim_pickle
+    return None
+
+
+def run_pickling_parallel(pickle_files, sim_xml_list, params_list):
+    with ThreadPoolExecutor(max_workers=NUM_WORKERS) as executor:
+        futures = [
+            executor.submit(pickle_simulation_result, sim_pickle, sim_xml, params)
+            for sim_pickle, sim_xml, params in zip(pickle_files, sim_xml_list, params_list)
+        ]
+        completed_files = [future.result() for future in as_completed(futures)]
+    return [f for f in completed_files if f is not None]
+
+
 def run_simulations(num_sims):
     params_list = [random_remaster_parameters() for _ in range(num_sims)]
     if not os.path.exists(SIM_DIR):
@@ -193,23 +217,10 @@ def run_simulations(num_sims):
     run_beast2_simulations_parallel(sim_xml_list, num_jobs=NUM_WORKERS)
     if not os.path.exists(SIM_PICKLE_DIR):
         os.makedirs(SIM_PICKLE_DIR)
-    # NOTE we only record a single simulation per iteration to avoid
-    # memory issues with large trees. If the tree file is missing,
-    # then we skip this simulation.
     pickle_files = [
         f"{SIM_PICKLE_DIR}/{ix:06d}.pickle" for ix in range(1, num_sims + 1)
     ]
-    for sim_pickle, sim_xml, params in zip(pickle_files, sim_xml_list, params_list):
-        tree_file = os.path.basename(sim_xml).replace(".xml", ".tree")
-        if os.path.exists(f"{SIM_DIR}/{tree_file}"):
-            result = {
-                "parameters": params,
-                "simulation_xml": sim_xml,
-                "simulation_results": read_simulation_results(sim_xml),
-            }
-            with open(sim_pickle, "wb") as f:
-                pickle.dump(result, f)
-    return [f for f in pickle_files if os.path.exists(f)]
+    return run_pickling_parallel(pickle_files, sim_xml_list, params_list)
 
 
 def _tree_to_uint8(tree):

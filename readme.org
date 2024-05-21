@@ -30,7 +30,7 @@ problems.
         template
     * [X] Write a function that processes the epidemic simulation to
       extract the desired features for input/output.
-    * [ ] Split the creation of the intermediate pickle files across
+    * [X] Split the creation of the intermediate pickle files across
       multiple workers in the same way we split the BEAST2
       simulations.
     * [X] Write a function that loads all the data from one simulation
