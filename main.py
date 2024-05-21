@@ -49,20 +49,20 @@ def random_remaster_parameters():
     # Epidemic parameterisation
     p["r0"] = {
         "values": np.random.uniform(1.0, 2.0, size=p["num_changes"] + 1),
-        "change_times": cts
+        "change_times": cts,
     }
     p["net_removal_rate"] = {
         "values": 1 / np.random.uniform(2.0, 14.0),
-        "change_times": []
+        "change_times": [],
     }
     p["sampling_prop"] = {
         "values": np.random.uniform(0.05, 0.95, size=p["num_changes"] + 1),
-        "change_times": cts
+        "change_times": cts,
     }
     # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
-        "change_times": cts
+        "change_times": cts,
     }
     p["death_rate"] = {
         "values": p["net_removal_rate"]["values"] * (1 - p["sampling_prop"]["values"]),
@@ -171,11 +171,13 @@ def read_simulation_results(simulation_xml):
     last_X = last_rows[last_rows["population"] == "X"]["value"].values[0]
     last_Psi = last_rows[last_rows["population"] == "Psi"]["value"].values[0]
     last_Mu = last_rows[last_rows["population"] == "Mu"]["value"].values[0]
-    return {"tree": tree,
-            "tree_height": max(tree.depths().values()),
-            "present": last_psi_time,
-            "present_prevalence": last_X,
-            "present_cumulative": last_Psi + last_Mu + last_X}
+    return {
+        "tree": tree,
+        "tree_height": max(tree.depths().values()),
+        "present": last_psi_time,
+        "present_prevalence": last_X,
+        "present_cumulative": last_Psi + last_Mu + last_X,
+    }
 
 
 def run_simulations(num_sims):
@@ -197,9 +199,7 @@ def run_simulations(num_sims):
     pickle_files = [
         f"{SIM_PICKLE_DIR}/{ix:06d}.pickle" for ix in range(1, num_sims + 1)
     ]
-    for sim_pickle, sim_xml, params in zip(
-        pickle_files, sim_xml_list, params_list
-    ):
+    for sim_pickle, sim_xml, params in zip(pickle_files, sim_xml_list, params_list):
         tree_file = os.path.basename(sim_xml).replace(".xml", ".tree")
         if os.path.exists(f"{SIM_DIR}/{tree_file}"):
             result = {
@@ -218,8 +218,14 @@ def _tree_to_uint8(tree):
 
 def create_database(pickle_files):
     db_conn = h5py.File(DB_PATH, "w")
-    parameter_keys = ["birth_rate", "death_rate", "sampling_rate",
-                      "r0", "net_removal_rate", "sampling_prop"]
+    parameter_keys = [
+        "birth_rate",
+        "death_rate",
+        "sampling_rate",
+        "r0",
+        "net_removal_rate",
+        "sampling_prop",
+    ]
     num_sims = 0
     for pf in pickle_files:
         if not os.path.exists(pf):
@@ -262,8 +268,8 @@ def create_database(pickle_files):
                 "present_cumulative",
                 data=foobar["simulation_results"]["present_cumulative"],
             )
-    db_conn.attrs['num_simulations'] = num_sims
-    db_conn.attrs['creation_date'] = datetime.datetime.now().isoformat()
+    db_conn.attrs["num_simulations"] = num_sims
+    db_conn.attrs["creation_date"] = datetime.datetime.now().isoformat()
     db_conn.close()
 
 
