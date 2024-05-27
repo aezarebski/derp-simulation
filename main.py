@@ -15,8 +15,8 @@ np.random.seed(42)
 
 
 REMASTER_XML = "src/remaster-template.xml"
-NUM_WORKERS = 4
-NUM_SIMS = 80
+NUM_WORKERS = 3
+NUM_SIMS = 20
 SIM_DIR = "out/simulation/remaster"
 SIM_PICKLE_DIR = "out/simulation/pickle"
 DB_PATH = "out/dataset-demo.hdf5"
@@ -40,23 +40,33 @@ def random_remaster_parameters():
 
     This is where the simulation is configured, so if you want to
     change the model used this is the function you want to edit.
+
+    Note that we are using a Dirichlet distribution to generate the
+    change times. This is to avoid the change times being too close
+    together, which is biological implausible. Also, to reduce the
+    variability in the parameter values, we shrink the values towards
+    their mean. This leads to smoother parameter trajectories but
+    maintains the average value.
     """
     p = {}
     p["epidemic_duration"] = np.random.randint(20, 40 + 1)
-    p["num_changes"] = np.random.randint(2, 5 + 1)
-    cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
+    p["num_changes"] = np.random.randint(1, 2 + 1)
+    alpha_param = 3
+    # cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
+    cts = p["epidemic_duration"] * np.cumsum(np.random.dirichlet([alpha_param] * (p["num_changes"] + 1)))[0:-1]
     p["change_times"] = cts
     # Epidemic parameterisation
+    shrink = lambda x: 0.5 * x + (1 - 0.5) * x.mean()
     p["r0"] = {
-        "values": np.random.uniform(1.0, 2.0, size=p["num_changes"] + 1),
+        "values": shrink(np.random.uniform(1.0, 2.0, size=p["num_changes"] + 1)),
         "change_times": cts,
     }
     p["net_removal_rate"] = {
-        "values": 1 / np.random.uniform(2.0, 14.0),
+        "values": shrink(1 / np.random.uniform(2.0, 14.0)),
         "change_times": [],
     }
     p["sampling_prop"] = {
-        "values": np.random.uniform(0.05, 0.95, size=p["num_changes"] + 1),
+        "values": shrink(np.random.uniform(0.05, 0.50, size=p["num_changes"] + 1)),
         "change_times": cts,
     }
     # Rate parameterisation
