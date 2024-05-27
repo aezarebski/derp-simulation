@@ -54,8 +54,8 @@ tree_times_df = pd.DataFrame(
 
 (
     p9.ggplot()
-    + p9.geom_hline(data=df, mapping=p9.aes(yintercept="key_num"))
-    + p9.geom_point(data=df, mapping=p9.aes(x="time", y="key_num"))
+    + p9.geom_hline(data=change_time_df, mapping=p9.aes(yintercept="key_num"))
+    + p9.geom_point(data=change_time_df, mapping=p9.aes(x="time", y="key_num"))
     + p9.geom_point(
         data=tree_times_df, mapping=p9.aes(x="present", y="key_num"), color="red"
     )
