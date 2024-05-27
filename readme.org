@@ -18,6 +18,8 @@ problems.
     * [ ] Histogram of the last sequenced sample time
     * [ ] Histogram of prevalence
     * [ ] Histogram of cumulative infections
+    * [ ] A single simulation visualisation showing the LTT and the
+      rates through time.
   + [ ] There should be a file to specify the conda environment used
     and instructions on how to recreate this.
   + [X] Establish the prior distribution to draw simulation parameters
