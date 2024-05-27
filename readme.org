@@ -10,6 +10,16 @@ problems.
 
 - [-] Provide a single database file and some helper functions to read
   trees out and their associated metadata.
+  + [ ] There should be a bunch of visualisation so that we can get a
+    feel for if the parameters of the simulation are at all plausible.
+    * [ ] Use a =visualisation.org= file in the same way as the
+      training repository.
+    * [ ] Visualisation of change points
+    * [ ] Histogram of the last sequenced sample time
+    * [ ] Histogram of prevalence
+    * [ ] Histogram of cumulative infections
+  + [ ] There should be a file to specify the conda environment used
+    and instructions on how to recreate this.
   + [X] Establish the prior distribution to draw simulation parameters
     from, these will need to be sufficiently large to cover the range
     of plausible values for the use cases.
@@ -35,7 +45,9 @@ problems.
       simulations.
     * [X] Write a function that loads all the data from one simulation
       into the database.
-  + [X] Document how to use the database file.
+  + [ ] Document how to use the database file.
+    * [ ] There should be a helper function which explains how to read
+      trees and their corresponding record out.
   + [ ] Put a CLI on the =main.py= script.
 
 * Usage
