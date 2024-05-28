@@ -1,4 +1,4 @@
-# [[file:vis.org::*Visualisation][Visualisation:1]]
+# [[file:vis.org::*Packages and global variables][Packages and global variables:1]]
 import h5py
 import json
 import os
@@ -8,8 +8,9 @@ import plotly.io as pio
 import plotnine as p9
 
 DB_PATH = "out/dataset-demo.hdf5"
+# Packages and global variables:1 ends here
 
-
+# [[file:vis.org::*Setting up dataframes from the simulated data][Setting up dataframes from the simulated data:1]]
 def _record_summary(key, db_conn):
     return {
         "key": key,
@@ -50,8 +51,9 @@ tree_times_df = pd.DataFrame(
         for dd in data_dicts
     ]
 )
+# Setting up dataframes from the simulated data:1 ends here
 
-
+# [[file:vis.org::*Simulation timelines][Simulation timelines:1]]
 timelines_p9 = (
     p9.ggplot()
     + p9.geom_hline(
@@ -71,8 +73,9 @@ timelines_p9 = (
 )
 
 timelines_p9.save("out/plots/timelines.png", width=10, height=10, dpi=300)
+# Simulation timelines:1 ends here
 
-
+# [[file:vis.org::*Distribution of last sequence times][Distribution of last sequence times:1]]
 last_seq_hist_p9 = (
     p9.ggplot()
     + p9.geom_histogram(
@@ -88,5 +91,4 @@ last_seq_hist_p9 = (
 
 # Save the plot
 last_seq_hist_p9.save("out/plots/last_seq_hist.png", width=10, height=10, dpi=300)
-
-# Visualisation:1 ends here
+# Distribution of last sequence times:1 ends here
