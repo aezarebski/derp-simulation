@@ -17,17 +17,17 @@ else:
     CONFIG_JSON = os.sys.argv[1]
 
 with open(CONFIG_JSON, "r") as file:
-    config = json.load(file)
+    CONFIG = json.load(file)
 
-np.random.seed(config['seed'])
+np.random.seed(CONFIG['seed'])
 
 
-REMASTER_XML = config['remaster-xml']
-NUM_WORKERS = config['num-workers']
-NUM_SIMS = config['num-simulations']
-SIM_DIR = f"out/{config['simulation-name']}/simulation/remaster"
-SIM_PICKLE_DIR = f"out/{config['simulation-name']}/simulation/pickle"
-DB_PATH = f"out/{config['simulation-name']}/{config['output-hdf5']}"
+REMASTER_XML = CONFIG['remaster-xml']
+NUM_WORKERS = CONFIG['num-workers']
+NUM_SIMS = CONFIG['num-simulations']
+SIM_DIR = f"out/{CONFIG['simulation-name']}/simulation/remaster"
+SIM_PICKLE_DIR = f"out/{CONFIG['simulation-name']}/simulation/pickle"
+DB_PATH = f"out/{CONFIG['simulation-name']}/{CONFIG['output-hdf5']}"
 
 
 if os.path.exists(DB_PATH):
@@ -56,9 +56,10 @@ def random_remaster_parameters():
     their mean. This leads to smoother parameter trajectories but
     maintains the average value.
     """
+    sim_params = CONFIG['simulation-hyperparameters']
     p = {}
-    p["epidemic_duration"] = np.random.randint(20, 40 + 1)
-    p["num_changes"] = np.random.randint(1, 2 + 1)
+    p["epidemic_duration"] = np.random.randint(sim_params['duration-range'][0], sim_params['duration-range'][1] + 1)
+    p["num_changes"] = np.random.randint(sim_params['num-changes'][0], sim_params['num-changes'][1] + 1)
     alpha_param = 3
     # cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
     cts = (
