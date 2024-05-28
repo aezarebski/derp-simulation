@@ -7,7 +7,7 @@ import pickle
 import plotly.io as pio
 import plotnine as p9
 
-DB_PATH = "out/dataset-demo.hdf5"
+DB_PATH = "out/debugging/dataset-demo.hdf5"
 # Packages and global variables:1 ends here
 
 # [[file:vis.org::*Setting up dataframes from the simulated data][Setting up dataframes from the simulated data:1]]

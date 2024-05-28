@@ -1,6 +1,6 @@
 {
     "simulation-name": "debugging",
-    "output-hdf5": "dataset-demo.hdf5"
+    "output-hdf5": "dataset-demo.hdf5",
     "seed": 42,
     "remaster-xml": "src/remaster-template.xml",
     "num-simulations": 20,

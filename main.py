@@ -2,6 +2,7 @@ from Bio import Phylo
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime
 import h5py
+import json
 from lxml import etree
 import numpy as np
 import os
@@ -72,7 +73,7 @@ def random_remaster_parameters():
         "change_times": cts,
     }
     p["net_removal_rate"] = {
-        "values": shrink(1 / np.random.uniform(2.0, 14.0)),
+        "values": shrink(1 / np.random.uniform(2.0, 14.0, size = 1)),
         "change_times": [],
     }
     p["sampling_prop"] = {
