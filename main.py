@@ -10,16 +10,23 @@ import pickle
 import re
 import subprocess
 
+if len(os.sys.argv) < 2:
+    CONFIG_JSON = "config/debugging.json"
+else:
+    CONFIG_JSON = os.sys.argv[1]
 
-np.random.seed(42)
+with open(CONFIG_JSON, "r") as file:
+    config = json.load(file)
+
+np.random.seed(config['seed'])
 
 
-REMASTER_XML = "src/remaster-template.xml"
-NUM_WORKERS = 3
-NUM_SIMS = 20
-SIM_DIR = "out/simulation/remaster"
-SIM_PICKLE_DIR = "out/simulation/pickle"
-DB_PATH = "out/dataset-demo.hdf5"
+REMASTER_XML = config['remaster-xml']
+NUM_WORKERS = config['num-workers']
+NUM_SIMS = config['num-simulations']
+SIM_DIR = f"out/{config['simulation-name']}/simulation/remaster"
+SIM_PICKLE_DIR = f"out/{config['simulation-name']}/simulation/pickle"
+DB_PATH = f"out/{config['simulation-name']}/{config['output-hdf5']}"
 
 
 if os.path.exists(DB_PATH):
