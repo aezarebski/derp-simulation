@@ -10,6 +10,18 @@ problems.
 
 - [-] Provide a single database file and some helper functions to read
   trees out and their associated metadata.
+  + [ ] There should be a bunch of visualisation so that we can get a
+    feel for if the parameters of the simulation are at all plausible.
+    * [ ] Use a =visualisation.org= file in the same way as the
+      training repository.
+    * [X] Visualisation of change points
+    * [X] Histogram of the last sequenced sample time
+    * [ ] Histogram of prevalence
+    * [ ] Histogram of cumulative infections
+    * [ ] A single simulation visualisation showing the LTT and the
+      rates through time.
+  + [X] There should be a file to specify the conda environment used
+    and instructions on how to recreate this.
   + [X] Establish the prior distribution to draw simulation parameters
     from, these will need to be sufficiently large to cover the range
     of plausible values for the use cases.
@@ -35,7 +47,9 @@ problems.
       simulations.
     * [X] Write a function that loads all the data from one simulation
       into the database.
-  + [X] Document how to use the database file.
+  + [ ] Document how to use the database file.
+    * [ ] There should be a helper function which explains how to read
+      trees and their corresponding record out.
   + [ ] Put a CLI on the =main.py= script.
 
 * Usage
@@ -65,6 +79,15 @@ for k in db_conn.keys():
 db_conn.close()
 #+end_src
 
+** Conda environment
+
+A conda environment to run this simulation can be created from the
+=environment.yaml= file by running the following command:
+
+#+begin_src sh
+  conda env create -f environment.yaml
+#+end_src
+
 * Notes
 
 1. Activate the =derp= environment in conda and run =python main.py=
@@ -76,8 +99,9 @@ db_conn.close()
    the start of =main.py= as global variables.
 2. To set up BEAST2 to do the simulation you can run the
    =src/setuplib.sh= script which will download BEAST2. Run =python
-   clean.py= to remove output to start again fresh. Run =black
-   main.py= to lint the main script.
+   clean.py= to remove output to start again fresh. Run =bash
+   src/housekeeping.sh= to update =environment.yaml= and lint the
+   code.
 3. If you want a GUI to inspect the output HDF5 file, the [[https://github.com/HDFGroup/hdf-compass][HDFCompass]]
    tool provides a simple way to inspect the data that has been
    generated. There is some basic information about the simulation
