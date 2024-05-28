@@ -10,7 +10,7 @@ problems.
 
 - [-] Provide a single database file and some helper functions to read
   trees out and their associated metadata.
-  + [ ] There should be a bunch of visualisation so that we can get a
+  + [-] There should be a bunch of visualisation so that we can get a
     feel for if the parameters of the simulation are at all plausible.
     * [ ] Use a =visualisation.org= file in the same way as the
       training repository.
@@ -47,10 +47,18 @@ problems.
       simulations.
     * [X] Write a function that loads all the data from one simulation
       into the database.
+  + [ ] The simulation should be configured by a plain text file so
+    that it is easy to toggle between a small debugging simulation and
+    a large one for downstream use.
+    * [ ] The configuration file sould be the only command line
+      argument taken by =main.py=
+    * [ ] The visualisation script should probably have the
+      configuration script hardcoded since this will usually be run
+      interactively and in this case it should be easy enough to
+      change it if necessary.
   + [ ] Document how to use the database file.
     * [ ] There should be a helper function which explains how to read
       trees and their corresponding record out.
-  + [ ] Put a CLI on the =main.py= script.
 
 * Usage
 
