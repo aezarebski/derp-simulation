@@ -53,7 +53,10 @@ def random_remaster_parameters():
     p["num_changes"] = np.random.randint(1, 2 + 1)
     alpha_param = 3
     # cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
-    cts = p["epidemic_duration"] * np.cumsum(np.random.dirichlet([alpha_param] * (p["num_changes"] + 1)))[0:-1]
+    cts = (
+        p["epidemic_duration"]
+        * np.cumsum(np.random.dirichlet([alpha_param] * (p["num_changes"] + 1)))[0:-1]
+    )
     p["change_times"] = cts
     # Epidemic parameterisation
     shrink = lambda x: 0.5 * x + (1 - 0.5) * x.mean()
@@ -208,7 +211,9 @@ def run_pickling_parallel(pickle_files, sim_xml_list, params_list):
     with ThreadPoolExecutor(max_workers=NUM_WORKERS) as executor:
         futures = [
             executor.submit(pickle_simulation_result, sim_pickle, sim_xml, params)
-            for sim_pickle, sim_xml, params in zip(pickle_files, sim_xml_list, params_list)
+            for sim_pickle, sim_xml, params in zip(
+                pickle_files, sim_xml_list, params_list
+            )
         ]
         completed_files = [future.result() for future in as_completed(futures)]
     return [f for f in completed_files if f is not None]
