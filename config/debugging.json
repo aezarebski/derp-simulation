@@ -1,0 +1,12 @@
+{
+    "simulation-name": "debugging",
+    "output-hdf5": "dataset-demo.hdf5",
+    "seed": 42,
+    "remaster-xml": "src/remaster-template.xml",
+    "num-simulations": 20,
+    "num-workers": 3,
+    "simulation-hyperparameters": {
+	"duration-range": [20, 40],
+	"num-changes": [1, 2]
+    }
+}

@@ -2,6 +2,7 @@ from Bio import Phylo
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import datetime
 import h5py
+import json
 from lxml import etree
 import numpy as np
 import os
@@ -10,16 +11,23 @@ import pickle
 import re
 import subprocess
 
+if len(os.sys.argv) < 2:
+    CONFIG_JSON = "config/debugging.json"
+else:
+    CONFIG_JSON = os.sys.argv[1]
 
-np.random.seed(42)
+with open(CONFIG_JSON, "r") as file:
+    CONFIG = json.load(file)
+
+np.random.seed(CONFIG['seed'])
 
 
-REMASTER_XML = "src/remaster-template.xml"
-NUM_WORKERS = 3
-NUM_SIMS = 20
-SIM_DIR = "out/simulation/remaster"
-SIM_PICKLE_DIR = "out/simulation/pickle"
-DB_PATH = "out/dataset-demo.hdf5"
+REMASTER_XML = CONFIG['remaster-xml']
+NUM_WORKERS = CONFIG['num-workers']
+NUM_SIMS = CONFIG['num-simulations']
+SIM_DIR = f"out/{CONFIG['simulation-name']}/simulation/remaster"
+SIM_PICKLE_DIR = f"out/{CONFIG['simulation-name']}/simulation/pickle"
+DB_PATH = f"out/{CONFIG['simulation-name']}/{CONFIG['output-hdf5']}"
 
 
 if os.path.exists(DB_PATH):
@@ -48,9 +56,10 @@ def random_remaster_parameters():
     their mean. This leads to smoother parameter trajectories but
     maintains the average value.
     """
+    sim_params = CONFIG['simulation-hyperparameters']
     p = {}
-    p["epidemic_duration"] = np.random.randint(20, 40 + 1)
-    p["num_changes"] = np.random.randint(1, 2 + 1)
+    p["epidemic_duration"] = np.random.randint(sim_params['duration-range'][0], sim_params['duration-range'][1] + 1)
+    p["num_changes"] = np.random.randint(sim_params['num-changes'][0], sim_params['num-changes'][1] + 1)
     alpha_param = 3
     # cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
     cts = (
@@ -65,7 +74,7 @@ def random_remaster_parameters():
         "change_times": cts,
     }
     p["net_removal_rate"] = {
-        "values": shrink(1 / np.random.uniform(2.0, 14.0)),
+        "values": shrink(1 / np.random.uniform(2.0, 14.0, size = 1)),
         "change_times": [],
     }
     p["sampling_prop"] = {

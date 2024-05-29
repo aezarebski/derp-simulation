@@ -10,7 +10,7 @@ problems.
 
 - [-] Provide a single database file and some helper functions to read
   trees out and their associated metadata.
-  + [ ] There should be a bunch of visualisation so that we can get a
+  + [-] There should be a bunch of visualisation so that we can get a
     feel for if the parameters of the simulation are at all plausible.
     * [ ] Use a =visualisation.org= file in the same way as the
       training repository.
@@ -47,10 +47,22 @@ problems.
       simulations.
     * [X] Write a function that loads all the data from one simulation
       into the database.
+  + [X] The simulation should be configured by a plain text file so
+    that it is easy to toggle between a small debugging simulation and
+    a large one for downstream use.
+    * [X] The configuration file sould be the only command line
+      argument taken by =main.py=
+    * [X] The visualisation script should probably have the
+      configuration script hardcoded since this will usually be run
+      interactively and in this case it should be easy enough to
+      change it if necessary.
+    * [X] The configuration should include some of the hyperparameters
+      of the simulation:
+      - [X] Range of epidemic duration.
+      - [X] Upper limit on the number of change points.
   + [ ] Document how to use the database file.
     * [ ] There should be a helper function which explains how to read
       trees and their corresponding record out.
-  + [ ] Put a CLI on the =main.py= script.
 
 * Usage
 
@@ -59,7 +71,7 @@ problems.
 To generate the database, run the main script.
 
 #+begin_src sh
- python main.py
+ python main.py <path/to/config.json>
 #+end_src
 
 ** Using the database
@@ -90,13 +102,14 @@ A conda environment to run this simulation can be created from the
 
 * Notes
 
-1. Activate the =derp= environment in conda and run =python main.py=
-   to run the whole compute. This will produce a bunch of pickle
-   files, each containing a single record of the dataset and a HDF5
-   file which contains the pickled trees as binary blobs and the
-   various parameters and statistics that we might be interested in
-   estimating from those trees. The relevant files are all defined at
-   the start of =main.py= as global variables.
+1. Activate the =derp= environment in conda and run =python main.py
+   config/debugging.json= to run the debugging example. This will
+   produce a bunch of pickle files, each containing a single record of
+   the dataset and a HDF5 file which contains the pickled trees as
+   binary blobs and the various parameters and statistics that we
+   might be interested in estimating from those trees. The relevant
+   files are all defined at the start of =main.py= as global variables
+   read from the configuration JSON file.
 2. To set up BEAST2 to do the simulation you can run the
    =src/setuplib.sh= script which will download BEAST2. Run =python
    clean.py= to remove output to start again fresh. Run =bash
