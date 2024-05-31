@@ -69,10 +69,7 @@ tree_times_df = pd.DataFrame(
 # Setting up dataframes from the simulated data:1 ends here
 
 # [[file:vis.org::*Plot: random selection of R0 functions][Plot: random selection of R0 functions:1]]
-
-# Take a random subset of 10 of the elements from data_dicts
 tmp = pd.DataFrame(data_dicts).sample((50 if len(data_dicts) > 50 else len(data_dicts)))
-
 
 def _r0_plot_df(subset_data_dicts_df, key_num):
     global CONFIG
@@ -83,7 +80,6 @@ def _r0_plot_df(subset_data_dicts_df, key_num):
     bar = tmp[tmp.key_num == key_num].r0_values.item().tolist()
     bar.insert(len(bar), bar[-1])
     return pd.DataFrame({"time": foo, "r0": bar, "key_num": key_num})
-
 
 r0_plot_df = pd.concat([_r0_plot_df(tmp, k) for k in tmp.key_num.tolist()])
 
