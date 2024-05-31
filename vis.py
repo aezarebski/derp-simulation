@@ -13,6 +13,7 @@ if not os.path.exists("out/plots"):
     os.makedirs("out/plots")
 # Packages and global variables:1 ends here
 
+
 # [[file:vis.org::*Setting up dataframes from the simulated data][Setting up dataframes from the simulated data:1]]
 def _record_summary(key, db_conn):
     return {
