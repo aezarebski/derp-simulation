@@ -106,7 +106,8 @@ timelines_p9 = (
     + p9.theme_bw()
 )
 
-timelines_p9.save("out/plots/timelines.png", width=10, height=10, dpi=300)
+timelines_p9.save(f"{PLOT_DIR}/timelines.png", width=10, height=10, dpi=300)
+timelines_p9.save(f"{PLOT_DIR}/timelines.svg", width=10, height=10, dpi=300)
 # Simulation timelines:1 ends here
 
 # [[file:vis.org::*Distribution of last sequence times][Distribution of last sequence times:1]]
@@ -124,5 +125,6 @@ last_seq_hist_p9 = (
 )
 
 # Save the plot
-last_seq_hist_p9.save("out/plots/last_seq_hist.png", width=10, height=10, dpi=300)
+last_seq_hist_p9.save(f"{PLOT_DIR}/last_seq_hist.png", width=10, height=10, dpi=300)
+last_seq_hist_p9.save(f"{PLOT_DIR}/last_seq_hist.svg", width=10, height=10, dpi=300)
 # Distribution of last sequence times:1 ends here
