@@ -118,8 +118,8 @@ last_seq_hist_p9 = (
         mapping=p9.aes(x="present"),
         bins=20,
     )
-    + p9.geom_vline(xintercept=[20, 40], linetype="dashed", color="red")
-    + p9.scale_x_continuous(limits=(0, 42), name="Time of last sequence")
+    + p9.geom_vline(xintercept=CONFIG["simulation-hyperparameters"]["duration-range"], linetype="dashed", color="red")
+    + p9.scale_x_continuous(limits=(0, CONFIG["simulation-hyperparameters"]["duration-range"][-1] + 2), name="Time of last sequence")
     + p9.theme_bw()
     + p9.theme(axis_title_y=p9.element_blank())
 )
