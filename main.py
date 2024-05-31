@@ -30,9 +30,25 @@ SIM_PICKLE_DIR = f"out/{CONFIG['simulation-name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation-name']}/{CONFIG['output-hdf5']}"
 
 
+def prompt_user(message):
+    while True:
+        response = input(message).lower()
+        if response in ['y', 'n']:
+            return response
+        else:
+            print("Invalid input. Please enter 'y' or 'n'.")
+
 if os.path.exists(DB_PATH):
-    # To prevent overwriting existing data throw an exception.
-    raise Exception(f"File {DB_PATH} already exists.")
+    response = prompt_user(f"File {DB_PATH} already exists. Do you want to delete it and proceed? [y/n]: ")
+    if response == 'y':
+        confirmation = prompt_user("Are you sure you want to delete the existing database file? This action cannot be undone. [y/n]: ")
+        if confirmation == 'y':
+            os.remove(DB_PATH)
+            print(f"File {DB_PATH} has been deleted.")
+        else:
+            raise Exception("Deletion cancelled.")
+    else:
+        raise Exception(f"File {DB_PATH} already exists.")
 
 
 def _update_attr(root, xpath: str, attr: str, val) -> None:
