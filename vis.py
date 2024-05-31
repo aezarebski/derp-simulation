@@ -9,7 +9,8 @@ import plotnine as p9
 # Packages:1 ends here
 
 # [[file:vis.org::*Read the configuration][Read the configuration:1]]
-CONFIG_JSON = "config/debugging.json"
+CONFIG_JSON = "config/simulation-charmander.json"
+# CONFIG_JSON = "config/debugging.json"
 
 with open(CONFIG_JSON, "r") as file:
     CONFIG = json.load(file)
