@@ -1,0 +1,13 @@
+{
+    "simulation-name": "sim-charmander",
+    "output-hdf5": "dataset-charmander.hdf5",
+    "seed": 42,
+    "remaster-xml": "src/remaster-template.xml",
+    "num-simulations": 800,
+    "num-workers": 5,
+    "simulation-hyperparameters": {
+	"duration-range": [20, 30],
+	"num-changes": [1, 2],
+	"shrinkage-factor": 0.99
+    }
+}

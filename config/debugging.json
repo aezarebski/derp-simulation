@@ -7,6 +7,7 @@
     "num-workers": 3,
     "simulation-hyperparameters": {
 	"duration-range": [20, 40],
-	"num-changes": [1, 2]
+	"num-changes": [1, 2],
+	"shrinkage-factor": 0.99
     }
 }

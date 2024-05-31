@@ -93,17 +93,17 @@ def random_remaster_parameters():
     )
     p["change_times"] = cts
     # Epidemic parameterisation
-    shrink = lambda x: 0.5 * x + (1 - 0.5) * x.mean()
+    shrink = lambda x, alpha: (1 - alpha) * x + alpha * x.mean()
     p["r0"] = {
-        "values": shrink(np.random.uniform(1.0, 2.0, size=p["num_changes"] + 1)),
+        "values": shrink(np.random.uniform(1.0, 2.0, size=p["num_changes"] + 1), sim_params["shrinkage-factor"]),
         "change_times": cts,
     }
     p["net_removal_rate"] = {
-        "values": shrink(1 / np.random.uniform(2.0, 14.0, size=1)),
+        "values": shrink(1 / np.random.uniform(2.0, 14.0, size=1), sim_params["shrinkage-factor"]),
         "change_times": [],
     }
     p["sampling_prop"] = {
-        "values": shrink(np.random.uniform(0.05, 0.50, size=p["num_changes"] + 1)),
+        "values": shrink(np.random.uniform(0.05, 0.50, size=p["num_changes"] + 1), sim_params["shrinkage-factor"]),
         "change_times": cts,
     }
     # Rate parameterisation
