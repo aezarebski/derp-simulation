@@ -1,6 +1,6 @@
 * Visualisation
 
-** Packages and global variables
+** Packages
 
 #+begin_src python :session *Python-derp* :tangle vis.py :comments link
   import h5py
@@ -10,9 +10,26 @@
   import pickle
   import plotly.io as pio
   import plotnine as p9
-
-  DB_PATH = "out/dataset-demo.hdf5"
 #+end_src
+
+#+RESULTS:
+
+** Read the configuration
+
+#+begin_src python :session *Python-derp* :tangle vis.py :comments link
+  CONFIG_JSON = "config/debugging.json"
+
+  with open(CONFIG_JSON, "r") as file:
+      CONFIG = json.load(file)
+  SIM_DIR = f"out/{CONFIG['simulation-name']}/simulation/remaster"
+  SIM_PICKLE_DIR = f"out/{CONFIG['simulation-name']}/simulation/pickle"
+  DB_PATH = f"out/{CONFIG['simulation-name']}/{CONFIG['output-hdf5']}"
+  PLOT_DIR = f"out/{CONFIG['simulation-name']}/plots"
+  if not os.path.exists(PLOT_DIR):
+      os.makedirs(PLOT_DIR)
+#+end_src
+
+#+RESULTS:
 
 ** Setting up dataframes from the simulated data
 
@@ -25,6 +42,7 @@
 	  "cumulative_infections": db_conn[f"{key}/output/present_cumulative"][()],
 	  "prevalence": db_conn[f"{key}/output/present_prevalence"][()],
 	  "r0_change_times": db_conn[f"{key}/output/parameters/r0/change_times"][()],
+          "r0_values": db_conn[f"{key}/output/parameters/r0/values"][()],
 	  "tree_height": db_conn[f"{key}/input/tree_height"][()],
       }
 
@@ -57,6 +75,12 @@
 	  for dd in data_dicts
       ]
   )
+#+end_src
+
+** Plot: random selection of R0 functions
+
+#+begin_src python :session *Python-derp* :tangle vis.py :comments link
+  print("hello")
 #+end_src
 
 ** Simulation timelines
