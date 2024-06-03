@@ -12,8 +12,6 @@ problems.
   trees out and their associated metadata.
   + [-] There should be a bunch of visualisation so that we can get a
     feel for if the parameters of the simulation are at all plausible.
-    * [ ] Use a =visualisation.org= file in the same way as the
-      training repository.
     * [X] Visualisation of change points
     * [X] Histogram of the last sequenced sample time
     * [ ] Histogram of prevalence
