@@ -96,20 +96,34 @@ def random_remaster_parameters():
     shrink = lambda x, alpha: (1 - alpha) * x + alpha * x.mean()
     p["r0"] = {
         "values": shrink(
-            np.random.uniform(sim_params["r0_bounds"][0], sim_params["r0_bounds"][1], size=p["num_changes"] + 1),
+            np.random.uniform(
+                sim_params["r0_bounds"][0],
+                sim_params["r0_bounds"][1],
+                size=p["num_changes"] + 1,
+            ),
             sim_params["shrinkage-factor"],
         ),
         "change_times": cts,
     }
     p["net_removal_rate"] = {
         "values": shrink(
-            1 / np.random.uniform(sim_params["net_rem_rate_bounds"][0], sim_params["net_rem_rate_bounds"][1], size=1), sim_params["shrinkage-factor"]
+            1
+            / np.random.uniform(
+                sim_params["net_rem_rate_bounds"][0],
+                sim_params["net_rem_rate_bounds"][1],
+                size=1,
+            ),
+            sim_params["shrinkage-factor"],
         ),
         "change_times": [],
     }
     p["sampling_prop"] = {
         "values": shrink(
-            np.random.uniform(sim_params["sampling_prop_bounds"][0], sim_params["sampling_prop_bounds"][1], size=p["num_changes"] + 1),
+            np.random.uniform(
+                sim_params["sampling_prop_bounds"][0],
+                sim_params["sampling_prop_bounds"][1],
+                size=p["num_changes"] + 1,
+            ),
             sim_params["shrinkage-factor"],
         ),
         "change_times": cts,
