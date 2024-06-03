@@ -120,8 +120,15 @@ through time, for example, the $R_0$ values are shown in Figure
 
 This is intended as a small dataset. It has a 1600-200-200
 training-validation-testing split. The parameters vary significantly
-through time. The configuration for this simulation is
+through time, for example, the $R_0$ values are shown in Figure
+[[fig:charmeleon-r0s]]. The configuration for this simulation is
 [[file:./config/simulation-charmeleon.json][simulation-charmeleon.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charmeleon simulations.
+#+name: fig:charmeleon-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charmeleon/plots/r0_trajectories.png]]
 
 * Notes
 
