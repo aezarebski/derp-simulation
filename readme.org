@@ -120,3 +120,10 @@ A conda environment to run this simulation can be created from the
    generated. There is some basic information about the simulation
    stored as attributes in the HDF5 file. This includes the date of
    creation and the size of the dataset.
+4. There are a sequence of configurations: /Charmander/, /Charmeleon/
+   and /Charizard/. These all use the same model but are of increasing
+   size and use broader distributions over the simulation parameters.
+   - Charmander :: This is intended as an example dataset. It has a
+     800-100-100 training-validation-testing split with short
+     simulations and only slightly varying parameters (which
+     themselves only vary over a small range).
