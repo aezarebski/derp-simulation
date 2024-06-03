@@ -123,7 +123,7 @@ A conda environment to run this simulation can be created from the
 4. There are a sequence of configurations: /Charmander/, /Charmeleon/
    and /Charizard/. These all use the same model but are of increasing
    size and use broader distributions over the simulation parameters.
-   - Charmander :: has a 600-100-100 training-validation-testing split
-     with short simulations and only slightly varying parameters. The
-     net removal rate only takes a very small range of values to avoid
-     potential identifiability issues.
+   - Charmander :: This is intended as an example dataset. It has a
+     800-100-100 training-validation-testing split with short
+     simulations and only slightly varying parameters (which
+     themselves only vary over a small range).

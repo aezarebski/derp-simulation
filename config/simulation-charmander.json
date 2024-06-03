@@ -3,14 +3,14 @@
     "output-hdf5": "dataset-charmander.hdf5",
     "seed": 42,
     "remaster-xml": "src/remaster-template.xml",
-    "num-simulations": 800,
+    "num-simulations": 1000,
     "num-workers": 5,
     "simulation-hyperparameters": {
-	"duration-range": [20, 30],
+	"duration-range": [30, 50],
 	"num-changes": [1, 2],
 	"shrinkage-factor": 0.99,
 	"r0_bounds": [1.0, 2.0],
-	"net_rem_rate_bounds": [6.0, 8.0],
-	"sampling_prop_bounds": [0.05, 0.25]
+	"net_rem_rate_bounds": [6.5, 7.5],
+	"sampling_prop_bounds": [0.10, 0.30]
     }
 }
