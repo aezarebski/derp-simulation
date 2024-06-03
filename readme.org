@@ -110,8 +110,15 @@ and use broader distributions over the simulation parameters.
 
 This is intended as a toy dataset. It has a 800-100-100
 training-validation-testing split. The parameters are nearly constant
-through time. The configuration for this simulation is
+through time, for example, the $R_0$ values are shown in Figure
+[[fig:charmander-r0s]]. The configuration for this simulation is
 [[file:./config/simulation-charmander.json][simulation-charmander.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charmander simulations.
+#+name: fig:charmander-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charmander/plots/r0_trajectories.png]]
 
 ** Charmeleon
 
