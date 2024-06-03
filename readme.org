@@ -124,4 +124,6 @@ A conda environment to run this simulation can be created from the
    and /Charizard/. These all use the same model but are of increasing
    size and use broader distributions over the simulation parameters.
    - Charmander :: has a 600-100-100 training-validation-testing split
-     with short simulations and only slightly varying parameters.
+     with short simulations and only slightly varying parameters. The
+     net removal rate only takes a very small range of values to avoid
+     potential identifiability issues.
