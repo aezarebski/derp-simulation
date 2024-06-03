@@ -2,7 +2,7 @@
 
 ** Packages
 
-#+begin_src python :session *Python-derp* :tangle vis.py :comments link
+#+begin_src python :session *Python-derp* :tangle visualisation.py :comments link
   import h5py
   import json
   import os
@@ -16,7 +16,7 @@
 
 ** Read the configuration
 
-#+begin_src python :session *Python-derp* :tangle vis.py :comments link
+#+begin_src python :session *Python-derp* :tangle visualisation.py :comments link
   CONFIG_JSON = "config/simulation-charmander.json"
   # CONFIG_JSON = "config/debugging.json"
 
@@ -34,7 +34,7 @@
 
 ** Setting up dataframes from the simulated data
 
-#+begin_src python :session *Python-derp* :tangle vis.py :comments link
+#+begin_src python :session *Python-derp* :tangle visualisation.py :comments link
   def _record_summary(key, db_conn):
       return {
 	  "key": key,
@@ -80,7 +80,7 @@
 
 ** Plot: random selection of R0 functions
 
-#+begin_src python :session *Python-derp* :tangle vis.py :comments link
+#+begin_src python :session *Python-derp* :tangle visualisation.py :comments link
 tmp = pd.DataFrame(data_dicts).sample((50 if len(data_dicts) > 50 else len(data_dicts)))
 
 def _r0_plot_df(subset_data_dicts_df, key_num):
@@ -108,7 +108,7 @@ r0_trajectories_p9.save(f"{PLOT_DIR}/r0_trajectories.svg", width=10, height=10, 
 
 ** Simulation timelines
 
-#+begin_src python :session *Python-derp* :tangle vis.py :comments link
+#+begin_src python :session *Python-derp* :tangle visualisation.py :comments link
   timelines_p9 = (
       p9.ggplot()
       + p9.geom_hline(
@@ -133,7 +133,7 @@ r0_trajectories_p9.save(f"{PLOT_DIR}/r0_trajectories.svg", width=10, height=10, 
 
 ** Distribution of last sequence times
 
-#+begin_src python :session *Python-derp* :tangle vis.py :comments link
+#+begin_src python :session *Python-derp* :tangle visualisation.py :comments link
   last_seq_hist_p9 = (
       p9.ggplot()
       + p9.geom_histogram(
@@ -154,7 +154,6 @@ r0_trajectories_p9.save(f"{PLOT_DIR}/r0_trajectories.svg", width=10, height=10, 
       + p9.theme(axis_title_y=p9.element_blank())
   )
 
-  # Save the plot
   last_seq_hist_p9.save(f"{PLOT_DIR}/last_seq_hist.png", width=10, height=10, dpi=300)
   last_seq_hist_p9.save(f"{PLOT_DIR}/last_seq_hist.svg", width=10, height=10, dpi=300)
 #+end_src
