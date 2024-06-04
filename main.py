@@ -202,13 +202,20 @@ def write_simulation_xml(simulation_xml, parameters):
 def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
     def run_beast2(simulation_xml):
         """
+        Run a BEAST2 simulation using the provided XML file.
+
+        If the simulation does not finish within 5 minutes, it is
+        considered to have timed out.
+
         $ ./lib/beast/bin/beast -seed 1 -overwrite <simulation_xml>
         """
         print(f"Running simulation: {simulation_xml}")
         command = ["./lib/beast/bin/beast", "-seed", "1", "-overwrite", simulation_xml]
         try:
-            result = subprocess.run(command, check=True, capture_output=True, text=True)
+            result = subprocess.run(command, check=True, capture_output=True, text=True, timeout=300)
             return result.stdout
+        except subprocess.TimeoutExpired:
+            return f"BEAST2 simulation for {simulation_xml} timed out."
         except subprocess.CalledProcessError as e:
             return f"Error occurred while running BEAST2 simulation for {simulation_xml}: {e.stderr}"
 
