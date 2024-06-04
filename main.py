@@ -323,39 +323,39 @@ def create_database(pickle_files):
         ix_str = re.search(r"\d{6}", pf).group(0)
         print(f"Processing record {ix_str}")
         with open(pf, "rb") as f:
-            foobar = pickle.load(f)
+            sim = pickle.load(f)
             rec_grp = db_conn.create_group(f"record_{ix_str}")
-            rec_grp.attrs["simulation_xml"] = foobar["simulation_xml"]
+            rec_grp.attrs["simulation_xml"] = sim["simulation_xml"]
             in_grp = rec_grp.create_group("input")
             in_grp.create_dataset(
-                "tree", data=_tree_to_uint8(foobar["simulation_results"]["tree"])
+                "tree", data=_tree_to_uint8(sim["simulation_results"]["tree"])
             )
             in_grp.create_dataset(
-                "tree_height", data=foobar["simulation_results"]["tree_height"]
+                "tree_height", data=sim["simulation_results"]["tree_height"]
             )
             in_grp.create_dataset(
-                "present", data=foobar["simulation_results"]["present"]
+                "present", data=sim["simulation_results"]["present"]
             )
             out_grp = rec_grp.create_group("output")
             params_grp = out_grp.create_group("parameters")
             params_grp.create_dataset(
-                "epidemic_duration", data=foobar["parameters"]["epidemic_duration"]
+                "epidemic_duration", data=sim["parameters"]["epidemic_duration"]
             )
             for key in parameter_keys:
                 param_grp = params_grp.create_group(key)
                 param_grp.create_dataset(
-                    "values", data=foobar["parameters"][key]["values"]
+                    "values", data=sim["parameters"][key]["values"]
                 )
                 param_grp.create_dataset(
-                    "change_times", data=foobar["parameters"][key]["change_times"]
+                    "change_times", data=sim["parameters"][key]["change_times"]
                 )
             out_grp.create_dataset(
                 "present_prevalence",
-                data=foobar["simulation_results"]["present_prevalence"],
+                data=sim["simulation_results"]["present_prevalence"],
             )
             out_grp.create_dataset(
                 "present_cumulative",
-                data=foobar["simulation_results"]["present_cumulative"],
+                data=sim["simulation_results"]["present_cumulative"],
             )
     db_conn.attrs["num_simulations"] = num_sims
     db_conn.attrs["creation_date"] = datetime.datetime.now().isoformat()
