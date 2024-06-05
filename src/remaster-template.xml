@@ -1,16 +1,14 @@
 <beast version='2.0' namespace='beast.base.inference.parameter:beast.base.inference:remaster'>
   <run spec="Simulator" nSims="1">
 
-    <simulate id="tree" spec="SimulatedTree">
-      <!-- NOTE the endsWhen limit of 20,000 means that if the
-	   number of infected reaches this then the simulation ends.
-	   This way we can stop any of the simulations going getting
-	   too out of hand. -->
-      <!-- endsWhen="X=100000" -->
+    <simulate id="tree"
+	      spec="SimulatedTree"
+	      maxRetries="20">
       <trajectory id="trajectory"
                   spec="StochasticTrajectory"
                   maxTime="50"
-                  mustHave="Psi>1 &amp;&amp; X>0 &amp;&amp; 50000>X">
+		  endsWhen="X==50000 || Psi==1000"
+                  mustHave="Psi&lt;1001 &amp;&amp; Psi>1 &amp;&amp; X>1">
 
         <population id="X" spec="RealParameter" value="1" />
         <samplePopulation id="Psi" spec="RealParameter" value="0" />

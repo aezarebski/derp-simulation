@@ -12,8 +12,6 @@ problems.
   trees out and their associated metadata.
   + [-] There should be a bunch of visualisation so that we can get a
     feel for if the parameters of the simulation are at all plausible.
-    * [ ] Use a =visualisation.org= file in the same way as the
-      training repository.
     * [X] Visualisation of change points
     * [X] Histogram of the last sequenced sample time
     * [ ] Histogram of prevalence
@@ -25,8 +23,6 @@ problems.
   + [X] Establish the prior distribution to draw simulation parameters
     from, these will need to be sufficiently large to cover the range
     of plausible values for the use cases.
-  + [ ] Estimate an appropriate size of the database, we can use
-    10,000 as a working number of samples.
   + [X] This should be robust to failed simulations and include basic
     metadata of the simulation such as the dataset size and the date
     it was created.
@@ -100,6 +96,40 @@ A conda environment to run this simulation can be created from the
   conda env create -f environment.yaml
 #+end_src
 
+* Datasets
+
+There are a sequence of configurations: /Charmander/, /Charmeleon/ and
+/Charizard/. These all use the same model but are of increasing size
+and use broader distributions over the simulation parameters.
+
+** Charmander
+
+This is intended as a toy dataset. It has a 800-100-100
+training-validation-testing split. The parameters are nearly constant
+through time, for example, the $R_0$ values are shown in Figure
+[[fig:charmander-r0s]]. The configuration for this simulation is
+[[file:./config/simulation-charmander.json][simulation-charmander.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charmander simulations.
+#+name: fig:charmander-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charmander/plots/r0_trajectories.png]]
+
+** Charmeleon
+
+This is intended as a small dataset. It has a 1600-200-200
+training-validation-testing split. The parameters vary significantly
+through time, for example, the $R_0$ values are shown in Figure
+[[fig:charmeleon-r0s]]. The configuration for this simulation is
+[[file:./config/simulation-charmeleon.json][simulation-charmeleon.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charmeleon simulations.
+#+name: fig:charmeleon-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charmeleon/plots/r0_trajectories.png]]
+
 * Notes
 
 1. Activate the =derp= environment in conda and run =python main.py
@@ -120,10 +150,3 @@ A conda environment to run this simulation can be created from the
    generated. There is some basic information about the simulation
    stored as attributes in the HDF5 file. This includes the date of
    creation and the size of the dataset.
-4. There are a sequence of configurations: /Charmander/, /Charmeleon/
-   and /Charizard/. These all use the same model but are of increasing
-   size and use broader distributions over the simulation parameters.
-   - Charmander :: This is intended as an example dataset. It has a
-     800-100-100 training-validation-testing split with short
-     simulations and only slightly varying parameters (which
-     themselves only vary over a small range).
