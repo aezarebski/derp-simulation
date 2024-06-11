@@ -16,8 +16,6 @@ problems.
     * [X] Histogram of the last sequenced sample time
     * [ ] Histogram of prevalence
     * [ ] Histogram of cumulative infections
-    * [ ] A single simulation visualisation showing the LTT and the
-      rates through time.
   + [X] There should be a file to specify the conda environment used
     and instructions on how to recreate this.
   + [X] Establish the prior distribution to draw simulation parameters
@@ -27,35 +25,26 @@ problems.
     metadata of the simulation such as the dataset size and the date
     it was created.
   + [X] Store the trees and metadata in a single database file.
-    * [X] Write a function that simulates the simulation parameters:
-      - number of rate changes
-      - duration of epidemic
-      - birth, death and sampling rates
-    * [X] Write a function that takes the metadata and simulates an
-      epidemic with remaster.
-      - [X] the remaster template file to run the simulation
-      - [X] the code to load the simulation parameters into the
-        template
-    * [X] Write a function that processes the epidemic simulation to
-      extract the desired features for input/output.
     * [X] Split the creation of the intermediate pickle files across
       multiple workers in the same way we split the BEAST2
       simulations.
     * [X] Write a function that loads all the data from one simulation
       into the database.
-  + [X] The simulation should be configured by a plain text file so
-    that it is easy to toggle between a small debugging simulation and
-    a large one for downstream use.
-    * [X] The configuration file sould be the only command line
-      argument taken by =main.py=
-    * [X] The visualisation script should probably have the
-      configuration script hardcoded since this will usually be run
-      interactively and in this case it should be easy enough to
-      change it if necessary.
-    * [X] The configuration should include some of the hyperparameters
-      of the simulation:
-      - [X] Range of epidemic duration.
-      - [X] Upper limit on the number of change points.
+  + [ ] Rename =main.py= to =simulate.py= or something similar for
+    clarity.
+  + [ ] Include a JSON schema for the configuration files and then
+    check that the one supplied at the command line is valid.
+  + [ ] For each dataset, there should be an analogous version in
+    which the sampling is all done at the present. This will be a bit
+    of work but will make the simulations meaningfully more
+    expressive.
+    * [ ] Create a new remaster template which does a contemporary
+      sample.
+    * [ ] Include contemporary sampling configuration in =main.py=.
+    * [ ] Create a new configuration
+      =simulation-<name>-contemporary.json= for the new instances.
+    * [ ] Extend the plotting to work in the case of contemporary
+      sampling.
   + [ ] Document how to use the database file.
     * [ ] There should be a helper function which explains how to read
       trees and their corresponding record out.
