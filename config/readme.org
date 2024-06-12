@@ -1,0 +1,125 @@
+* Simulation configuration
+
+** Notes
+
+- You can validate a simulation configuration against the schema using
+  one of the many free online tools:
+  + https://www.liquid-technologies.com/online-json-schema-validator
+- =simulation-hyperparameters.contemporary-sampling= should be =true=
+  for contemporary sampling and =false= for serial sampling (the
+  default value). If there is serial sampling, the
+  =simulation-hyperparameters.sampling_prop_bounds= is used as the
+  sampling proportion given removal. If there is contemporary
+  sampling, this is the probability of an extant lineage being
+  included in the sample.
+
+** Schema
+
+#+begin_src json :tangle simulation-schema.json
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "simulation-name": {
+      "type": "string"
+    },
+    "output-hdf5": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "remaster-xml": {
+      "type": "string"
+    },
+    "num-simulations": {
+      "type": "integer"
+    },
+    "num-workers": {
+      "type": "integer"
+    },
+    "simulation-hyperparameters": {
+      "type": "object",
+      "properties": {
+        "duration-range": {
+          "type": "array",
+          "items": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "num-changes": {
+          "type": "array",
+          "items": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "shrinkage-factor": {
+          "type": "number"
+        },
+        "r0_bounds": {
+          "type": "array",
+          "items": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "net_rem_rate_bounds": {
+          "type": "array",
+          "items": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "sampling_prop_bounds": {
+          "type": "array",
+          "items": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "contemporary-sampling": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "duration-range",
+        "num-changes",
+        "shrinkage-factor",
+        "r0_bounds",
+        "net_rem_rate_bounds",
+        "sampling_prop_bounds",
+      ]
+    }
+  },
+  "required": [
+    "simulation-name",
+    "output-hdf5",
+    "seed",
+    "remaster-xml",
+    "num-simulations",
+    "simulation-hyperparameters"
+  ]
+}
+#+end_src

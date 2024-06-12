@@ -32,8 +32,6 @@ problems.
       into the database.
   + [ ] Rename =main.py= to =simulate.py= or something similar for
     clarity.
-  + [ ] Include a JSON schema for the configuration files and then
-    check that the one supplied at the command line is valid.
   + [ ] For each dataset, there should be an analogous version in
     which the sampling is all done at the present. This will be a bit
     of work but will make the simulations meaningfully more
@@ -50,6 +48,17 @@ problems.
       trees and their corresponding record out.
 
 * Usage
+
+** Configuring a simulation
+
+There are some example configurations provided:
+
+- [[file:./config/debugging.json][debugging]]
+- [[file:./config/simulation-charmander.json][Charmander]] (see [[#sec:charmander][here]])
+- [[file:./config/simulation-charmander-contemporary.json][Charmander with contemporary sampling]] (see [[#sec:charmander-contemporary][here]])
+- [[file:./config/simulation-charmeleon.json][Charmeleon]] (see [[#sec:charmeleon][here]])
+
+There is a schema for valid described [[file:./config/readme.org][here]].
 
 ** Building the database
 
@@ -92,6 +101,9 @@ There are a sequence of configurations: /Charmander/, /Charmeleon/ and
 and use broader distributions over the simulation parameters.
 
 ** Charmander
+:properties:
+:custom_id: sec:charmander
+:end:
 
 This is intended as a toy dataset. It has a 800-100-100
 training-validation-testing split. The parameters are nearly constant
@@ -106,6 +118,9 @@ through time, for example, the $R_0$ values are shown in Figure
 [[./out/sim-charmander/plots/r0_trajectories.png]]
 
 ** Charmeleon
+:properties:
+:custom_id: sec:charmeleon
+:end:
 
 This is intended as a small dataset. It has a 1600-200-200
 training-validation-testing split. The parameters vary significantly
