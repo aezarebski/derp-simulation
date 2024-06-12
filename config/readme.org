@@ -1,5 +1,20 @@
 * Simulation configuration
 
+** Notes
+
+- You can validate a simulation configuration against the schema using
+  one of the many free online tools:
+  + https://www.liquid-technologies.com/online-json-schema-validator
+- =simulation-hyperparameters.contemporary-sampling= should be =true=
+  for contemporary sampling and =false= for serial sampling (the
+  default value). If there is serial sampling, the
+  =simulation-hyperparameters.sampling_prop_bounds= is used as the
+  sampling proportion given removal. If there is contemporary
+  sampling, this is the probability of an extant lineage being
+  included in the sample.
+
+** Schema
+
 #+begin_src json :tangle simulation-schema.json
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
