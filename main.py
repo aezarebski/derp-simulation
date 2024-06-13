@@ -12,7 +12,8 @@ import re
 import subprocess
 
 if len(os.sys.argv) < 2:
-    CONFIG_JSON = "config/debugging.json"
+    # CONFIG_JSON = "config/debugging.json"
+    CONFIG_JSON = "config/debugging-contemporaneous.json"
 else:
     CONFIG_JSON = os.sys.argv[1]
 
@@ -63,6 +64,8 @@ def _update_attr(root, xpath: str, attr: str, val) -> None:
     return None
 
 
+# TODO This should be split into two functions, one for serial
+# sampling and one for contemporaneous sampling.
 def random_remaster_parameters():
     """
     Generate random parameters for the remaster model.
@@ -144,6 +147,8 @@ def random_remaster_parameters():
     return p
 
 
+# TODO This should be split into two functions, one for serial
+# sampling and one for contemporaneous sampling.
 def write_simulation_xml(simulation_xml, parameters):
     remaster_xml_obj = etree.parse(REMASTER_XML)
     b = remaster_xml_obj.getroot()
@@ -232,6 +237,9 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
                 print(f"Simulation generated an exception for {xml}: {exc}")
 
 
+# TODO Double check that this will work with the new contemporaneous
+# sampling as the trajectory file may not satisfy the assumptions of
+# the function.
 def read_simulation_results(simulation_xml):
     tree_generator = Phylo.parse(simulation_xml.replace("xml", "tree"), "nexus")
     tree = next(tree_generator).root
@@ -305,6 +313,9 @@ def _tree_to_uint8(tree):
     return np.frombuffer(pickle.dumps(tree), dtype="uint8")
 
 
+# TODO There should be something in here that makes it clear what is
+# happening with regard to the possibility of there being a
+# contemporaneous sampling scheme.
 def create_database(pickle_files):
     db_conn = h5py.File(DB_PATH, "w")
     parameter_keys = [
