@@ -2,7 +2,7 @@
     "simulation-name": "sim-charmander-contemporary",
     "output-hdf5": "dataset-charmander-contemporary.hdf5",
     "seed": 42,
-    "remaster-xml": "src/remaster-template-contemporary.xml",
+    "remaster-xml": "src/remaster-template-contemporaneous.xml",
     "num-simulations": 1000,
     "num-workers": 5,
     "simulation-hyperparameters": {
