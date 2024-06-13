@@ -24,12 +24,6 @@ problems.
   + [X] This should be robust to failed simulations and include basic
     metadata of the simulation such as the dataset size and the date
     it was created.
-  + [X] Store the trees and metadata in a single database file.
-    * [X] Split the creation of the intermediate pickle files across
-      multiple workers in the same way we split the BEAST2
-      simulations.
-    * [X] Write a function that loads all the data from one simulation
-      into the database.
   + [ ] Rename =main.py= to =simulate.py= or something similar for
     clarity.
   + [ ] Document how to use the database file.
@@ -105,6 +99,12 @@ through time, for example, the $R_0$ values are shown in Figure
 #+attr_org: :width 500px
 #+attr_html: :width 400px
 [[./out/sim-charmander/plots/r0_trajectories.png]]
+
+** Charmander contemporaneous
+
+This is very similar to the [[#sec:charmander][Charmander]] configuration but instead of
+serial sampling, there is a single contemporaneous sample at the
+present.
 
 ** Charmeleon
 :properties:
