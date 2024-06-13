@@ -64,16 +64,13 @@ def _update_attr(root, xpath: str, attr: str, val) -> None:
     return None
 
 
-# TODO This should be split into two functions, one for serial
-# sampling and one for contemporaneous sampling.
 def random_remaster_parameters():
     """
     Generate random parameters for the remaster model.
 
-    This is where the simulation is configured, so if you want to
-    change the model used this is the function you want to edit.
+    NOTE that this makes use of the global `CONFIG` variable.
 
-    Note that we are using a Dirichlet distribution to generate the
+    NOTE that we are using a Dirichlet distribution to generate the
     change times. This is to avoid the change times being too close
     together, which is biological implausible. Also, to reduce the
     variability in the parameter values, we shrink the values towards
@@ -89,14 +86,13 @@ def random_remaster_parameters():
         sim_params["num-changes"][0], sim_params["num-changes"][1] + 1
     )
     alpha_param = 3
-    # cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
     cts = (
         p["epidemic_duration"]
         * np.cumsum(np.random.dirichlet([alpha_param] * (p["num_changes"] + 1)))[0:-1]
     )
     p["change_times"] = cts
-    # Epidemic parameterisation
     shrink = lambda x, alpha: (1 - alpha) * x + alpha * x.mean()
+    # Epidemic parameterisation
     p["r0"] = {
         "values": shrink(
             np.random.uniform(
@@ -108,6 +104,16 @@ def random_remaster_parameters():
         ),
         "change_times": cts,
     }
+    # The following sets up the remaining parameters which depend upon
+    # whether there is contemporaneous sampling or not.
+    if not sim_params.get("contemporaneous_sample", False):
+        return _rand_remaster_params_serial(p, sim_params)
+    else:
+        return _rand_remaster_params_contemporaneous(p, sim_params)
+
+
+def _rand_remaster_params_serial(p, sim_params):
+    # Epidemic parameterisation
     p["net_removal_rate"] = {
         "values": shrink(
             1
@@ -143,6 +149,36 @@ def random_remaster_parameters():
     p["sampling_rate"] = {
         "values": p["net_removal_rate"]["values"] * p["sampling_prop"]["values"],
         "change_times": cts,
+    }
+    return p
+
+
+def _rand_remaster_params_contemporaneous(p, sim_params):
+    # Epidemic parameterisation
+    p["net_removal_rate"] = {
+        "values": shrink(
+            1
+            / np.random.uniform(
+                sim_params["net_rem_rate_bounds"][0],
+                sim_params["net_rem_rate_bounds"][1],
+                size=1,
+            ),
+            sim_params["shrinkage-factor"],
+        ),
+        "change_times": [],
+    }
+    # Rate parameterisation
+    p["birth_rate"] = {
+        "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
+        "change_times": cts,
+    }
+    p["death_rate"] = {
+        "values": p["net_removal_rate"]["values"],
+        "change_times": cts,
+    }
+    p["pho"] = {
+        "values": np.random.uniform(sim_params["sampling_prop_bounds"][0], sim_params["sampling_prop_bounds"][1], size=1),
+        "change_times": None,
     }
     return p
 
