@@ -15,7 +15,7 @@
         <population id="Mu" spec="RealParameter" value="0" />
 
         <reaction id="lambdaReaction" spec="Reaction" rate="0.2" >X -> 2X</reaction>
-        <reaction id="psiReaction" spec="Reaction" rate="0.008">X -> Psi</reaction>
+	<reaction id="rhoReaction" spec="PunctualReaction" p="0.01" times="50">X -> Psi</reaction>
         <reaction id="muReaction" spec="Reaction" rate="0.046">X -> Mu</reaction>
 
       </trajectory>
