@@ -32,26 +32,6 @@ problems.
       into the database.
   + [ ] Rename =main.py= to =simulate.py= or something similar for
     clarity.
-  + [-] For each dataset, there should be an analogous version in
-    which the sampling is all done at the present. This will be a bit
-    of work but will make the simulations meaningfully more
-    expressive.
-    * [X] Create a new remaster template which does a contemporaneous
-      sample.
-    * [ ] Include contemporaneous sampling configuration in =main.py=.
-    * [ ] Create a new configuration
-      =simulation-<name>-contemporaneous.json= for the new instances.
-    * [ ] Since there are now two remaster XML files, and hopefully
-      more in the future, it would be useful to have a schema to check
-      that they match the minimal requirements needed by =main.py=.
-      - ~.//reaction[@id='lambdaReaction']~;
-      - ~.//reaction[@id='muReaction']~;
-      - ~.//reaction[@id='psiReaction']~ or
-        ~.//reaction[@id='rhoReaction']~;
-      - two ~.//logger~ elements, one of mode ='tree'= and the other
-        not.
-    * [ ] Extend the plotting to work in the case of a contemporaneous
-      sample.
   + [ ] Document how to use the database file.
     * [ ] There should be a helper function which explains how to read
       trees and their corresponding record out.

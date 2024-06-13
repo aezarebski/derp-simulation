@@ -18,8 +18,9 @@
 
 #+begin_src python :session *Python-derp* :tangle visualisation.py :comments link
   # CONFIG_JSON = "config/simulation-charmander.json"
-  CONFIG_JSON = "config/simulation-charmeleon.json"
+  # CONFIG_JSON = "config/simulation-charmeleon.json"
   # CONFIG_JSON = "config/debugging.json"
+  CONFIG_JSON = "config/debugging-contemporaneous.json"
 
   with open(CONFIG_JSON, "r") as file:
       CONFIG = json.load(file)
