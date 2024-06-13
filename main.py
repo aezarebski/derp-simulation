@@ -12,7 +12,8 @@ import re
 import subprocess
 
 if len(os.sys.argv) < 2:
-    CONFIG_JSON = "config/debugging.json"
+    # CONFIG_JSON = "config/debugging.json"
+    CONFIG_JSON = "config/debugging-contemporaneous.json"
 else:
     CONFIG_JSON = os.sys.argv[1]
 
@@ -63,14 +64,17 @@ def _update_attr(root, xpath: str, attr: str, val) -> None:
     return None
 
 
+def shrink(x, alpha):
+    return (1 - alpha) * x + alpha * x.mean()
+
+
 def random_remaster_parameters():
     """
     Generate random parameters for the remaster model.
 
-    This is where the simulation is configured, so if you want to
-    change the model used this is the function you want to edit.
+    NOTE that this makes use of the global `CONFIG` variable.
 
-    Note that we are using a Dirichlet distribution to generate the
+    NOTE that we are using a Dirichlet distribution to generate the
     change times. This is to avoid the change times being too close
     together, which is biological implausible. Also, to reduce the
     variability in the parameter values, we shrink the values towards
@@ -86,14 +90,12 @@ def random_remaster_parameters():
         sim_params["num-changes"][0], sim_params["num-changes"][1] + 1
     )
     alpha_param = 3
-    # cts = np.sort(np.random.rand(p["num_changes"]) * p["epidemic_duration"])
     cts = (
         p["epidemic_duration"]
         * np.cumsum(np.random.dirichlet([alpha_param] * (p["num_changes"] + 1)))[0:-1]
     )
     p["change_times"] = cts
     # Epidemic parameterisation
-    shrink = lambda x, alpha: (1 - alpha) * x + alpha * x.mean()
     p["r0"] = {
         "values": shrink(
             np.random.uniform(
@@ -105,6 +107,18 @@ def random_remaster_parameters():
         ),
         "change_times": cts,
     }
+    # The following sets up the remaining parameters which depend upon
+    # whether there is contemporaneous sampling or not.
+    if not sim_params.get("contemporaneous_sample", False):
+        p["contemporaneous_sample"] = False
+        return _rand_remaster_params_serial(p, sim_params)
+    else:
+        p["contemporaneous_sample"] = True
+        return _rand_remaster_params_contemporaneous(p, sim_params)
+
+
+def _rand_remaster_params_serial(p, sim_params):
+    # Epidemic parameterisation
     p["net_removal_rate"] = {
         "values": shrink(
             1
@@ -126,20 +140,64 @@ def random_remaster_parameters():
             ),
             sim_params["shrinkage-factor"],
         ),
-        "change_times": cts,
+        "change_times": p["change_times"],
     }
     # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
-        "change_times": cts,
+        "change_times": p["change_times"],
     }
     p["death_rate"] = {
         "values": p["net_removal_rate"]["values"] * (1 - p["sampling_prop"]["values"]),
-        "change_times": cts,
+        "change_times": p["change_times"],
     }
     p["sampling_rate"] = {
         "values": p["net_removal_rate"]["values"] * p["sampling_prop"]["values"],
-        "change_times": cts,
+        "change_times": p["change_times"],
+    }
+    return p
+
+
+def _rand_remaster_params_contemporaneous(p, sim_params):
+    # Epidemic parameterisation
+    p["net_removal_rate"] = {
+        "values": shrink(
+            1
+            / np.random.uniform(
+                sim_params["net_rem_rate_bounds"][0],
+                sim_params["net_rem_rate_bounds"][1],
+                size=1,
+            ),
+            sim_params["shrinkage-factor"],
+        ),
+        "change_times": [],
+    }
+    p["sampling_prop"] = {
+        "values": np.array([0]),
+        "change_times": np.array([]),
+    }
+    # Rate parameterisation
+    p["birth_rate"] = {
+        "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
+        "change_times": p["change_times"],
+    }
+    p["death_rate"] = {
+        "values": p["net_removal_rate"]["values"],
+        "change_times": np.array([])
+        if not p["net_removal_rate"]["change_times"]
+        else p["net_removal_rate"]["change_times"],
+    }
+    p["sampling_rate"] = {
+        "values": np.array([0]),
+        "change_times": np.array([]),
+    }
+    p["rho"] = {
+        "values": np.random.uniform(
+            sim_params["sampling_prop_bounds"][0],
+            sim_params["sampling_prop_bounds"][1],
+            size=1,
+        ),
+        "change_times": None,
     }
     return p
 
@@ -173,19 +231,37 @@ def write_simulation_xml(simulation_xml, parameters):
             "changeTimes",
             " ".join([str(ct) for ct in parameters["death_rate"]["change_times"]]),
         )
-    _update_attr(
-        b,
-        ".//reaction[@id='psiReaction']",
-        "rate",
-        " ".join([str(sr) for sr in parameters["sampling_rate"]["values"]]),
-    )
-    if parameters["sampling_rate"]["change_times"].shape[0] > 0:
+
+    if parameters["contemporaneous_sample"]:
+        _update_attr(
+            b,
+            ".//reaction[@id='rhoReaction']",
+            "p",
+            parameters["rho"]["values"][0],
+        )
+        _update_attr(
+            b,
+            ".//reaction[@id='rhoReaction']",
+            "times",
+            parameters["epidemic_duration"],
+        )
+    else:
         _update_attr(
             b,
             ".//reaction[@id='psiReaction']",
-            "changeTimes",
-            " ".join([str(ct) for ct in parameters["sampling_rate"]["change_times"]]),
+            "rate",
+            " ".join([str(sr) for sr in parameters["sampling_rate"]["values"]]),
         )
+        if parameters["sampling_rate"]["change_times"].shape[0] > 0:
+            _update_attr(
+                b,
+                ".//reaction[@id='psiReaction']",
+                "changeTimes",
+                " ".join(
+                    [str(ct) for ct in parameters["sampling_rate"]["change_times"]]
+                ),
+            )
+
     _update_attr(b, ".//trajectory", "maxTime", parameters["epidemic_duration"])
     _update_attr(
         b,
@@ -212,7 +288,9 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         print(f"Running simulation: {simulation_xml}")
         command = ["./lib/beast/bin/beast", "-seed", "1", "-overwrite", simulation_xml]
         try:
-            result = subprocess.run(command, check=True, capture_output=True, text=True, timeout=300)
+            result = subprocess.run(
+                command, check=True, capture_output=True, text=True, timeout=300
+            )
             return result.stdout
         except subprocess.TimeoutExpired:
             return f"BEAST2 simulation for {simulation_xml} timed out."
@@ -233,17 +311,25 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
 
 
 def read_simulation_results(simulation_xml):
-    tree_generator = Phylo.parse(simulation_xml.replace("xml", "tree"), "nexus")
+    sim_xml_obj = etree.parse(simulation_xml)
+    sx = sim_xml_obj.getroot()
+    tree_file = sx.xpath(".//logger[@mode='tree']")[0].attrib["fileName"]
+    traj_file = sx.xpath(".//logger[not(@mode)]")[0].attrib["fileName"]
+    is_serial = sx.find(".//reaction[@spec='PunctualReaction']") is None
+    tree_generator = Phylo.parse(tree_file, "nexus")
     tree = next(tree_generator).root
-    traj_file = simulation_xml.replace("xml", "traj")
     # read the time of the last sequenced sample and the prevalence at
     # that time.
     traj_df = pd.read_csv(traj_file, sep="\t")
-    psi_df = traj_df[traj_df["population"] == "Psi"]
-    psi_df = psi_df[psi_df["value"] == psi_df["value"].max()]
-    psi_df = psi_df[psi_df["t"] == psi_df["t"].min()]
-    last_psi_time = psi_df["t"].values[0]
-    last_rows = traj_df[traj_df["t"] == last_psi_time]
+    if is_serial:
+        psi_df = traj_df[traj_df["population"] == "Psi"]
+        psi_df = psi_df[psi_df["value"] == psi_df["value"].max()]
+        psi_df = psi_df[psi_df["t"] == psi_df["t"].min()]
+        last_psi_time = psi_df["t"].values[0]
+        last_rows = traj_df[traj_df["t"] == last_psi_time]
+    else:
+        last_psi_time = traj_df["t"].max()
+        last_rows = traj_df[traj_df["t"] == last_psi_time]
     last_X = last_rows[last_rows["population"] == "X"]["value"].values[0]
     last_Psi = last_rows[last_rows["population"] == "Psi"]["value"].values[0]
     last_Mu = last_rows[last_rows["population"] == "Mu"]["value"].values[0]
@@ -333,9 +419,7 @@ def create_database(pickle_files):
             in_grp.create_dataset(
                 "tree_height", data=sim["simulation_results"]["tree_height"]
             )
-            in_grp.create_dataset(
-                "present", data=sim["simulation_results"]["present"]
-            )
+            in_grp.create_dataset("present", data=sim["simulation_results"]["present"])
             out_grp = rec_grp.create_group("output")
             params_grp = out_grp.create_group("parameters")
             params_grp.create_dataset(

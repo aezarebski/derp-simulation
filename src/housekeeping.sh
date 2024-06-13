@@ -3,5 +3,5 @@
 
 conda env export > environment.yaml
 
-black vis.py
+black visualisation.py
 black main.py

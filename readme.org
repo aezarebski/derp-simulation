@@ -24,25 +24,8 @@ problems.
   + [X] This should be robust to failed simulations and include basic
     metadata of the simulation such as the dataset size and the date
     it was created.
-  + [X] Store the trees and metadata in a single database file.
-    * [X] Split the creation of the intermediate pickle files across
-      multiple workers in the same way we split the BEAST2
-      simulations.
-    * [X] Write a function that loads all the data from one simulation
-      into the database.
   + [ ] Rename =main.py= to =simulate.py= or something similar for
     clarity.
-  + [ ] For each dataset, there should be an analogous version in
-    which the sampling is all done at the present. This will be a bit
-    of work but will make the simulations meaningfully more
-    expressive.
-    * [ ] Create a new remaster template which does a contemporary
-      sample.
-    * [ ] Include contemporary sampling configuration in =main.py=.
-    * [ ] Create a new configuration
-      =simulation-<name>-contemporary.json= for the new instances.
-    * [ ] Extend the plotting to work in the case of contemporary
-      sampling.
   + [ ] Document how to use the database file.
     * [ ] There should be a helper function which explains how to read
       trees and their corresponding record out.
@@ -55,7 +38,7 @@ There are some example configurations provided:
 
 - [[file:./config/debugging.json][debugging]]
 - [[file:./config/simulation-charmander.json][Charmander]] (see [[#sec:charmander][here]])
-- [[file:./config/simulation-charmander-contemporary.json][Charmander with contemporary sampling]] (see [[#sec:charmander-contemporary][here]])
+- [[file:./config/simulation-charmander-contemporaneous.json][Charmander with a contemporaneous sample]]
 - [[file:./config/simulation-charmeleon.json][Charmeleon]] (see [[#sec:charmeleon][here]])
 
 There is a schema for valid described [[file:./config/readme.org][here]].
@@ -116,6 +99,12 @@ through time, for example, the $R_0$ values are shown in Figure
 #+attr_org: :width 500px
 #+attr_html: :width 400px
 [[./out/sim-charmander/plots/r0_trajectories.png]]
+
+** Charmander contemporaneous
+
+This is very similar to the [[#sec:charmander][Charmander]] configuration but instead of
+serial sampling, there is a single contemporaneous sample at the
+present.
 
 ** Charmeleon
 :properties:

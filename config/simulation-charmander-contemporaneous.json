@@ -2,7 +2,7 @@
     "simulation-name": "sim-charmander-contemporary",
     "output-hdf5": "dataset-charmander-contemporary.hdf5",
     "seed": 42,
-    "remaster-xml": "src/remaster-template-contemporary.xml",
+    "remaster-xml": "src/remaster-template-contemporaneous.xml",
     "num-simulations": 1000,
     "num-workers": 5,
     "simulation-hyperparameters": {
@@ -12,6 +12,6 @@
 	"r0_bounds": [1.0, 2.0],
 	"net_rem_rate_bounds": [6.5, 7.5],
 	"sampling_prop_bounds": [0.10, 0.30],
-	"contemporary-sampling": true
+	"contemporaneous_sample": true
     }
 }
