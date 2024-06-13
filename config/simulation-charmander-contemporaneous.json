@@ -12,6 +12,6 @@
 	"r0_bounds": [1.0, 2.0],
 	"net_rem_rate_bounds": [6.5, 7.5],
 	"sampling_prop_bounds": [0.10, 0.30],
-	"contemporary-sampling": true
+	"contemporaneous_sample": true
     }
 }
