@@ -107,8 +107,10 @@ def random_remaster_parameters():
     # The following sets up the remaining parameters which depend upon
     # whether there is contemporaneous sampling or not.
     if not sim_params.get("contemporaneous_sample", False):
+        p["contemporaneous_sample"] = False
         return _rand_remaster_params_serial(p, sim_params)
     else:
+        p["contemporaneous_sample"] = True
         return _rand_remaster_params_contemporaneous(p, sim_params)
 
 
@@ -176,7 +178,7 @@ def _rand_remaster_params_contemporaneous(p, sim_params):
         "values": p["net_removal_rate"]["values"],
         "change_times": cts,
     }
-    p["pho"] = {
+    p["rho"] = {
         "values": np.random.uniform(sim_params["sampling_prop_bounds"][0], sim_params["sampling_prop_bounds"][1], size=1),
         "change_times": None,
     }
@@ -214,19 +216,35 @@ def write_simulation_xml(simulation_xml, parameters):
             "changeTimes",
             " ".join([str(ct) for ct in parameters["death_rate"]["change_times"]]),
         )
-    _update_attr(
-        b,
-        ".//reaction[@id='psiReaction']",
-        "rate",
-        " ".join([str(sr) for sr in parameters["sampling_rate"]["values"]]),
-    )
-    if parameters["sampling_rate"]["change_times"].shape[0] > 0:
+
+    if parameters["contemporaneous_sample"]:
+        _update_attr(
+            b,
+            ".//reaction[@id='rhoReaction']",
+            "p",
+            parameters["rho"]["values"][0],
+        )
+        _update_attr(
+            b,
+            ".//reaction[@id='rhoReaction']",
+            "times",
+            parameters["epidemic_duration"],
+        )
+    else:
         _update_attr(
             b,
             ".//reaction[@id='psiReaction']",
-            "changeTimes",
-            " ".join([str(ct) for ct in parameters["sampling_rate"]["change_times"]]),
+            "rate",
+            " ".join([str(sr) for sr in parameters["sampling_rate"]["values"]]),
         )
+        if parameters["sampling_rate"]["change_times"].shape[0] > 0:
+            _update_attr(
+                b,
+                ".//reaction[@id='psiReaction']",
+                "changeTimes",
+                " ".join([str(ct) for ct in parameters["sampling_rate"]["change_times"]]),
+            )
+
     _update_attr(b, ".//trajectory", "maxTime", parameters["epidemic_duration"])
     _update_attr(
         b,
