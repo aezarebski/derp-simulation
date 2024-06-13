@@ -183,14 +183,20 @@ def _rand_remaster_params_contemporaneous(p, sim_params):
     }
     p["death_rate"] = {
         "values": p["net_removal_rate"]["values"],
-        "change_times": np.array([]) if not p["net_removal_rate"]["change_times"] else p["net_removal_rate"]["change_times"],
+        "change_times": np.array([])
+        if not p["net_removal_rate"]["change_times"]
+        else p["net_removal_rate"]["change_times"],
     }
     p["sampling_rate"] = {
         "values": np.array([0]),
         "change_times": np.array([]),
     }
     p["rho"] = {
-        "values": np.random.uniform(sim_params["sampling_prop_bounds"][0], sim_params["sampling_prop_bounds"][1], size=1),
+        "values": np.random.uniform(
+            sim_params["sampling_prop_bounds"][0],
+            sim_params["sampling_prop_bounds"][1],
+            size=1,
+        ),
         "change_times": None,
     }
     return p
@@ -251,7 +257,9 @@ def write_simulation_xml(simulation_xml, parameters):
                 b,
                 ".//reaction[@id='psiReaction']",
                 "changeTimes",
-                " ".join([str(ct) for ct in parameters["sampling_rate"]["change_times"]]),
+                " ".join(
+                    [str(ct) for ct in parameters["sampling_rate"]["change_times"]]
+                ),
             )
 
     _update_attr(b, ".//trajectory", "maxTime", parameters["epidemic_duration"])
@@ -280,7 +288,9 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         print(f"Running simulation: {simulation_xml}")
         command = ["./lib/beast/bin/beast", "-seed", "1", "-overwrite", simulation_xml]
         try:
-            result = subprocess.run(command, check=True, capture_output=True, text=True, timeout=300)
+            result = subprocess.run(
+                command, check=True, capture_output=True, text=True, timeout=300
+            )
             return result.stdout
         except subprocess.TimeoutExpired:
             return f"BEAST2 simulation for {simulation_xml} timed out."
@@ -303,8 +313,8 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
 def read_simulation_results(simulation_xml):
     sim_xml_obj = etree.parse(simulation_xml)
     sx = sim_xml_obj.getroot()
-    tree_file = sx.xpath(".//logger[@mode='tree']")[0].attrib['fileName']
-    traj_file = sx.xpath(".//logger[not(@mode)]")[0].attrib['fileName']
+    tree_file = sx.xpath(".//logger[@mode='tree']")[0].attrib["fileName"]
+    traj_file = sx.xpath(".//logger[not(@mode)]")[0].attrib["fileName"]
     is_serial = sx.find(".//reaction[@spec='PunctualReaction']") is None
     tree_generator = Phylo.parse(tree_file, "nexus")
     tree = next(tree_generator).root
@@ -409,9 +419,7 @@ def create_database(pickle_files):
             in_grp.create_dataset(
                 "tree_height", data=sim["simulation_results"]["tree_height"]
             )
-            in_grp.create_dataset(
-                "present", data=sim["simulation_results"]["present"]
-            )
+            in_grp.create_dataset("present", data=sim["simulation_results"]["present"])
             out_grp = rec_grp.create_group("output")
             params_grp = out_grp.create_group("parameters")
             params_grp.create_dataset(
