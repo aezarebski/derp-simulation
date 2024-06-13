@@ -64,6 +64,10 @@ def _update_attr(root, xpath: str, attr: str, val) -> None:
     return None
 
 
+def shrink(x, alpha):
+    return (1 - alpha) * x + alpha * x.mean()
+
+
 def random_remaster_parameters():
     """
     Generate random parameters for the remaster model.
@@ -91,7 +95,6 @@ def random_remaster_parameters():
         * np.cumsum(np.random.dirichlet([alpha_param] * (p["num_changes"] + 1)))[0:-1]
     )
     p["change_times"] = cts
-    shrink = lambda x, alpha: (1 - alpha) * x + alpha * x.mean()
     # Epidemic parameterisation
     p["r0"] = {
         "values": shrink(
@@ -137,20 +140,20 @@ def _rand_remaster_params_serial(p, sim_params):
             ),
             sim_params["shrinkage-factor"],
         ),
-        "change_times": cts,
+        "change_times": p["change_times"],
     }
     # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
-        "change_times": cts,
+        "change_times": p["change_times"],
     }
     p["death_rate"] = {
         "values": p["net_removal_rate"]["values"] * (1 - p["sampling_prop"]["values"]),
-        "change_times": cts,
+        "change_times": p["change_times"],
     }
     p["sampling_rate"] = {
         "values": p["net_removal_rate"]["values"] * p["sampling_prop"]["values"],
-        "change_times": cts,
+        "change_times": p["change_times"],
     }
     return p
 
@@ -169,14 +172,22 @@ def _rand_remaster_params_contemporaneous(p, sim_params):
         ),
         "change_times": [],
     }
+    p["sampling_prop"] = {
+        "values": np.array([0]),
+        "change_times": np.array([]),
+    }
     # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
-        "change_times": cts,
+        "change_times": p["change_times"],
     }
     p["death_rate"] = {
         "values": p["net_removal_rate"]["values"],
-        "change_times": cts,
+        "change_times": np.array([]) if not p["net_removal_rate"]["change_times"] else p["net_removal_rate"]["change_times"],
+    }
+    p["sampling_rate"] = {
+        "values": np.array([0]),
+        "change_times": np.array([]),
     }
     p["rho"] = {
         "values": np.random.uniform(sim_params["sampling_prop_bounds"][0], sim_params["sampling_prop_bounds"][1], size=1),
@@ -185,8 +196,6 @@ def _rand_remaster_params_contemporaneous(p, sim_params):
     return p
 
 
-# TODO This should be split into two functions, one for serial
-# sampling and one for contemporaneous sampling.
 def write_simulation_xml(simulation_xml, parameters):
     remaster_xml_obj = etree.parse(REMASTER_XML)
     b = remaster_xml_obj.getroot()
@@ -291,21 +300,26 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
                 print(f"Simulation generated an exception for {xml}: {exc}")
 
 
-# TODO Double check that this will work with the new contemporaneous
-# sampling as the trajectory file may not satisfy the assumptions of
-# the function.
 def read_simulation_results(simulation_xml):
-    tree_generator = Phylo.parse(simulation_xml.replace("xml", "tree"), "nexus")
+    sim_xml_obj = etree.parse(simulation_xml)
+    sx = sim_xml_obj.getroot()
+    tree_file = sx.xpath(".//logger[@mode='tree']")[0].attrib['fileName']
+    traj_file = sx.xpath(".//logger[not(@mode)]")[0].attrib['fileName']
+    is_serial = sx.find(".//reaction[@spec='PunctualReaction']") is None
+    tree_generator = Phylo.parse(tree_file, "nexus")
     tree = next(tree_generator).root
-    traj_file = simulation_xml.replace("xml", "traj")
     # read the time of the last sequenced sample and the prevalence at
     # that time.
     traj_df = pd.read_csv(traj_file, sep="\t")
-    psi_df = traj_df[traj_df["population"] == "Psi"]
-    psi_df = psi_df[psi_df["value"] == psi_df["value"].max()]
-    psi_df = psi_df[psi_df["t"] == psi_df["t"].min()]
-    last_psi_time = psi_df["t"].values[0]
-    last_rows = traj_df[traj_df["t"] == last_psi_time]
+    if is_serial:
+        psi_df = traj_df[traj_df["population"] == "Psi"]
+        psi_df = psi_df[psi_df["value"] == psi_df["value"].max()]
+        psi_df = psi_df[psi_df["t"] == psi_df["t"].min()]
+        last_psi_time = psi_df["t"].values[0]
+        last_rows = traj_df[traj_df["t"] == last_psi_time]
+    else:
+        last_psi_time = traj_df["t"].max()
+        last_rows = traj_df[traj_df["t"] == last_psi_time]
     last_X = last_rows[last_rows["population"] == "X"]["value"].values[0]
     last_Psi = last_rows[last_rows["population"] == "Psi"]["value"].values[0]
     last_Mu = last_rows[last_rows["population"] == "Mu"]["value"].values[0]
@@ -367,9 +381,6 @@ def _tree_to_uint8(tree):
     return np.frombuffer(pickle.dumps(tree), dtype="uint8")
 
 
-# TODO There should be something in here that makes it clear what is
-# happening with regard to the possibility of there being a
-# contemporaneous sampling scheme.
 def create_database(pickle_files):
     db_conn = h5py.File(DB_PATH, "w")
     parameter_keys = [
