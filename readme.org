@@ -36,13 +36,13 @@ problems.
     which the sampling is all done at the present. This will be a bit
     of work but will make the simulations meaningfully more
     expressive.
-    * [ ] Create a new remaster template which does a contemporary
+    * [ ] Create a new remaster template which does a contemporaneous
       sample.
-    * [ ] Include contemporary sampling configuration in =main.py=.
+    * [ ] Include contemporaneous sampling configuration in =main.py=.
     * [ ] Create a new configuration
-      =simulation-<name>-contemporary.json= for the new instances.
-    * [ ] Extend the plotting to work in the case of contemporary
-      sampling.
+      =simulation-<name>-contemporaneous.json= for the new instances.
+    * [ ] Extend the plotting to work in the case of a contemporaneous
+      sample.
   + [ ] Document how to use the database file.
     * [ ] There should be a helper function which explains how to read
       trees and their corresponding record out.
@@ -55,7 +55,7 @@ There are some example configurations provided:
 
 - [[file:./config/debugging.json][debugging]]
 - [[file:./config/simulation-charmander.json][Charmander]] (see [[#sec:charmander][here]])
-- [[file:./config/simulation-charmander-contemporary.json][Charmander with contemporary sampling]] (see [[#sec:charmander-contemporary][here]])
+- [[file:./config/simulation-charmander-contemporaneous.json][Charmander with a contemporaneous sample]]
 - [[file:./config/simulation-charmeleon.json][Charmeleon]] (see [[#sec:charmeleon][here]])
 
 There is a schema for valid described [[file:./config/readme.org][here]].

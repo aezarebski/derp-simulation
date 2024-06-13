@@ -81,7 +81,7 @@
             }
           ]
         },
-        "contemporary-sampling": {
+        "contemporaneous_sample": {
           "type": "boolean"
         }
       },
