@@ -1,4 +1,4 @@
-#+title: DERP: Deep recursive parameter estimation
+#+title: DERP Simulation
 #+author: Alexander E. Zarebski
 
 This repository contains the code to simulate a database of
@@ -122,6 +122,24 @@ through time, for example, the $R_0$ values are shown in Figure
 #+attr_org: :width 500px
 #+attr_html: :width 400px
 [[./out/sim-charmeleon/plots/r0_trajectories.png]]
+
+** Charizard
+:properties:
+:custom_id: sec:charizard
+:end:
+
+This is intended as a plausible dataset. It has a 8000-1000-1000
+training-validation-testing split (although there are 11000
+simulations attempted to adjust for failures). The parameters vary
+significantly through time, for example, the $R_0$ values are shown in
+Figure [[fig:charizard-r0s]]. The configuration for this simulation is
+[[file:./config/simulation-charizard.json][simulation-charizard.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charizard simulations.
+#+name: fig:charizard-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charizard/plots/r0_trajectories.png]]
 
 * Notes
 
