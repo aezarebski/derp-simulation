@@ -1,4 +1,4 @@
-#+title: DERP: Deep recursive parameter estimation
+#+title: DERP Simulation
 #+author: Alexander E. Zarebski
 
 This repository contains the code to simulate a database of
@@ -10,22 +10,12 @@ problems.
 
 - [-] Provide a single database file and some helper functions to read
   trees out and their associated metadata.
-  + [-] There should be a bunch of visualisation so that we can get a
-    feel for if the parameters of the simulation are at all plausible.
-    * [X] Visualisation of change points
-    * [X] Histogram of the last sequenced sample time
-    * [ ] Histogram of prevalence
-    * [ ] Histogram of cumulative infections
-  + [X] There should be a file to specify the conda environment used
-    and instructions on how to recreate this.
   + [X] Establish the prior distribution to draw simulation parameters
     from, these will need to be sufficiently large to cover the range
     of plausible values for the use cases.
   + [X] This should be robust to failed simulations and include basic
     metadata of the simulation such as the dataset size and the date
     it was created.
-  + [ ] Rename =main.py= to =simulate.py= or something similar for
-    clarity.
   + [ ] Document how to use the database file.
     * [ ] There should be a helper function which explains how to read
       trees and their corresponding record out.
@@ -122,6 +112,24 @@ through time, for example, the $R_0$ values are shown in Figure
 #+attr_org: :width 500px
 #+attr_html: :width 400px
 [[./out/sim-charmeleon/plots/r0_trajectories.png]]
+
+** Charizard
+:properties:
+:custom_id: sec:charizard
+:end:
+
+This is intended as a plausible dataset. It has a 8000-1000-1000
+training-validation-testing split (although there are 11000
+simulations attempted to adjust for failures). The parameters vary
+significantly through time, for example, the $R_0$ values are shown in
+Figure [[fig:charizard-r0s]]. The configuration for this simulation is
+[[file:./config/simulation-charizard.json][simulation-charizard.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charizard simulations.
+#+name: fig:charizard-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charizard/plots/r0_trajectories.png]]
 
 * Notes
 
