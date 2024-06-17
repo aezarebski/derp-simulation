@@ -184,6 +184,10 @@ cumulative_infections_hist_p9 = (
     + p9.theme_bw()
     + p9.theme(axis_title_y=p9.element_blank())
 )
-cumulative_infections_hist_p9.save(f"{PLOT_DIR}/cumulative_infections_hist.png", width=10, height=10, dpi=300)
-cumulative_infections_hist_p9.save(f"{PLOT_DIR}/cumulative_infections_hist.svg", width=10, height=10, dpi=300)
+cumulative_infections_hist_p9.save(
+    f"{PLOT_DIR}/cumulative_infections_hist.png", width=10, height=10, dpi=300
+)
+cumulative_infections_hist_p9.save(
+    f"{PLOT_DIR}/cumulative_infections_hist.svg", width=10, height=10, dpi=300
+)
 # Distribution of cumulative infections at present:1 ends here
