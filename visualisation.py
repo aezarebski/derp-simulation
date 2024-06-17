@@ -152,12 +152,11 @@ last_seq_hist_p9 = (
     + p9.theme_bw()
     + p9.theme(axis_title_y=p9.element_blank())
 )
-
-# Save the plot
 last_seq_hist_p9.save(f"{PLOT_DIR}/last_seq_hist.png", width=10, height=10, dpi=300)
 last_seq_hist_p9.save(f"{PLOT_DIR}/last_seq_hist.svg", width=10, height=10, dpi=300)
+# Distribution of last sequence times:1 ends here
 
-
+# [[file:visualisation.org::*Distribution of prevalence at present][Distribution of prevalence at present:1]]
 prevalence_hist_p9 = (
     p9.ggplot()
     + p9.geom_histogram(
@@ -171,8 +170,9 @@ prevalence_hist_p9 = (
 )
 prevalence_hist_p9.save(f"{PLOT_DIR}/prevalence_hist.png", width=10, height=10, dpi=300)
 prevalence_hist_p9.save(f"{PLOT_DIR}/prevalence_hist.svg", width=10, height=10, dpi=300)
+# Distribution of prevalence at present:1 ends here
 
-
+# [[file:visualisation.org::*Distribution of cumulative infections at present][Distribution of cumulative infections at present:1]]
 cumulative_infections_hist_p9 = (
     p9.ggplot()
     + p9.geom_histogram(
@@ -186,4 +186,4 @@ cumulative_infections_hist_p9 = (
 )
 cumulative_infections_hist_p9.save(f"{PLOT_DIR}/cumulative_infections_hist.png", width=10, height=10, dpi=300)
 cumulative_infections_hist_p9.save(f"{PLOT_DIR}/cumulative_infections_hist.svg", width=10, height=10, dpi=300)
-# Distribution of last sequence times:1 ends here
+# Distribution of cumulative infections at present:1 ends here
