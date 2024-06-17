@@ -30,6 +30,7 @@ There are some example configurations provided:
 - [[file:./config/simulation-charmander.json][Charmander]] (see [[#sec:charmander][here]])
 - [[file:./config/simulation-charmander-contemporaneous.json][Charmander with a contemporaneous sample]]
 - [[file:./config/simulation-charmeleon.json][Charmeleon]] (see [[#sec:charmeleon][here]])
+- [[file:./config/simulation-charizard.json][Charizard]] (see [[#sec:charizard][here]])
 
 There is a schema for valid described [[file:./config/readme.org][here]].
 
