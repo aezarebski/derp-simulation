@@ -1,4 +1,4 @@
-# [[file:vis.org::*Packages][Packages:1]]
+# [[file:visualisation.org::*Packages][Packages:1]]
 import h5py
 import json
 import os
@@ -9,7 +9,7 @@ import plotnine as p9
 
 # Packages:1 ends here
 
-# [[file:vis.org::*Read the configuration][Read the configuration:1]]
+# [[file:visualisation.org::*Read the configuration][Read the configuration:1]]
 # CONFIG_JSON = "config/simulation-charmander.json"
 # CONFIG_JSON = "config/simulation-charmeleon.json"
 CONFIG_JSON = "config/simulation-charizard.json"
@@ -26,7 +26,7 @@ if not os.path.exists(PLOT_DIR):
 # Read the configuration:1 ends here
 
 
-# [[file:vis.org::*Setting up dataframes from the simulated data][Setting up dataframes from the simulated data:1]]
+# [[file:visualisation.org::*Setting up dataframes from the simulated data][Setting up dataframes from the simulated data:1]]
 def _record_summary(key, db_conn):
     return {
         "key": key,
@@ -81,7 +81,7 @@ cases_df = pd.DataFrame(
 )
 # Setting up dataframes from the simulated data:1 ends here
 
-# [[file:vis.org::*Plot: random selection of R0 functions][Plot: random selection of R0 functions:1]]
+# [[file:visualisation.org::*Plot: random selection of R0 functions][Plot: random selection of R0 functions:1]]
 tmp = pd.DataFrame(data_dicts).sample((50 if len(data_dicts) > 50 else len(data_dicts)))
 
 
@@ -109,7 +109,7 @@ r0_trajectories_p9.save(f"{PLOT_DIR}/r0_trajectories.png", width=10, height=10, 
 r0_trajectories_p9.save(f"{PLOT_DIR}/r0_trajectories.svg", width=10, height=10, dpi=300)
 # Plot: random selection of R0 functions:1 ends here
 
-# [[file:vis.org::*Simulation timelines][Simulation timelines:1]]
+# [[file:visualisation.org::*Simulation timelines][Simulation timelines:1]]
 timelines_p9 = (
     p9.ggplot()
     + p9.geom_hline(
@@ -132,7 +132,7 @@ timelines_p9.save(f"{PLOT_DIR}/timelines.png", width=10, height=10, dpi=300)
 timelines_p9.save(f"{PLOT_DIR}/timelines.svg", width=10, height=10, dpi=300)
 # Simulation timelines:1 ends here
 
-# [[file:vis.org::*Distribution of last sequence times][Distribution of last sequence times:1]]
+# [[file:visualisation.org::*Distribution of last sequence times][Distribution of last sequence times:1]]
 last_seq_hist_p9 = (
     p9.ggplot()
     + p9.geom_histogram(
