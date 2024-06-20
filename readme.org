@@ -6,25 +6,25 @@ phylogenetic trees that will be used in a machine learning project in
 which a neural network will be trained to solve phylodynamics
 problems.
 
-* Roadmap
-
-- [-] Provide a single database file and some helper functions to read
-  trees out and their associated metadata.
-  + [X] Establish the prior distribution to draw simulation parameters
-    from, these will need to be sufficiently large to cover the range
-    of plausible values for the use cases.
-  + [X] This should be robust to failed simulations and include basic
-    metadata of the simulation such as the dataset size and the date
-    it was created.
-  + [ ] Document how to use the database file.
-    * [ ] There should be a helper function which explains how to read
-      trees and their corresponding record out.
-
 * Usage
+
+** Getting started generating a database
+
+To generate the database, run the main script:
+
+#+begin_src sh
+ python main.py <path/to/config.json>
+#+end_src
+
+If you want a small example to test this out, try using the
+=config/debugging.json= file. The whole simulation is configured by
+the JSON file provided at the command line.
 
 ** Configuring a simulation
 
-There are some example configurations provided:
+The way in which a dataset is simulated is configured with a JSON
+file. There is a schema for valid configurations described [[file:./config/readme.org][here]]. There
+are some example configurations provided:
 
 - [[file:./config/debugging.json][debugging]]
 - [[file:./config/simulation-charmander.json][Charmander]] (see [[#sec:charmander][here]])
@@ -32,20 +32,12 @@ There are some example configurations provided:
 - [[file:./config/simulation-charmeleon.json][Charmeleon]] (see [[#sec:charmeleon][here]])
 - [[file:./config/simulation-charizard.json][Charizard]] (see [[#sec:charizard][here]])
 
-There is a schema for valid described [[file:./config/readme.org][here]].
-
-** Building the database
-
-To generate the database, run the main script.
-
-#+begin_src sh
- python main.py <path/to/config.json>
-#+end_src
+Additional information about these datasets is given below.
 
 ** Using the database
 
-The following demonstrates how to use the database. Don't forget to
-close the database connection after using it!
+The following demonstrates how to use the database in Python. Don't
+forget to close the database connection after using it!
 
 #+begin_src python
 db_conn = h5py.File("dataset.hdf5")
@@ -59,6 +51,12 @@ for k in db_conn.keys():
 db_conn.close()
 #+end_src
 
+If you want a GUI to inspect the output HDF5 file, the [[https://github.com/HDFGroup/hdf-compass][HDFCompass]] tool
+provides a simple way to inspect the data that has been generated.
+There is some basic information about the simulation stored as
+attributes in the HDF5 file. This includes the date of creation and
+the size of the dataset.
+
 ** Conda environment
 
 A conda environment to run this simulation can be created from the
@@ -67,6 +65,16 @@ A conda environment to run this simulation can be created from the
 #+begin_src sh
   conda env create -f environment.yaml
 #+end_src
+
+This environment will have all the correct packages for running the
+simulations.
+
+** Installing BEAST2
+
+BEAST2 is used to simulate the data. If you don't have BEAST2
+installed, there is a script =scr/setuplib.sh= which will download and
+install this for you. Once you have BEAST2 installed, you will need to
+install [[https://tgvaughan.github.io/remaster/][remaster]] through BEAUti.
 
 * Datasets
 
@@ -131,24 +139,3 @@ Figure [[fig:charizard-r0s]]. The configuration for this simulation is
 #+attr_org: :width 500px
 #+attr_html: :width 400px
 [[./out/sim-charizard/plots/r0_trajectories.png]]
-
-* Notes
-
-1. Activate the =derp= environment in conda and run =python main.py
-   config/debugging.json= to run the debugging example. This will
-   produce a bunch of pickle files, each containing a single record of
-   the dataset and a HDF5 file which contains the pickled trees as
-   binary blobs and the various parameters and statistics that we
-   might be interested in estimating from those trees. The relevant
-   files are all defined at the start of =main.py= as global variables
-   read from the configuration JSON file.
-2. To set up BEAST2 to do the simulation you can run the
-   =src/setuplib.sh= script which will download BEAST2. Run =python
-   clean.py= to remove output to start again fresh. Run =bash
-   src/housekeeping.sh= to update =environment.yaml= and lint the
-   code.
-3. If you want a GUI to inspect the output HDF5 file, the [[https://github.com/HDFGroup/hdf-compass][HDFCompass]]
-   tool provides a simple way to inspect the data that has been
-   generated. There is some basic information about the simulation
-   stored as attributes in the HDF5 file. This includes the date of
-   creation and the size of the dataset.
