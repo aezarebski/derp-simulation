@@ -13,7 +13,8 @@ import subprocess
 
 if len(os.sys.argv) < 2:
     # CONFIG_JSON = "config/debugging.json"
-    CONFIG_JSON = "config/debugging-contemporaneous.json"
+    # CONFIG_JSON = "config/debugging-contemporaneous.json"
+    CONFIG_JSON = "config/debugging-measurement-times.json"
 else:
     CONFIG_JSON = os.sys.argv[1]
 
@@ -29,6 +30,19 @@ NUM_SIMS = CONFIG["num-simulations"]
 SIM_DIR = f"out/{CONFIG['simulation-name']}/simulation/remaster"
 SIM_PICKLE_DIR = f"out/{CONFIG['simulation-name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation-name']}/{CONFIG['output-hdf5']}"
+
+
+# ADDED 21-8: add in an optional time interval parameter to report tree data over time
+if not CONFIG["simulation-hyperparameters"].get("report-temporal-data", False):
+    REPORT_TEMPORAL_DATA = False
+else:
+    REPORT_TEMPORAL_DATA = True
+    try:
+        MEAS_TIME_INTERVAL = CONFIG["simulation-hyperparameters"]["measurement-time-interval"]
+    except KeyError:
+        raise Exception("Check configuration: measurement-time-interval must be specified")
+####
+
 
 
 def prompt_user(message):
@@ -286,10 +300,10 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         $ ./lib/beast/bin/beast -seed 1 -overwrite <simulation_xml>
         """
         print(f"Running simulation: {simulation_xml}")
-        command = ["./lib/beast/bin/beast", "-seed", "1", "-overwrite", simulation_xml]
+        command = ["/Applications/BEAST 2.7.6/bin/beast", "-seed", "1", "-overwrite", simulation_xml]
         try:
             result = subprocess.run(
-                command, check=True, capture_output=True, text=True, timeout=300
+                command, check=True, capture_output=True, text=True, timeout=300,
             )
             return result.stdout
         except subprocess.TimeoutExpired:
@@ -310,7 +324,9 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
                 print(f"Simulation generated an exception for {xml}: {exc}")
 
 
-def read_simulation_results(simulation_xml):
+
+# EDITED 21-8: also gets passed params to enable r0 temporal data to be reported
+def read_simulation_results(simulation_xml, params):
     sim_xml_obj = etree.parse(simulation_xml)
     sx = sim_xml_obj.getroot()
     tree_file = sx.xpath(".//logger[@mode='tree']")[0].attrib["fileName"]
@@ -333,22 +349,61 @@ def read_simulation_results(simulation_xml):
     last_X = last_rows[last_rows["population"] == "X"]["value"].values[0]
     last_Psi = last_rows[last_rows["population"] == "Psi"]["value"].values[0]
     last_Mu = last_rows[last_rows["population"] == "Mu"]["value"].values[0]
-    return {
+    sim_result_structure = {
         "tree": tree,
         "tree_height": max(tree.depths().values()),
         "present": last_psi_time,
         "present_prevalence": last_X,
-        "present_cumulative": last_Psi + last_Mu + last_X,
+        "present_cumulative": last_Psi + last_Mu + last_X
     }
+    
+    # ADDED 21-8: optionally report rzero, prevalence, cumul.
+    # infections, rzero over time here as a dataframe
+    if REPORT_TEMPORAL_DATA:
+    
+        num_time_points = round(last_psi_time//MEAS_TIME_INTERVAL)+1
+        r0_change_times = pd.Series(params["r0"]["change_times"])
+        
+        temp_data_headers = ["measurement-times", "prevalence", "cumulative", "reproductive-number"]
+        
+        temp_data = [None for _ in range(num_time_points)]
+        
+        for i in range(num_time_points):
+        
+            meas_time = MEAS_TIME_INTERVAL*i
+        
+            # pull data from trajectories (NOTE: can speed up)
+            most_recent_obs_time = traj_df[traj_df["t"] >= meas_time]["t"].min()
+            rows_this_time = traj_df[traj_df["t"] == most_recent_obs_time]
+            this_X = rows_this_time[rows_this_time["population"] == "X"]["value"].values[0]
+            this_Psi = rows_this_time[rows_this_time["population"] == "Psi"]["value"].values[0]
+            this_Mu = rows_this_time[rows_this_time["population"] == "Mu"]["value"].values[0]
+            
+            prev_meas = this_X
+            cumul_meas = this_X + this_Mu + this_Psi
+            r0_meas = params["r0"]["values"][len(r0_change_times[r0_change_times<=meas_time])]
+            
+            temp_data[i] = (meas_time, prev_meas, cumul_meas, r0_meas)
+
+        sim_result_structure["temporal_measurements"] = np.rec.fromrecords(temp_data,
+                                                         names=",".join(head for head in temp_data_headers))
+        
+    return sim_result_structure
+
+
+
 
 
 def pickle_simulation_result(sim_pickle, sim_xml, params):
     tree_file = os.path.basename(sim_xml).replace(".xml", ".tree")
     if os.path.exists(f"{SIM_DIR}/{tree_file}"):
+        # EDITED 21-8: now also passes params to read_simulation_results,
+        # enables r0 temporal data to be reported. NOTE: can do this after
+        # the fact though for speed up?
         result = {
             "parameters": params,
             "simulation_xml": sim_xml,
-            "simulation_results": read_simulation_results(sim_xml),
+            "simulation_results": read_simulation_results(sim_xml, params),
         }
         with open(sim_pickle, "wb") as f:
             pickle.dump(result, f)
@@ -391,6 +446,8 @@ def _tree_to_uint8(tree):
     return np.frombuffer(pickle.dumps(tree), dtype="uint8")
 
 
+
+# EDITED 21-8: includes temporal data
 def create_database(pickle_files):
     db_conn = h5py.File(DB_PATH, "w")
     parameter_keys = [
@@ -425,6 +482,13 @@ def create_database(pickle_files):
             params_grp.create_dataset(
                 "epidemic_duration", data=sim["parameters"]["epidemic_duration"]
             )
+            
+            #ADDED 21-8: save temporal data here
+            if REPORT_TEMPORAL_DATA:
+                params_grp.create_dataset("temporal_measurements",
+                                           data=sim["simulation_results"]["temporal_measurements"])
+            
+            
             for key in parameter_keys:
                 param_grp = params_grp.create_group(key)
                 param_grp.create_dataset(
