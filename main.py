@@ -382,7 +382,7 @@ def read_simulation_results(simulation_xml, params):
             this_meas_time = meas_times[time_ind]
         
             most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
-            rows_this_time = traj_df[traj_df["t"] == most_recent_obs_time]
+            rows_this_time = traj_df[traj_df["t"] == most_recent_change_time]
             this_X = rows_this_time[rows_this_time["population"] == "X"]["value"].values[0]
             this_Psi = rows_this_time[rows_this_time["population"] == "Psi"]["value"].values[0]
             this_Mu = rows_this_time[rows_this_time["population"] == "Mu"]["value"].values[0]
