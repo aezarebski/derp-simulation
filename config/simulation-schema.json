@@ -83,6 +83,12 @@
         },
         "contemporaneous_sample": {
           "type": "boolean"
+        },
+        "report-temporal-data": {
+            "type": "boolean"
+        },
+        "num-temp-measurements": {
+            "type": "integer"
         }
       },
       "required": [
