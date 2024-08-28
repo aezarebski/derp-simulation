@@ -300,7 +300,16 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         $ ./lib/beast/bin/beast -seed 1 -overwrite <simulation_xml>
         """
         print(f"Running simulation: {simulation_xml}")
-        command = ["/Applications/BEAST 2.7.6/bin/beast", "-seed", "1", "-overwrite", simulation_xml]
+        # MODIFIED 28-8: following AZ comment, gives mac and linux compatability
+        beast_executable_mac = "/Applications/BEAST 2.7.6/bin/beast"
+        beast_executable_linux = "./lib/beast/bin/beast"
+        if os.path.exists(beast_executable_mac):
+            beast_executable = beast_executable_mac
+        elif os.path.exists(beast_executable_linux):
+            beast_executable = beast_executable_linux
+        else:
+            raise Exception("BEAST2 executable not found.")
+        command = [beast_executable, "-seed", "1", "-overwrite", simulation_xml]
         try:
             result = subprocess.run(
                 command, check=True, capture_output=True, text=True, timeout=300,
@@ -372,7 +381,7 @@ def read_simulation_results(simulation_xml, params):
         
             this_meas_time = meas_times[time_ind]
         
-            most_recent_obs_time = traj_df[traj_df["t"] >= this_meas_time]["t"].min()
+            most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
             rows_this_time = traj_df[traj_df["t"] == most_recent_obs_time]
             this_X = rows_this_time[rows_this_time["population"] == "X"]["value"].values[0]
             this_Psi = rows_this_time[rows_this_time["population"] == "Psi"]["value"].values[0]

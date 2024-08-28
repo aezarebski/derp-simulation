@@ -12,6 +12,13 @@
   sampling proportion given removal. If there is a contemporaneous
   sample, this is the probability of an extant lineage being included
   in the sample.
+- =simulation-hyperparameters.report-temporal-data= can be set to
+  =true= in order to capture temporal data from the simulation in the
+  resulting database (=false= by default). If this parameter is set
+  to =true=, =simulation-hyperparameters.num-temp-measurements= (an
+  =integer=) must also be specified. This is the number of randomly
+  selected time points between the start of the epidemic and the
+  present at which data is reported.
 
 ** Schema
 
@@ -101,6 +108,12 @@
         },
         "contemporaneous_sample": {
           "type": "boolean"
+        },
+        "report-temporal-data": {
+            "type": "boolean"
+        },
+        "num-temp-measurements": {
+            "type": "integer"
         }
       },
       "required": [
