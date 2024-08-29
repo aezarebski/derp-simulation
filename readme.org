@@ -34,6 +34,25 @@ are some example configurations provided:
 
 Additional information about these datasets is given below.
 
+** Visualising the data
+
+Two scripts, =visualisation.py= and =visualisation_temporal.py= can be
+used to visualise the output of a simulation. These need to be modified
+so that Python knows the location of the config and are then run without
+arguments.
+
+#+begin_src sh
+ python visualisation.py
+ python visualisation_temporal.py
+#+end_src
+
+Note that the latter only applies for simulations which are configured
+to report temporal data (that is, =report_temporal_data= is set to
+=true= in the config).
+
+
+
+
 ** TODO Update this section of the documentation!!!
 
 ** Using the database
