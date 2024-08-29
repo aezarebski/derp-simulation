@@ -34,6 +34,8 @@ are some example configurations provided:
 
 Additional information about these datasets is given below.
 
+** TODO Update this section of the documentation!!!
+
 ** Using the database
 
 The following demonstrates how to use the database in Python. Don't
@@ -127,12 +129,12 @@ through time, for example, the $R_0$ values are shown in Figure
 :custom_id: sec:charizard
 :end:
 
-This is intended as a plausible dataset. It has a 8000-1000-1000
-training-validation-testing split (although there are 11000
-simulations attempted to adjust for failures). The parameters vary
-significantly through time, for example, the $R_0$ values are shown in
-Figure [[fig:charizard-r0s]]. The configuration for this simulation is
-[[file:./config/simulation-charizard.json][simulation-charizard.json]].
+This is intended as a plausible dataset for use in training a useful
+neural network. It has a 8000-1000-1000 training-validation-testing
+split (although there are 11000 simulations attempted to adjust for
+failures). The parameters vary significantly through time, for
+example, the $R_0$ values are shown in Figure [[fig:charizard-r0s]]. The
+configuration for this simulation is [[file:./config/simulation-charizard.json][simulation-charizard.json]].
 
 #+caption: The reproduction number through time in a subsample of the Charizard simulations.
 #+name: fig:charizard-r0s
