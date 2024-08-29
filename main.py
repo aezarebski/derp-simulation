@@ -30,9 +30,6 @@ NUM_SIMS = CONFIG["num_simulations"]
 SIM_DIR = f"out/{CONFIG['simulation_name']}/simulation/remaster"
 SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
-
-
-# ADDED 21-8: add in an optional time interval parameter to report tree data over time
 if not CONFIG["simulation_hyperparameters"].get("report_temporal_data", False):
     REPORT_TEMPORAL_DATA = False
 else:
@@ -41,8 +38,6 @@ else:
         NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"]["num_temp_measurements"]
     except KeyError:
         raise Exception("Check configuration: num_temp_measurements must be specified")
-####
-
 
 
 def prompt_user(message):
@@ -300,7 +295,6 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         $ ./lib/beast/bin/beast -seed 1 -overwrite <simulation_xml>
         """
         print(f"Running simulation: {simulation_xml}")
-        # MODIFIED 28-8: following AZ comment, gives mac and linux compatability
         beast_executable_mac = "/Applications/BEAST 2.7.6/bin/beast"
         beast_executable_linux = "./lib/beast/bin/beast"
         if os.path.exists(beast_executable_mac):
@@ -333,8 +327,6 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
                 print(f"Simulation generated an exception for {xml}: {exc}")
 
 
-
-# EDITED 21-8: also gets passed params to enable r0 temporal data to be reported
 def read_simulation_results(simulation_xml, params):
     sim_xml_obj = etree.parse(simulation_xml)
     sx = sim_xml_obj.getroot()
@@ -358,7 +350,7 @@ def read_simulation_results(simulation_xml, params):
     last_X = last_rows[last_rows["population"] == "X"]["value"].values[0]
     last_Psi = last_rows[last_rows["population"] == "Psi"]["value"].values[0]
     last_Mu = last_rows[last_rows["population"] == "Mu"]["value"].values[0]
-    sim_result_structure = {
+    sim_result_dict = {
         "tree": tree,
         "tree_height": max(tree.depths().values()),
         "present": last_psi_time,
@@ -366,19 +358,15 @@ def read_simulation_results(simulation_xml, params):
         "present_cumulative": last_Psi + last_Mu + last_X
     }
 
-    # ADDED 21-8: optionally report rzero, prevalence, cumul.
-    # infections, rzero over time here as a numpy recarray
     if REPORT_TEMPORAL_DATA:
-
-        meas_times = np.sort(np.random.uniform(low=0.0, high=sim_result_structure["present"],
+        meas_times = np.sort(np.random.uniform(low=0.0, high=sim_result_dict["present"],
                                        size=NUM_TEMP_MEASUREMENTS))
         r0_change_times = pd.Series(params["r0"]["change_times"])
 
-        temp_data_headers = ["measurement_times", "prevalence", "cumulative", "reproductive_number"]
-        temp_data = [None for _ in range(NUM_TEMP_MEASUREMENTS)]
+        temp_data_headers = ",".join(["measurement_times", "prevalence", "cumulative", "reproductive_number"])
+        temp_data = []
 
         for time_ind in range(NUM_TEMP_MEASUREMENTS):
-
             this_meas_time = meas_times[time_ind]
 
             most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
@@ -393,13 +381,13 @@ def read_simulation_results(simulation_xml, params):
             num_r0_changes_so_far = len(r0_change_times[r0_change_times<=this_meas_time])
             r0_meas_this_time = params["r0"]["values"][num_r0_changes_so_far]
 
-            temp_data[time_ind] = (this_meas_time, prev_meas_this_time,
-                                   cumul_meas_this_time, r0_meas_this_time)
+            temp_data.append((this_meas_time, prev_meas_this_time,
+                                   cumul_meas_this_time, r0_meas_this_time))
 
-        sim_result_structure["temporal_measurements"] = np.rec.fromrecords(temp_data,
-                                                        names=",".join(head for head in temp_data_headers))
+        sim_result_dict["temporal_measurements"] = np.rec.fromrecords(temp_data,
+                                                                      names=temp_data_headers)
 
-    return sim_result_structure
+    return sim_result_dict
 
 
 
@@ -408,9 +396,6 @@ def read_simulation_results(simulation_xml, params):
 def pickle_simulation_result(sim_pickle, sim_xml, params):
     tree_file = os.path.basename(sim_xml).replace(".xml", ".tree")
     if os.path.exists(f"{SIM_DIR}/{tree_file}"):
-        # EDITED 21-8: now also passes params to read_simulation_results,
-        # enables r0 temporal data to be reported. NOTE: this information
-        # is passed out in params anyway
         result = {
             "parameters": params,
             "simulation_xml": sim_xml,
@@ -457,8 +442,6 @@ def _tree_to_uint8(tree):
     return np.frombuffer(pickle.dumps(tree), dtype="uint8")
 
 
-
-# EDITED 21-8: includes temporal data
 def create_database(pickle_files):
     db_conn = h5py.File(DB_PATH, "w")
     parameter_keys = [
@@ -493,8 +476,6 @@ def create_database(pickle_files):
             params_grp.create_dataset(
                 "epidemic_duration", data=sim["parameters"]["epidemic_duration"]
             )
-
-            #ADDED 21-8: save temporal data here
             if REPORT_TEMPORAL_DATA:
                 params_grp.create_dataset("temporal_measurements",
                                            data=sim["simulation_results"]["temporal_measurements"])
