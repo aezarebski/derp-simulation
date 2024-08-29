@@ -35,7 +35,9 @@ if not CONFIG["simulation_hyperparameters"].get("report_temporal_data", False):
 else:
     REPORT_TEMPORAL_DATA = True
     try:
-        NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"]["num_temp_measurements"]
+        NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"][
+            "num_temp_measurements"
+        ]
     except KeyError:
         raise Exception("Check configuration: num_temp_measurements must be specified")
 
@@ -306,7 +308,11 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         command = [beast_executable, "-seed", "1", "-overwrite", simulation_xml]
         try:
             result = subprocess.run(
-                command, check=True, capture_output=True, text=True, timeout=300,
+                command,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=300,
             )
             return result.stdout
         except subprocess.TimeoutExpired:
@@ -355,15 +361,20 @@ def read_simulation_results(simulation_xml, params):
         "tree_height": max(tree.depths().values()),
         "present": last_psi_time,
         "present_prevalence": last_X,
-        "present_cumulative": last_Psi + last_Mu + last_X
+        "present_cumulative": last_Psi + last_Mu + last_X,
     }
 
     if REPORT_TEMPORAL_DATA:
-        meas_times = np.sort(np.random.uniform(low=0.0, high=sim_result_dict["present"],
-                                       size=NUM_TEMP_MEASUREMENTS))
+        meas_times = np.sort(
+            np.random.uniform(
+                low=0.0, high=sim_result_dict["present"], size=NUM_TEMP_MEASUREMENTS
+            )
+        )
         r0_change_times = pd.Series(params["r0"]["change_times"])
 
-        temp_data_headers = ",".join(["measurement_times", "prevalence", "cumulative", "reproductive_number"])
+        temp_data_headers = ",".join(
+            ["measurement_times", "prevalence", "cumulative", "reproductive_number"]
+        )
         temp_data = []
 
         for time_ind in range(NUM_TEMP_MEASUREMENTS):
@@ -371,26 +382,38 @@ def read_simulation_results(simulation_xml, params):
 
             most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
             rows_this_time = traj_df[traj_df["t"] == most_recent_change_time]
-            this_X = rows_this_time[rows_this_time["population"] == "X"]["value"].values[0]
-            this_Psi = rows_this_time[rows_this_time["population"] == "Psi"]["value"].values[0]
-            this_Mu = rows_this_time[rows_this_time["population"] == "Mu"]["value"].values[0]
+            this_X = rows_this_time[rows_this_time["population"] == "X"][
+                "value"
+            ].values[0]
+            this_Psi = rows_this_time[rows_this_time["population"] == "Psi"][
+                "value"
+            ].values[0]
+            this_Mu = rows_this_time[rows_this_time["population"] == "Mu"][
+                "value"
+            ].values[0]
 
             prev_meas_this_time = this_X
             cumul_meas_this_time = this_X + this_Mu + this_Psi
 
-            num_r0_changes_so_far = len(r0_change_times[r0_change_times<=this_meas_time])
+            num_r0_changes_so_far = len(
+                r0_change_times[r0_change_times <= this_meas_time]
+            )
             r0_meas_this_time = params["r0"]["values"][num_r0_changes_so_far]
 
-            temp_data.append((this_meas_time, prev_meas_this_time,
-                                   cumul_meas_this_time, r0_meas_this_time))
+            temp_data.append(
+                (
+                    this_meas_time,
+                    prev_meas_this_time,
+                    cumul_meas_this_time,
+                    r0_meas_this_time,
+                )
+            )
 
-        sim_result_dict["temporal_measurements"] = np.rec.fromrecords(temp_data,
-                                                                      names=temp_data_headers)
+        sim_result_dict["temporal_measurements"] = np.rec.fromrecords(
+            temp_data, names=temp_data_headers
+        )
 
     return sim_result_dict
-
-
-
 
 
 def pickle_simulation_result(sim_pickle, sim_xml, params):
@@ -477,9 +500,10 @@ def create_database(pickle_files):
                 "epidemic_duration", data=sim["parameters"]["epidemic_duration"]
             )
             if REPORT_TEMPORAL_DATA:
-                params_grp.create_dataset("temporal_measurements",
-                                           data=sim["simulation_results"]["temporal_measurements"])
-
+                params_grp.create_dataset(
+                    "temporal_measurements",
+                    data=sim["simulation_results"]["temporal_measurements"],
+                )
 
             for key in parameter_keys:
                 param_grp = params_grp.create_group(key)
