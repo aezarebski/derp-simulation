@@ -2,28 +2,28 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "simulation-name": {
+    "simulation_name": {
       "type": "string"
     },
-    "output-hdf5": {
+    "output_hdf5": {
       "type": "string"
     },
     "seed": {
       "type": "integer"
     },
-    "remaster-xml": {
+    "remaster_xml": {
       "type": "string"
     },
-    "num-simulations": {
+    "num_simulations": {
       "type": "integer"
     },
-    "num-workers": {
+    "num_workers": {
       "type": "integer"
     },
-    "simulation-hyperparameters": {
+    "simulation_hyperparameters": {
       "type": "object",
       "properties": {
-        "duration-range": {
+        "duration_range": {
           "type": "array",
           "items": [
             {
@@ -34,7 +34,7 @@
             }
           ]
         },
-        "num-changes": {
+        "num_changes": {
           "type": "array",
           "items": [
             {
@@ -45,7 +45,7 @@
             }
           ]
         },
-        "shrinkage-factor": {
+        "shrinkage_factor": {
           "type": "number"
         },
         "r0_bounds": {
@@ -84,17 +84,17 @@
         "contemporaneous_sample": {
           "type": "boolean"
         },
-        "report-temporal-data": {
+        "report_temporal_data": {
             "type": "boolean"
         },
-        "num-temp-measurements": {
+        "num_temp_measurements": {
             "type": "integer"
         }
       },
       "required": [
-        "duration-range",
-        "num-changes",
-        "shrinkage-factor",
+        "duration_range",
+        "num_changes",
+        "shrinkage_factor",
         "r0_bounds",
         "net_rem_rate_bounds",
         "sampling_prop_bounds",
@@ -102,11 +102,11 @@
     }
   },
   "required": [
-    "simulation-name",
-    "output-hdf5",
+    "simulation_name",
+    "output_hdf5",
     "seed",
-    "remaster-xml",
-    "num-simulations",
-    "simulation-hyperparameters"
+    "remaster_xml",
+    "num_simulations",
+    "simulation_hyperparameters"
   ]
 }

@@ -1,16 +1,18 @@
 {
-    "simulation-name": "sim-charmander",
-    "output-hdf5": "dataset-charmander.hdf5",
+    "simulation_name": "sim-charmander",
+    "output_hdf5": "dataset-charmander.hdf5",
     "seed": 42,
-    "remaster-xml": "src/remaster-template.xml",
-    "num-simulations": 1000,
-    "num-workers": 5,
-    "simulation-hyperparameters": {
-	"duration-range": [30, 50],
-	"num-changes": [1, 2],
-	"shrinkage-factor": 0.99,
+    "remaster_xml": "src/remaster-template.xml",
+    "num_simulations": 1000,
+    "num_workers": 5,
+    "simulation_hyperparameters": {
+	"duration_range": [30, 50],
+	"num_changes": [1, 2],
+	"shrinkage_factor": 0.99,
 	"r0_bounds": [1.0, 2.0],
 	"net_rem_rate_bounds": [6.5, 7.5],
-	"sampling_prop_bounds": [0.10, 0.30]
+	"sampling_prop_bounds": [0.10, 0.30],
+	"report_temporal_data": true,
+	"num_temp_measurements": 10
     }
 }
