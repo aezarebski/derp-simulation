@@ -17,10 +17,10 @@ CONFIG_JSON = "config/simulation-charizard.json"
 
 with open(CONFIG_JSON, "r") as file:
     CONFIG = json.load(file)
-SIM_DIR = f"out/{CONFIG['simulation-name']}/simulation/remaster"
-SIM_PICKLE_DIR = f"out/{CONFIG['simulation-name']}/simulation/pickle"
-DB_PATH = f"out/{CONFIG['simulation-name']}/{CONFIG['output-hdf5']}"
-PLOT_DIR = f"out/{CONFIG['simulation-name']}/plots"
+SIM_DIR = f"out/{CONFIG['simulation_name']}/simulation/remaster"
+SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
+DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
+PLOT_DIR = f"out/{CONFIG['simulation_name']}/plots"
 if not os.path.exists(PLOT_DIR):
     os.makedirs(PLOT_DIR)
 # Read the configuration:1 ends here
@@ -87,7 +87,7 @@ tmp = pd.DataFrame(data_dicts).sample((50 if len(data_dicts) > 50 else len(data_
 
 def _r0_plot_df(subset_data_dicts_df, key_num):
     global CONFIG
-    max_sim_duration = CONFIG["simulation-hyperparameters"]["duration-range"][-1]
+    max_sim_duration = CONFIG["simulation_hyperparameters"]["duration_range"][-1]
     foo = tmp[tmp.key_num == key_num].r0_change_times.item().tolist()
     foo.insert(0, 0)
     foo.insert(len(foo), max_sim_duration)
@@ -141,12 +141,12 @@ last_seq_hist_p9 = (
         bins=20,
     )
     + p9.geom_vline(
-        xintercept=CONFIG["simulation-hyperparameters"]["duration-range"],
+        xintercept=CONFIG["simulation_hyperparameters"]["duration_range"],
         linetype="dashed",
         color="red",
     )
     + p9.scale_x_continuous(
-        limits=(0, CONFIG["simulation-hyperparameters"]["duration-range"][-1] + 2),
+        limits=(0, CONFIG["simulation_hyperparameters"]["duration_range"][-1] + 2),
         name="Time of last sequence",
     )
     + p9.theme_bw()
