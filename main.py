@@ -24,23 +24,23 @@ with open(CONFIG_JSON, "r") as file:
 np.random.seed(CONFIG["seed"])
 
 
-REMASTER_XML = CONFIG["remaster-xml"]
-NUM_WORKERS = CONFIG["num-workers"]
-NUM_SIMS = CONFIG["num-simulations"]
-SIM_DIR = f"out/{CONFIG['simulation-name']}/simulation/remaster"
-SIM_PICKLE_DIR = f"out/{CONFIG['simulation-name']}/simulation/pickle"
-DB_PATH = f"out/{CONFIG['simulation-name']}/{CONFIG['output-hdf5']}"
+REMASTER_XML = CONFIG["remaster_xml"]
+NUM_WORKERS = CONFIG["num_workers"]
+NUM_SIMS = CONFIG["num_simulations"]
+SIM_DIR = f"out/{CONFIG['simulation_name']}/simulation/remaster"
+SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
+DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
 
 
 # ADDED 21-8: add in an optional time interval parameter to report tree data over time
-if not CONFIG["simulation-hyperparameters"].get("report-temporal-data", False):
+if not CONFIG["simulation_hyperparameters"].get("report_temporal_data", False):
     REPORT_TEMPORAL_DATA = False
 else:
     REPORT_TEMPORAL_DATA = True
     try:
-        NUM_TEMP_MEASUREMENTS = CONFIG["simulation-hyperparameters"]["num-temp-measurements"]
+        NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"]["num_temp_measurements"]
     except KeyError:
-        raise Exception("Check configuration: num-temp-measurements must be specified")
+        raise Exception("Check configuration: num_temp_measurements must be specified")
 ####
 
 
@@ -95,13 +95,13 @@ def random_remaster_parameters():
     their mean. This leads to smoother parameter trajectories but
     maintains the average value.
     """
-    sim_params = CONFIG["simulation-hyperparameters"]
+    sim_params = CONFIG["simulation_hyperparameters"]
     p = {}
     p["epidemic_duration"] = np.random.randint(
-        sim_params["duration-range"][0], sim_params["duration-range"][1] + 1
+        sim_params["duration_range"][0], sim_params["duration_range"][1] + 1
     )
     p["num_changes"] = np.random.randint(
-        sim_params["num-changes"][0], sim_params["num-changes"][1] + 1
+        sim_params["num_changes"][0], sim_params["num_changes"][1] + 1
     )
     alpha_param = 3
     cts = (
@@ -117,7 +117,7 @@ def random_remaster_parameters():
                 sim_params["r0_bounds"][1],
                 size=p["num_changes"] + 1,
             ),
-            sim_params["shrinkage-factor"],
+            sim_params["shrinkage_factor"],
         ),
         "change_times": cts,
     }
@@ -141,7 +141,7 @@ def _rand_remaster_params_serial(p, sim_params):
                 sim_params["net_rem_rate_bounds"][1],
                 size=1,
             ),
-            sim_params["shrinkage-factor"],
+            sim_params["shrinkage_factor"],
         ),
         "change_times": [],
     }
@@ -152,7 +152,7 @@ def _rand_remaster_params_serial(p, sim_params):
                 sim_params["sampling_prop_bounds"][1],
                 size=p["num_changes"] + 1,
             ),
-            sim_params["shrinkage-factor"],
+            sim_params["shrinkage_factor"],
         ),
         "change_times": p["change_times"],
     }
@@ -182,7 +182,7 @@ def _rand_remaster_params_contemporaneous(p, sim_params):
                 sim_params["net_rem_rate_bounds"][1],
                 size=1,
             ),
-            sim_params["shrinkage-factor"],
+            sim_params["shrinkage_factor"],
         ),
         "change_times": [],
     }
@@ -365,40 +365,40 @@ def read_simulation_results(simulation_xml, params):
         "present_prevalence": last_X,
         "present_cumulative": last_Psi + last_Mu + last_X
     }
-    
+
     # ADDED 21-8: optionally report rzero, prevalence, cumul.
     # infections, rzero over time here as a numpy recarray
     if REPORT_TEMPORAL_DATA:
-    
+
         meas_times = np.sort(np.random.uniform(low=0.0, high=sim_result_structure["present"],
                                        size=NUM_TEMP_MEASUREMENTS))
         r0_change_times = pd.Series(params["r0"]["change_times"])
-        
-        temp_data_headers = ["measurement-times", "prevalence", "cumulative", "reproductive-number"]
+
+        temp_data_headers = ["measurement_times", "prevalence", "cumulative", "reproductive_number"]
         temp_data = [None for _ in range(NUM_TEMP_MEASUREMENTS)]
-        
+
         for time_ind in range(NUM_TEMP_MEASUREMENTS):
-        
+
             this_meas_time = meas_times[time_ind]
-        
+
             most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
             rows_this_time = traj_df[traj_df["t"] == most_recent_change_time]
             this_X = rows_this_time[rows_this_time["population"] == "X"]["value"].values[0]
             this_Psi = rows_this_time[rows_this_time["population"] == "Psi"]["value"].values[0]
             this_Mu = rows_this_time[rows_this_time["population"] == "Mu"]["value"].values[0]
-            
+
             prev_meas_this_time = this_X
             cumul_meas_this_time = this_X + this_Mu + this_Psi
-            
+
             num_r0_changes_so_far = len(r0_change_times[r0_change_times<=this_meas_time])
             r0_meas_this_time = params["r0"]["values"][num_r0_changes_so_far]
-            
+
             temp_data[time_ind] = (this_meas_time, prev_meas_this_time,
                                    cumul_meas_this_time, r0_meas_this_time)
 
         sim_result_structure["temporal_measurements"] = np.rec.fromrecords(temp_data,
                                                         names=",".join(head for head in temp_data_headers))
-        
+
     return sim_result_structure
 
 
@@ -493,13 +493,13 @@ def create_database(pickle_files):
             params_grp.create_dataset(
                 "epidemic_duration", data=sim["parameters"]["epidemic_duration"]
             )
-            
+
             #ADDED 21-8: save temporal data here
             if REPORT_TEMPORAL_DATA:
                 params_grp.create_dataset("temporal_measurements",
                                            data=sim["simulation_results"]["temporal_measurements"])
-            
-            
+
+
             for key in parameter_keys:
                 param_grp = params_grp.create_group(key)
                 param_grp.create_dataset(
