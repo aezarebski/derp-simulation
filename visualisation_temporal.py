@@ -29,6 +29,7 @@ CONFIG_JSON = "config/debugging-measurement-times.json"
 # constants
 with open(CONFIG_JSON, "r") as file:
     CONFIG = json.load(file)
+assert CONFIG['simulation_hyperparameters']['report_temporal_data'], "This script is only for configurations that report temporal data."
 SIM_DIR = f"out/{CONFIG['simulation_name']}/simulation/remaster"
 SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
@@ -42,32 +43,18 @@ MAX_NUM_SIMS_TO_PLOT = 50
 
 
 
-# Read all temporal data out
+# Read a sample of the temporal data out
 
 def _read_temporal_data(key, db_conn):
-    return {
-        "key": key,
-        "key_num": int(key.split("_")[1]),
-        "temporal_data": db_conn[f"{key}/output/parameters/temporal_measurements"][()],
-    }
-    
+    df = pd.DataFrame(db_conn[f"{key}/output/parameters/temporal_measurements"][()])
+    df["key_num"] = int(key.split("_")[1])
+    return df
+
 DB_CONN = h5py.File(DB_PATH, "r")
-all_temporal_data = [
-    _read_temporal_data(key, DB_CONN) for key in DB_CONN.keys() if key.startswith("record")
-]
+keys_list = list(DB_CONN.keys())
+num_samples = MAX_NUM_SIMS_TO_PLOT if len(keys_list) > MAX_NUM_SIMS_TO_PLOT else len(keys_list)
+temporal_data_sample_df = pd.concat([_read_temporal_data(key, DB_CONN) for key in random.sample(keys_list, num_samples)])
 DB_CONN.close()
-
-
-# Pack a sample of simulations into a dataframe in order to plot
-inds_of_sims_to_plot = random.sample(range(len(all_temporal_data)),
-        (MAX_NUM_SIMS_TO_PLOT if len(all_temporal_data) > MAX_NUM_SIMS_TO_PLOT else len(all_temporal_data)))
-temporal_data_sample_df = pd.concat([pd.DataFrame(
-                                      {"key_num": all_temporal_data[sim_ind]["key_num"],
-                                      "measurement_times": all_temporal_data[sim_ind]["temporal_data"]["measurement_times"],
-                                      "prevalence": all_temporal_data[sim_ind]["temporal_data"]["prevalence"],
-                                      "cumulative": all_temporal_data[sim_ind]["temporal_data"]["cumulative"],
-                                      "reproductive_number": all_temporal_data[sim_ind]["temporal_data"]["reproductive_number"]})
-                                      for sim_ind in inds_of_sims_to_plot])
 
 
 
@@ -80,10 +67,11 @@ prevalence_p9 = (
     mapping=p9.aes(x="measurement_times", y="prevalence", group = "key_num"), size = 0.2, color = "cornflowerblue")
     + p9.labs(x="Forward time since epidemic start",y="Prevalence")
     + p9.scale_y_log10()
+    + p9.theme_bw()
 )
 
 prevalence_p9.save(f"{PLOT_DIR}/prevalence_over_time.png", width=10, height=10, dpi=300)
-prevalence_p9.save(f"{PLOT_DIR}/prevalence_over_time.svg", width=10, height=10, dpi=300)
+prevalence_p9.save(f"{PLOT_DIR}/prevalence_over_time.svg", width=10, height=10)
 
 
 
@@ -97,10 +85,11 @@ cumulative_p9 = (
     mapping=p9.aes(x="measurement_times", y="cumulative", group = "key_num"), size = 0.2, color = "darkolivegreen")
     + p9.labs(x="Forward time since epidemic start",y="Cumulative infections")
     + p9.scale_y_log10()
+    + p9.theme_bw()
 )
 
 cumulative_p9.save(f"{PLOT_DIR}/cumulative_over_time.png", width=10, height=10, dpi=300)
-cumulative_p9.save(f"{PLOT_DIR}/cumulative_over_time.svg", width=10, height=10, dpi=300)
+cumulative_p9.save(f"{PLOT_DIR}/cumulative_over_time.svg", width=10, height=10)
 
 
 
@@ -112,7 +101,8 @@ rzero_p9 = (
     + p9.geom_line(data = temporal_data_sample_df,
     mapping=p9.aes(x="measurement_times", y="reproductive_number", group = "key_num"), size = 0.2, color = "darkorange")
     + p9.labs(x="Forward time since epidemic start",y="Reproduction number")
+    + p9.theme_bw()
 )
 
 rzero_p9.save(f"{PLOT_DIR}/rzero_over_time.png", width=10, height=10, dpi=300)
-rzero_p9.save(f"{PLOT_DIR}/rzero_over_time.svg", width=10, height=10, dpi=300)
+rzero_p9.save(f"{PLOT_DIR}/rzero_over_time.svg", width=10, height=10)
