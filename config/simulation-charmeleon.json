@@ -6,13 +6,13 @@
     "num_simulations": 2000,
     "num_workers": 5,
     "simulation_hyperparameters": {
-	"duration_range": [30, 50],
-	"num_changes": [1, 2],
-	"shrinkage_factor": 0.50,
-	"r0_bounds": [1.0, 3.0],
-	"net_rem_rate_bounds": [5.0, 9.0],
-	"sampling_prop_bounds": [0.05, 0.50],
-	"report_temporal_data": true,
-	"num_temp_measurements": 10
+        "duration_range": [30, 50],
+        "num_changes": [1, 2],
+        "shrinkage_factor": 0.50,
+        "r0_bounds": [1.0, 3.0],
+        "net_rem_rate_bounds": [5.0, 9.0],
+        "sampling_prop_bounds": [0.05, 0.50],
+        "report_temporal_data": true,
+        "num_temp_measurements": 10
     }
 }
