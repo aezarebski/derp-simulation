@@ -131,7 +131,7 @@ dependencies:
   - liblapack=3.9.0=21_linux64_openblas
   - liblapacke=3.9.0=21_linux64_openblas
   - libnghttp2=1.57.0=h2d74bed_0
-  - libopenblas=0.3.26=pthreads_h413a1c8_0
+  - libopenblas=0.3.26
   - libpng=1.6.39=h5eee18b_0
   - libprotobuf=3.20.3=he621ea3_0
   - libsodium=1.0.18=h36c2ea0_1
@@ -233,7 +233,7 @@ dependencies:
   - rsa=4.9=pyhd8ed1ab_0
   - s3transfer=0.10.0=pyhd8ed1ab_0
   - scikit-learn=1.4.2=py310h1128e8f_1
-  - scipy=1.12.0=py310hb13e2d6_0
+  - scipy<1.12.0
   - setuptools=68.2.2=py310h06a4308_0
   - setuptools-scm=8.0.4=pyhd8ed1ab_0
   - six=1.16.0=pyh6c4a22f_0
@@ -277,4 +277,3 @@ dependencies:
   - zstd=1.5.5=hc292b87_0
   - pip:
       - pymysql==1.1.1
-prefix: /home/unimelb.edu.au/azarebski/miniconda3/envs/derp
