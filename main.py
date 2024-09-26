@@ -14,7 +14,8 @@ import subprocess
 if len(os.sys.argv) < 2:
     # CONFIG_JSON = "config/debugging.json"
     # CONFIG_JSON = "config/debugging-contemporaneous.json"
-    CONFIG_JSON = "config/debugging-measurement-times.json"
+    # CONFIG_JSON = "config/debugging-measurement-times.json"
+    CONFIG_JSON = "config/debugging-limited-time-sampling.json"
 else:
     CONFIG_JSON = os.sys.argv[1]
 
@@ -40,6 +41,10 @@ else:
         ]
     except KeyError:
         raise Exception("Check configuration: num_temp_measurements must be specified")
+if not CONFIG["simulation_hyperparameters"].get("limited_time_sampling", False):
+    LIMITED_TIME_SAMPLING = False
+else:
+    LIMITED_TIME_SAMPLING = True
 
 
 def prompt_user(message):
@@ -142,17 +147,32 @@ def _rand_remaster_params_serial(p, sim_params):
         ),
         "change_times": [],
     }
-    p["sampling_prop"] = {
-        "values": shrink(
-            np.random.uniform(
-                sim_params["sampling_prop_bounds"][0],
-                sim_params["sampling_prop_bounds"][1],
-                size=p["num_changes"] + 1,
+    if LIMITED_TIME_SAMPLING:
+        p["sampling_prop"] = {
+            "values": np.array(
+                [
+                    0.0,
+                    np.random.uniform(
+                        sim_params["sampling_prop_bounds"][0],
+                        sim_params["sampling_prop_bounds"][1]
+                    ),
+                ]
             ),
-            sim_params["shrinkage_factor"],
-        ),
-        "change_times": p["change_times"],
-    }
+            # TODO: this just randomly selects ANY time uniformly - should be more specific
+            "change_times": np.array([p["epidemic_duration"]*np.random.uniform()]),
+        }
+    else:
+        p["sampling_prop"] = {
+            "values": shrink(
+                np.random.uniform(
+                    sim_params["sampling_prop_bounds"][0],
+                    sim_params["sampling_prop_bounds"][1],
+                    size=p["num_changes"] + 1,
+                ),
+                sim_params["shrinkage_factor"],
+            ),
+            "change_times": p["change_times"],
+        }
     # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
@@ -160,11 +180,11 @@ def _rand_remaster_params_serial(p, sim_params):
     }
     p["death_rate"] = {
         "values": p["net_removal_rate"]["values"] * (1 - p["sampling_prop"]["values"]),
-        "change_times": p["change_times"],
+        "change_times": p["sampling_prop"]["change_times"],
     }
     p["sampling_rate"] = {
         "values": p["net_removal_rate"]["values"] * p["sampling_prop"]["values"],
-        "change_times": p["change_times"],
+        "change_times": p["sampling_prop"]["change_times"]
     }
     return p
 
