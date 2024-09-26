@@ -41,10 +41,7 @@ else:
         ]
     except KeyError:
         raise Exception("Check configuration: num_temp_measurements must be specified")
-if not CONFIG["simulation_hyperparameters"].get("limited_time_sampling", False):
-    LIMITED_TIME_SAMPLING = False
-else:
-    LIMITED_TIME_SAMPLING = True
+LIMITED_TIME_SAMPLING = CONFIG["simulation_hyperparameters"].get("limited_time_sampling", False)
 
 
 def prompt_user(message):
