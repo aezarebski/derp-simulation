@@ -114,6 +114,9 @@
         },
         "num-temp-measurements": {
             "type": "integer"
+        },
+        "limited_time_sampling": {
+            "type": "boolean"
         }
       },
       "required": [
