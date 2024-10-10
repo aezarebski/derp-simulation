@@ -1,6 +1,6 @@
 {
-    "simulation_name": "sim-charmander-limited-time",
-    "output_hdf5": "dataset-charmander-limited-time.hdf5",
+    "simulation_name": "sim-bulbasaur",
+    "output_hdf5": "dataset-bulbasaur.hdf5",
     "seed": 42,
     "remaster_xml": "src/remaster-template.xml",
     "num_simulations": 1000,

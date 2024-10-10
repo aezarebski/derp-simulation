@@ -1,16 +1,5 @@
 * Simulation configuration
 
-** Examples
-
-- =debugging.json= is a simple example of a configuration.
-- =debugging-limited-time-sampling.json= is an example demonstrating
-  the use of the =limited_time_sampling= flag.
-- =debugging-measurement-times.json= is an example demonstrating the
-  use of the =report_temporal_data= flag.
-- =simulation-charmander.json= small simulation
-- =simulation-charmeleon.json= medium simulation
-- =simulation-charizard.json= large simulation
-
 ** Notes
 
 - You can validate a simulation configuration against the schema using
@@ -30,11 +19,27 @@
   =integer=) must also be specified. This is the number of randomly
   selected time points between the start of the epidemic and the
   present at which data is reported.
-- =limited_time_sampling= is a boolean flag for whether to set the
-  initial sampling proportion to zero. The change point is a random
-  time uniformly distributed across the duration of the epidemic, and
-  the sampling proportion after that change point is uniformly
-  distributed between the bounds specified in the configuration.
+- =simulation-hyperparameters.limited_time_sampling= can be set to
+  =true= in order to implement sampling over limited time only
+  (=false= by default). If this parameter is set to =true=, the
+  sampling proportion is zero until a random change point, uniformly
+  distributed over the duration of the epidemic. If =false=, the
+  sampling proportion is nonzero throughout and changes in sync 
+  with the other parameters of the epidemic.
+
+** Examples
+
+- =debugging.json= is a simple example of a configuration.
+- =debugging-limited-time-sampling.json= is an example demonstrating
+  the use of the =limited_time_sampling= flag.
+- =debugging-measurement-times.json= is an example demonstrating the
+  use of the =report_temporal_data= flag.
+- =simulation-charmander.json= small simulation
+- =simulation-charmeleon.json= medium simulation
+- =simulation-charizard.json= large simulation
+- =simulation-bulbasaur.json= small simulation with limited-time sampling
+- =simulation-ivysaur.json= medium simulation with limited-time sampling
+- =simulation-venusaur.json= large simulation with limited-time sampling
 
 ** Schema
 
