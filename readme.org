@@ -20,6 +20,17 @@ If you want a small example to test this out, try using the
 =config/debugging.json= file. The whole simulation is configured by
 the JSON file provided at the command line.
 
+*** Optional monitoring progress
+
+Making a large database takes a while. There is a tool in
+=src/monitor.py= which you can run and it will report on the progress
+of a current database construction and give a (rough) estimate of the
+remaining time for each stage of the simulation.
+
+#+begin_src sh
+ python src/monitor.py <path/to/config.json>
+#+end_src
+
 ** Configuring a simulation
 
 The way in which a dataset is simulated is configured with a JSON
