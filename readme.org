@@ -20,6 +20,17 @@ If you want a small example to test this out, try using the
 =config/debugging.json= file. The whole simulation is configured by
 the JSON file provided at the command line.
 
+*** Optional monitoring progress
+
+Making a large database takes a while. There is a tool in
+=src/monitor.py= which you can run and it will report on the progress
+of a current database construction and give a (rough) estimate of the
+remaining time for each stage of the simulation.
+
+#+begin_src sh
+ python src/monitor.py <path/to/config.json>
+#+end_src
+
 ** Configuring a simulation
 
 The way in which a dataset is simulated is configured with a JSON
@@ -37,21 +48,16 @@ Additional information about these datasets is given below.
 ** Visualising the data
 
 Two scripts, =visualisation.py= and =visualisation_temporal.py= can be
-used to visualise the output of a simulation. These need to be modified
-so that Python knows the location of the config and are then run without
-arguments.
+used to visualise the output of a simulation.
 
 #+begin_src sh
- python visualisation.py
- python visualisation_temporal.py
+ python visualisation.py <path/to/config.json>
+ python visualisation_temporal.py <path/to/config.json>
 #+end_src
 
 Note that the latter only applies for simulations which are configured
 to report temporal data (that is, =report_temporal_data= is set to
 =true= in the config).
-
-
-
 
 ** TODO Update this section of the documentation!!!
 

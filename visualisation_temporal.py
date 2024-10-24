@@ -12,15 +12,13 @@ import random
 
 
 ###################################################
-# USER INPUT: config to use
-
-
 # CONFIG_JSON = "config/simulation-charmander.json"
 # CONFIG_JSON = "config/simulation-charmeleon.json"
 # CONFIG_JSON = "config/simulation-charizard.json"
 # CONFIG_JSON = "config/simulation-charmeleon-temporal.json"
-CONFIG_JSON = "config/debugging-measurement-times.json"
-
+# CONFIG_JSON = "config/debugging-measurement-times.json"
+# CONFIG_JSON = "config/simulation-bulbasaur.json"
+CONFIG_JSON = os.sys.argv[1]
 ###################################################
 
 
@@ -36,7 +34,7 @@ DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
 PLOT_DIR = f"out/{CONFIG['simulation_name']}/plots"
 if not os.path.exists(PLOT_DIR):
     os.makedirs(PLOT_DIR)
-    
+
 MAX_NUM_SIMS_TO_PLOT = 50
 
 
