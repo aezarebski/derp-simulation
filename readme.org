@@ -38,12 +38,12 @@ file. There is a schema for valid configurations described [[file:./config/readm
 are some example configurations provided:
 
 - [[file:./config/debugging.json][debugging]]
-- [[file:./config/simulation-charmander.json][Charmander]] (see [[#sec:charmander][here]])
+- [[file:./config/simulation-charmander.json][Charmander]]
 - [[file:./config/simulation-charmander-contemporaneous.json][Charmander with a contemporaneous sample]]
-- [[file:./config/simulation-charmeleon.json][Charmeleon]] (see [[#sec:charmeleon][here]])
-- [[file:./config/simulation-charizard.json][Charizard]] (see [[#sec:charizard][here]])
+- [[file:./config/simulation-charmeleon.json][Charmeleon]]
+- [[file:./config/simulation-charizard.json][Charizard]]
 
-Additional information about these datasets is given below.
+Additional information about these datasets is given [[file:./config/readme.org][here]].
 
 ** Visualising the data
 
@@ -59,9 +59,36 @@ Note that the latter only applies for simulations which are configured
 to report temporal data (that is, =report_temporal_data= is set to
 =true= in the config).
 
-** TODO Update this section of the documentation!!!
+** Database structure
 
-** Using the database
+The database is an HDF5 file. Each simulation is represented with a
+group with a name of the form =record_xxxxxx=, e.g. =record_000123=.
+The data from each simulation is split into two groups: =input= and
+=output=.
+
+*** Input
+
+The =input= group has the following datasets:
+
+- =present= :: the time since the origin of the last sequenced sample
+- =tree_height= :: the time between the $T_{\text{MRCA}}$ and the
+  present
+- =tree= :: a binary blob which is the pickled reconstructed tree of
+  the sequenced samples in the simulation.
+
+*** Output
+
+The =output= group contains a lot of measurements, but the most
+important is the =temporal_measurements= dataset. The
+=temporal_measurements= dataset has the following columns:
+
+- =measurement_times= (float) :: the (forward) time since the origin
+  of the measurements
+- =prevalence= (int) :: the number of infected individuals
+- =cumulative= (int) :: the cumulative number of infections
+- =reproductive_number= (float) :: the reproduction number
+
+** TODO Using the database
 
 The following demonstrates how to use the database in Python. Don't
 forget to close the database connection after using it!
@@ -102,67 +129,3 @@ BEAST2 is used to simulate the data. If you don't have BEAST2
 installed, there is a script =scr/setuplib.sh= which will download and
 install this for you. Once you have BEAST2 installed, you will need to
 install [[https://tgvaughan.github.io/remaster/][remaster]] through BEAUti.
-
-* Datasets
-
-There are a sequence of configurations: /Charmander/, /Charmeleon/ and
-/Charizard/. These all use the same model but are of increasing size
-and use broader distributions over the simulation parameters.
-
-** Charmander
-:properties:
-:custom_id: sec:charmander
-:end:
-
-This is intended as a toy dataset. It has a 800-100-100
-training-validation-testing split. The parameters are nearly constant
-through time, for example, the $R_0$ values are shown in Figure
-[[fig:charmander-r0s]]. The configuration for this simulation is
-[[file:./config/simulation-charmander.json][simulation-charmander.json]].
-
-#+caption: The reproduction number through time in a subsample of the Charmander simulations.
-#+name: fig:charmander-r0s
-#+attr_org: :width 500px
-#+attr_html: :width 400px
-[[./out/sim-charmander/plots/r0_trajectories.png]]
-
-** Charmander contemporaneous
-
-This is very similar to the [[#sec:charmander][Charmander]] configuration but instead of
-serial sampling, there is a single contemporaneous sample at the
-present.
-
-** Charmeleon
-:properties:
-:custom_id: sec:charmeleon
-:end:
-
-This is intended as a small dataset. It has a 1600-200-200
-training-validation-testing split. The parameters vary significantly
-through time, for example, the $R_0$ values are shown in Figure
-[[fig:charmeleon-r0s]]. The configuration for this simulation is
-[[file:./config/simulation-charmeleon.json][simulation-charmeleon.json]].
-
-#+caption: The reproduction number through time in a subsample of the Charmeleon simulations.
-#+name: fig:charmeleon-r0s
-#+attr_org: :width 500px
-#+attr_html: :width 400px
-[[./out/sim-charmeleon/plots/r0_trajectories.png]]
-
-** Charizard
-:properties:
-:custom_id: sec:charizard
-:end:
-
-This is intended as a plausible dataset for use in training a useful
-neural network. It has a 8000-1000-1000 training-validation-testing
-split (although there are 11000 simulations attempted to adjust for
-failures). The parameters vary significantly through time, for
-example, the $R_0$ values are shown in Figure [[fig:charizard-r0s]]. The
-configuration for this simulation is [[file:./config/simulation-charizard.json][simulation-charizard.json]].
-
-#+caption: The reproduction number through time in a subsample of the Charizard simulations.
-#+name: fig:charizard-r0s
-#+attr_org: :width 500px
-#+attr_html: :width 400px
-[[./out/sim-charizard/plots/r0_trajectories.png]]

@@ -1,5 +1,67 @@
 * Simulation configuration
 
+There are a sequence of configurations: /Charmander/, /Charmeleon/ and
+/Charizard/. These all use the same model but are of increasing size
+and use broader distributions over the simulation parameters.
+
+** Charmander
+:properties:
+:custom_id: sec:charmander
+:end:
+
+This is intended as a toy dataset. It has a 800-100-100
+training-validation-testing split. The parameters are nearly constant
+through time, for example, the $R_0$ values are shown in Figure
+[[fig:charmander-r0s]]. The configuration for this simulation is
+[[file:./simulation-charmander.json][simulation-charmander.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charmander simulations.
+#+name: fig:charmander-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[../out/sim-charmander/plots/r0_trajectories.png]]
+
+** Charmander contemporaneous
+
+This is very similar to the [[#sec:charmander][Charmander]] configuration but instead of
+serial sampling, there is a single contemporaneous sample at the
+present.
+
+** Charmeleon
+:properties:
+:custom_id: sec:charmeleon
+:end:
+
+This is intended as a small dataset. It has a 1600-200-200
+training-validation-testing split. The parameters vary significantly
+through time, for example, the $R_0$ values are shown in Figure
+[[fig:charmeleon-r0s]]. The configuration for this simulation is
+[[file:./simulation-charmeleon.json][simulation-charmeleon.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charmeleon simulations.
+#+name: fig:charmeleon-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[../out/sim-charmeleon/plots/r0_trajectories.png]]
+
+** Charizard
+:properties:
+:custom_id: sec:charizard
+:end:
+
+This is intended as a plausible dataset for use in training a useful
+neural network. It has a 8000-1000-1000 training-validation-testing
+split (although there are 11000 simulations attempted to adjust for
+failures). The parameters vary significantly through time, for
+example, the $R_0$ values are shown in Figure [[fig:charizard-r0s]]. The
+configuration for this simulation is [[file:./simulation-charizard.json][simulation-charizard.json]].
+
+#+caption: The reproduction number through time in a subsample of the Charizard simulations.
+#+name: fig:charizard-r0s
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[../out/sim-charizard/plots/r0_trajectories.png]]
+
 ** Notes
 
 - You can validate a simulation configuration against the schema using
@@ -24,7 +86,7 @@
   (=false= by default). If this parameter is set to =true=, the
   sampling proportion is zero until a random change point, uniformly
   distributed over the duration of the epidemic. If =false=, the
-  sampling proportion is nonzero throughout and changes in sync 
+  sampling proportion is nonzero throughout and changes in sync
   with the other parameters of the epidemic.
 
 ** Examples
