@@ -88,22 +88,43 @@ important is the =temporal_measurements= dataset. The
 - =cumulative= (int) :: the cumulative number of infections
 - =reproductive_number= (float) :: the reproduction number
 
-** TODO Using the database
+** Using the database
 
 The following demonstrates how to use the database in Python. Don't
-forget to close the database connection after using it!
+forget to close the database connection after using it! The following
+script reads in the tree and measurements from a simulation and
+produces [[file:./out/sim-charmander/demo-measurements.csv][this CSV file]] and the figure below.
 
-#+begin_src python
-db_conn = h5py.File("dataset.hdf5")
-for k in db_conn.keys():
-    out_grp = db_conn[k]['output']
-    r0_vals = out_grp['parameters']['r0']['values'][()]
-    r0_chng = out_grp['parameters']['r0']['change_times'][()]
-    prev = out_grp["present_prevalence"][()]
-    print(f"Record {k} prevalence {prev}")
-    tree = pickle.loads(db_conn[k]['input']['tree'][...].tobytes())
+#+begin_src python :tangle src/demo-database-usage.py
+from Bio import Phylo
+import h5py
+import pickle
+import matplotlib.pyplot as plt
+import numpy as np
+
+hdf5_file = "../out/sim-charmander/dataset-charmander.hdf5"
+
+db_conn = h5py.File(hdf5_file)
+
+demo_tree = pickle.loads(db_conn['record_000001/input/tree'][...].tobytes())
+fig, ax = plt.subplots()
+Phylo.draw(demo_tree, do_show=False, axes=ax)
+fig.savefig('../out/sim-charmander/plots/demo-tree.png')
+
+measurements = db_conn['record_000001/output/parameters/temporal_measurements'][...]
+column_names = measurements.dtype.names
+np.savetxt('../out/sim-charmander/demo-measurements.csv',
+           measurements, delimiter=',',
+           header=','.join(column_names))
+
 db_conn.close()
 #+end_src
+
+#+caption: Example reconstructed tree from Charmander database.
+#+name: fig:thing
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charmander/plots/demo-tree.png]]
 
 If you want a GUI to inspect the output HDF5 file, the [[https://github.com/HDFGroup/hdf-compass][HDFCompass]] tool
 provides a simple way to inspect the data that has been generated.
