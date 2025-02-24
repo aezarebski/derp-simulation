@@ -335,7 +335,13 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         except subprocess.TimeoutExpired:
             return f"BEAST2 simulation for {simulation_xml} timed out."
         except subprocess.CalledProcessError as e:
-            return f"Error occurred while running BEAST2 simulation for {simulation_xml}: {e.stderr}"
+            return f"""
+            ========================================
+            Error occurred while running BEAST2 simulation for {simulation_xml}: {e.stderr}
+            Command that was attempted is: {command}
+            Double check that you have remaster installed where beast can find it.
+            ========================================
+            """
 
     with ThreadPoolExecutor(max_workers=num_jobs) as executor:
         future_to_xml = {
