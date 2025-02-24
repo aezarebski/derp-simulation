@@ -3,7 +3,6 @@ import json
 import os
 import pandas as pd
 import pickle
-import plotly.io as pio
 import plotnine as p9
 
 # CONFIG_JSON = "config/simulation-charmander.json"

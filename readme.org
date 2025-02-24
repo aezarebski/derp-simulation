@@ -145,7 +145,7 @@ There is some basic information about the simulation stored as
 attributes in the HDF5 file. This includes the date of creation and
 the size of the dataset.
 
-** Conda environment
+** *OPTIONAL* Conda environment
 
 A conda environment to run this simulation can be created from the
 =environment.yaml= file by running the following command:
@@ -157,9 +157,23 @@ A conda environment to run this simulation can be created from the
 This environment will have all the correct packages for running the
 simulations.
 
-** Installing BEAST2
+* FAQs
+
+** How do I install BEAST2?
 
 BEAST2 is used to simulate the data. If you don't have BEAST2
 installed, there is a script =scr/setuplib.sh= which will download and
 install this for you. Once you have BEAST2 installed, you will need to
 install [[https://tgvaughan.github.io/remaster/][remaster]] through BEAUti.
+
+** How do I install the =Bio= module?
+
+#+begin_src sh
+  pip install biopython
+#+end_src
+
+** How do I install the =<python_package>= package?
+
+#+begin_src src
+  pip install biopython h5py lxml pandas plotnine
+#+end_src
