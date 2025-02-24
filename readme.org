@@ -165,6 +165,7 @@ BEAST2 is used to simulate the data. If you don't have BEAST2
 installed, there is a script =scr/setuplib.sh= which will download and
 install this for you. Once you have BEAST2 installed, you will need to
 install [[https://tgvaughan.github.io/remaster/][remaster]] through BEAUti.
+
 ** How do I install the =Bio= module?
 
 #+begin_src sh
@@ -174,5 +175,5 @@ install [[https://tgvaughan.github.io/remaster/][remaster]] through BEAUti.
 ** How do I install the =<python_package>= package?
 
 #+begin_src src
-  pip install biopython h5py lxml pandas
+  pip install biopython h5py lxml pandas plotnine
 #+end_src
