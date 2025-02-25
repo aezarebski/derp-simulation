@@ -162,9 +162,10 @@ simulations.
 ** How do I install BEAST2?
 
 BEAST2 is used to simulate the data. If you don't have BEAST2
-installed, there is a script =scr/setuplib.sh= which will download and
-install this for you. Once you have BEAST2 installed, you will need to
-install [[https://tgvaughan.github.io/remaster/][remaster]] through BEAUti.
+installed, there is a script =scr/setupbeast2.sh= which will download
+and install this for you. This script will install =remaster=. If you
+don't want to use the script, once you have BEAST2 installed, you will
+need to install [[https://tgvaughan.github.io/remaster/][remaster]] through BEAUti.
 
 ** How do I install the =Bio= module?
 
