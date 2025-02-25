@@ -323,6 +323,14 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         else:
             raise Exception("BEAST2 executable not found.")
         command = [beast_executable, "-seed", "1", "-overwrite", simulation_xml]
+
+        # If there is a local packages directory, then the command
+        # should be ammended to use that as the package directory.
+        maybe_package_dir = "./lib/packages"
+        if os.path.exists(maybe_package_dir):
+            command.insert(1, "-packagedir")
+            command.insert(2, maybe_package_dir)
+
         try:
             result = subprocess.run(
                 command,
