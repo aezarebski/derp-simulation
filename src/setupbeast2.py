@@ -53,7 +53,13 @@ print("Download complete.")
 
 print("Extracting BEAST2 package...")
 with tarfile.open(beast_archive, "r:gz") as tar:
-    tar.extractall(path=beast_extract_dir)
+    # Handle each file separately because otherwise if one gets
+    # blocked the whole thing fails.
+    for member in tar.getmembers():
+        try:
+            tar.extract(member, path=beast_extract_dir)
+        except Exception as e:
+            print(f"Warning: Failed to extract {member.name}: {e}")
 print("Extraction complete.")
 
 print("Setting execute permissions...")
