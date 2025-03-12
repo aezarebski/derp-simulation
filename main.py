@@ -10,6 +10,7 @@ import pandas as pd
 import pickle
 import re
 import subprocess
+import glob
 
 if len(os.sys.argv) < 2:
     # CONFIG_JSON = "config/debugging.json"
@@ -314,12 +315,18 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         $ ./lib/beast/bin/beast -seed 1 -overwrite <simulation_xml>
         """
         print(f"Running simulation: {simulation_xml}")
-        beast_executable_mac = "/Applications/BEAST 2.7.6/bin/beast"
+
+        # Find BEAST executable - first checks for an installation
+        # in this directory (as in a linux system) or in the 
+        # Applications folder (on a mac)
         beast_executable_linux = "./lib/beast/bin/beast"
-        if os.path.exists(beast_executable_mac):
-            beast_executable = beast_executable_mac
-        elif os.path.exists(beast_executable_linux):
+        beast_folder_mac = '/Applications/BEAST*'
+        beast_fname_mac = 'bin/beast'
+        if os.path.exists(beast_executable_linux):
             beast_executable = beast_executable_linux
+        elif glob.glob(beast_folder_mac):
+            latest_beast_ver_mac = sorted(glob.glob(beast_folder_mac))[-1]
+            beast_executable = os.path.join(latest_beast_ver_mac, beast_fname_mac)
         else:
             raise Exception("BEAST2 executable not found.")
         command = [beast_executable, "-seed", "1", "-overwrite", simulation_xml]
