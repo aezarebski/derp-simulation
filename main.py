@@ -328,7 +328,7 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
             latest_beast_ver_mac = sorted(glob.glob(beast_folder_mac))[-1]
             beast_executable = os.path.join(latest_beast_ver_mac, beast_fname_mac)
         else:
-            raise Exception("BEAST2 executable not found.")
+            raise Exception("BEAST2 executable not found. You might find the src/setupbeast2.py script helpful.")
         command = [beast_executable, "-seed", "1", "-overwrite", simulation_xml]
 
         # If there is a local packages directory, then the command
