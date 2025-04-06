@@ -145,19 +145,18 @@ There is some basic information about the simulation stored as
 attributes in the HDF5 file. This includes the date of creation and
 the size of the dataset.
 
-** *OPTIONAL* Conda environment
+* FAQs
 
-A conda environment to run this simulation can be created from the
-=environment.yaml= file by running the following command:
+** How do I set up a reproducible environment?
+
+There is a requirements file to install the relevant python packages
 
 #+begin_src sh
-  conda env create -f environment.yaml
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install -U pip
+  pip install -r requirments.txt
 #+end_src
-
-This environment will have all the correct packages for running the
-simulations.
-
-* FAQs
 
 ** How do I install BEAST2?
 
