@@ -13,10 +13,7 @@ import subprocess
 import glob
 
 if len(os.sys.argv) < 2:
-    # CONFIG_JSON = "config/debugging.json"
-    # CONFIG_JSON = "config/debugging-contemporaneous.json"
-    # CONFIG_JSON = "config/debugging-measurement-times.json"
-    CONFIG_JSON = "config/debugging-limited-time-sampling.json"
+    raise Exception("Please provide the path to the configuration file. For example ./config/simulation-charmander.json")
 else:
     CONFIG_JSON = os.sys.argv[1]
 
@@ -317,7 +314,7 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         print(f"Running simulation: {simulation_xml}")
 
         # Find BEAST executable - first checks for an installation
-        # in this directory (as in a linux system) or in the 
+        # in this directory (as in a linux system) or in the
         # Applications folder (on a mac)
         beast_executable_linux = "./lib/beast/bin/beast"
         beast_folder_mac = '/Applications/BEAST*'
@@ -328,7 +325,7 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
             latest_beast_ver_mac = sorted(glob.glob(beast_folder_mac))[-1]
             beast_executable = os.path.join(latest_beast_ver_mac, beast_fname_mac)
         else:
-            raise Exception("BEAST2 executable not found.")
+            raise Exception("BEAST2 executable not found. You might find the src/setupbeast2.py script helpful.")
         command = [beast_executable, "-seed", "1", "-overwrite", simulation_xml]
 
         # If there is a local packages directory, then the command

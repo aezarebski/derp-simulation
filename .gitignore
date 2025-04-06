@@ -1,0 +1,6 @@
+out/sim-*/simulation
+out/sim-*/plots
+out/sim-*/dataset-*.hdf5
+lib
+venv
+*~
