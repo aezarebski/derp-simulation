@@ -1,4 +1,5 @@
 out/sim-charmander/simulation
+out/sim-charmander/plots
 lib
 venv
 *~
