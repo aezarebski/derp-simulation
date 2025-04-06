@@ -11,10 +11,15 @@ problems.
 ** Timelines
 
 Figure [[fig:timelines]] shows a schematic of the timelines involved in a
-simulation. The /origin/ is the start time of the simulation and the
-/present/ is the time of the last sequenced sample. Note that the
-measurement times are randomly sampled between the origin and the
-present and are measured in forwards time.
+simulation. There are two main time points that we use to define
+times. The /origin/ is the start time of the simulation and the
+/present/ is the time of the last sequenced sample. Times may be
+measured either /forward/ increasing into the future, or /backward/
+increasing into the past.
+
+Note that the measurement times are randomly sampled between the
+origin and the present and are measured in forwards time (i.e. zero at
+the origin increasing towards the present.)
 
 #+name: fig:timelines
 #+attr_org: :width 500px
