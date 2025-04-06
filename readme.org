@@ -65,17 +65,16 @@ Additional information about these datasets is given [[file:./config/readme.org]
 
 ** Visualising the data
 
-Two scripts, =visualisation.py= and =visualisation_temporal.py= can be
-used to visualise the output of a simulation.
+Two scripts, =visualisation.py= and =visualisation_temporal.py= in
+=src/= can be used to visualise the output of a simulation.
 
 #+begin_src sh
- python visualisation.py <path/to/config.json>
- python visualisation_temporal.py <path/to/config.json>
+ python src/visualisation_temporal.py <path/to/config.json>
 #+end_src
 
-Note that the latter only applies for simulations which are configured
-to report temporal data (that is, =report_temporal_data= is set to
-=true= in the config).
+Note the =src/visualisation_temporal.py= script only applies for
+simulations which are configured to report temporal data (that is,
+=report_temporal_data= is set to =true= in the config).
 
 ** Database structure
 
