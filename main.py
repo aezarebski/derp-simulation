@@ -187,16 +187,16 @@ def _rand_remaster_params_serial(p, hyperparams):
     return p
 
 
-def _rand_remaster_params_contemporaneous(p, hyperparamgs):
+def _rand_remaster_params_contemporaneous(p, hyperparams):
     p["net_removal_rate"] = {
         "values": shrink(
             1
             / np.random.uniform(
-                hyperparamgs["mean_infection_duration_bounds"][0],
-                hyperparamgs["mean_infection_duration_bounds"][1],
+                hyperparams["mean_infection_duration_bounds"][0],
+                hyperparams["mean_infection_duration_bounds"][1],
                 size=1,
             ),
-            hyperparamgs["shrinkage_factor"],
+            hyperparams["shrinkage_factor"],
         ),
         "change_times": [],
     }
@@ -220,8 +220,8 @@ def _rand_remaster_params_contemporaneous(p, hyperparamgs):
     }
     p["rho"] = {
         "values": np.random.uniform(
-            hyperparamgs["sampling_prop_bounds"][0],
-            hyperparamgs["sampling_prop_bounds"][1],
+            hyperparams["sampling_prop_bounds"][0],
+            hyperparams["sampling_prop_bounds"][1],
             size=1,
         ),
         "change_times": None,
