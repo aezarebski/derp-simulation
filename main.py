@@ -14,10 +14,8 @@ import glob
 
 if len(os.sys.argv) < 2:
     raise Exception("Please provide the path to the configuration file. For example ./config/simulation-charmander.json")
-else:
-    CONFIG_JSON = os.sys.argv[1]
 
-with open(CONFIG_JSON, "r") as file:
+with open(os.sys.argv[1], "r") as file:
     CONFIG = json.load(file)
 
 np.random.seed(CONFIG["seed"])
@@ -92,13 +90,13 @@ def random_remaster_parameters():
     their mean. This leads to smoother parameter trajectories but
     maintains the average value.
     """
-    sim_params = CONFIG["simulation_hyperparameters"]
+    hyperparams = CONFIG["simulation_hyperparameters"]
     p = {}
     p["epidemic_duration"] = np.random.randint(
-        sim_params["duration_range"][0], sim_params["duration_range"][1] + 1
+        hyperparams["duration_range"][0], hyperparams["duration_range"][1] + 1
     )
     p["num_changes"] = np.random.randint(
-        sim_params["num_changes"][0], sim_params["num_changes"][1] + 1
+        hyperparams["num_changes"][0], hyperparams["num_changes"][1] + 1
     )
     alpha_param = 3
     cts = (
@@ -110,35 +108,40 @@ def random_remaster_parameters():
     p["r0"] = {
         "values": shrink(
             np.random.uniform(
-                sim_params["r0_bounds"][0],
-                sim_params["r0_bounds"][1],
+                hyperparams["r0_bounds"][0],
+                hyperparams["r0_bounds"][1],
                 size=p["num_changes"] + 1,
             ),
-            sim_params["shrinkage_factor"],
+            hyperparams["shrinkage_factor"],
         ),
         "change_times": cts,
     }
     # The following sets up the remaining parameters which depend upon
     # whether there is contemporaneous sampling or not.
-    if not sim_params.get("contemporaneous_sample", False):
+    if not hyperparams.get("contemporaneous_sample", False):
         p["contemporaneous_sample"] = False
-        return _rand_remaster_params_serial(p, sim_params)
+        return _rand_remaster_params_serial(p, hyperparams)
     else:
         p["contemporaneous_sample"] = True
-        return _rand_remaster_params_contemporaneous(p, sim_params)
+        return _rand_remaster_params_contemporaneous(p, hyperparams)
 
 
-def _rand_remaster_params_serial(p, sim_params):
-    # Epidemic parameterisation
+def _rand_remaster_params_serial(p, hyperparams):
+    # The net removal rate is the total rate at which infected
+    # individuals cease to be infectious. I.e. it is the reciprocal of
+    # the mean infectious duration. In the canonical parameterisation
+    # this is the sum of the sampling and death rate; in the
+    # epidemiological parameterisation it is the "net becoming
+    # uninfectious rate"
     p["net_removal_rate"] = {
         "values": shrink(
             1
             / np.random.uniform(
-                sim_params["net_rem_rate_bounds"][0],
-                sim_params["net_rem_rate_bounds"][1],
+                hyperparams["mean_infection_duration_bounds"][0],
+                hyperparams["mean_infection_duration_bounds"][1],
                 size=1,
             ),
-            sim_params["shrinkage_factor"],
+            hyperparams["shrinkage_factor"],
         ),
         "change_times": [],
     }
@@ -148,8 +151,8 @@ def _rand_remaster_params_serial(p, sim_params):
                 [
                     0.0,
                     np.random.uniform(
-                        sim_params["sampling_prop_bounds"][0],
-                        sim_params["sampling_prop_bounds"][1]
+                        hyperparams["sampling_prop_bounds"][0],
+                        hyperparams["sampling_prop_bounds"][1]
                     ),
                 ]
             ),
@@ -160,11 +163,11 @@ def _rand_remaster_params_serial(p, sim_params):
         p["sampling_prop"] = {
             "values": shrink(
                 np.random.uniform(
-                    sim_params["sampling_prop_bounds"][0],
-                    sim_params["sampling_prop_bounds"][1],
+                    hyperparams["sampling_prop_bounds"][0],
+                    hyperparams["sampling_prop_bounds"][1],
                     size=p["num_changes"] + 1,
                 ),
-                sim_params["shrinkage_factor"],
+                hyperparams["shrinkage_factor"],
             ),
             "change_times": p["change_times"],
         }
@@ -184,17 +187,16 @@ def _rand_remaster_params_serial(p, sim_params):
     return p
 
 
-def _rand_remaster_params_contemporaneous(p, sim_params):
-    # Epidemic parameterisation
+def _rand_remaster_params_contemporaneous(p, hyperparams):
     p["net_removal_rate"] = {
         "values": shrink(
             1
             / np.random.uniform(
-                sim_params["net_rem_rate_bounds"][0],
-                sim_params["net_rem_rate_bounds"][1],
+                hyperparams["mean_infection_duration_bounds"][0],
+                hyperparams["mean_infection_duration_bounds"][1],
                 size=1,
             ),
-            sim_params["shrinkage_factor"],
+            hyperparams["shrinkage_factor"],
         ),
         "change_times": [],
     }
@@ -202,7 +204,6 @@ def _rand_remaster_params_contemporaneous(p, sim_params):
         "values": np.array([0]),
         "change_times": np.array([]),
     }
-    # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
         "change_times": p["change_times"],
@@ -219,8 +220,8 @@ def _rand_remaster_params_contemporaneous(p, sim_params):
     }
     p["rho"] = {
         "values": np.random.uniform(
-            sim_params["sampling_prop_bounds"][0],
-            sim_params["sampling_prop_bounds"][1],
+            hyperparams["sampling_prop_bounds"][0],
+            hyperparams["sampling_prop_bounds"][1],
             size=1,
         ),
         "change_times": None,
@@ -512,6 +513,8 @@ def create_database(pickle_files):
     ]
     num_sims = 0
     for pf in pickle_files:
+        # NOTE We skip over cases where the simulation failed to
+        # generate a pickle file containing the reconstructed tree.
         if not os.path.exists(pf):
             continue
         num_sims += 1
