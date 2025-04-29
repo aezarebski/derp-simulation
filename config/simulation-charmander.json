@@ -10,7 +10,7 @@
         "num_changes": [1, 2],
         "shrinkage_factor": 0.99,
         "r0_bounds": [1.0, 2.0],
-        "net_rem_rate_bounds": [6.5, 7.5],
+        "mean_infection_duration_bounds": [6.5, 7.5],
         "sampling_prop_bounds": [0.10, 0.30],
         "report_temporal_data": true,
         "num_temp_measurements": 10
