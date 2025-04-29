@@ -14,10 +14,8 @@ import glob
 
 if len(os.sys.argv) < 2:
     raise Exception("Please provide the path to the configuration file. For example ./config/simulation-charmander.json")
-else:
-    CONFIG_JSON = os.sys.argv[1]
 
-with open(CONFIG_JSON, "r") as file:
+with open(os.sys.argv[1], "r") as file:
     CONFIG = json.load(file)
 
 np.random.seed(CONFIG["seed"])
