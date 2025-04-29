@@ -513,6 +513,8 @@ def create_database(pickle_files):
     ]
     num_sims = 0
     for pf in pickle_files:
+        # NOTE We skip over cases where the simulation failed to
+        # generate a pickle file containing the reconstructed tree.
         if not os.path.exists(pf):
             continue
         num_sims += 1
