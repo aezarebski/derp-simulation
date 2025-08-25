@@ -27,16 +27,7 @@ NUM_SIMS = CONFIG["num_simulations"]
 SIM_DIR = f"out/{CONFIG['simulation_name']}/simulation/remaster"
 SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
-if not CONFIG["simulation_hyperparameters"].get("report_temporal_data", False):
-    REPORT_TEMPORAL_DATA = False
-else:
-    REPORT_TEMPORAL_DATA = True
-    try:
-        NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"][
-            "num_temp_measurements"
-        ]
-    except KeyError:
-        raise Exception("Check configuration: num_temp_measurements must be specified")
+NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"]["num_temp_measurements"]
 LIMITED_TIME_SAMPLING = CONFIG["simulation_hyperparameters"].get("limited_time_sampling", False)
 
 
@@ -106,13 +97,10 @@ def random_remaster_parameters():
     p["change_times"] = cts
     # Epidemic parameterisation
     p["r0"] = {
-        "values": shrink(
-            np.random.uniform(
-                hyperparams["r0_bounds"][0],
-                hyperparams["r0_bounds"][1],
-                size=p["num_changes"] + 1,
-            ),
-            hyperparams["shrinkage_factor"],
+        "values": np.random.lognormal(
+            mean = hyperparams["r0"]["mean"],
+            sigma = hyperparams["r0"]["sigma"],
+            size=p["num_changes"] + 1
         ),
         "change_times": cts,
     }
@@ -400,50 +388,49 @@ def read_simulation_results(simulation_xml, params):
         "present_cumulative": last_Psi + last_Mu + last_X,
     }
 
-    if REPORT_TEMPORAL_DATA:
-        meas_times = np.sort(
-            np.random.uniform(
-                low=0.0, high=sim_result_dict["present"], size=NUM_TEMP_MEASUREMENTS
+    meas_times = np.sort(
+        np.random.uniform(
+            low=0.0, high=sim_result_dict["present"], size=NUM_TEMP_MEASUREMENTS
+        )
+    )
+    r0_change_times = pd.Series(params["r0"]["change_times"])
+
+    temp_data_headers = ",".join(
+        ["measurement_times", "prevalence", "cumulative", "reproductive_number"]
+    )
+    temp_data = []
+
+    for time_ind in range(NUM_TEMP_MEASUREMENTS):
+        this_meas_time = meas_times[time_ind]
+
+        most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
+        rows_this_time = traj_df[traj_df["t"] == most_recent_change_time]
+        this_X = rows_this_time[rows_this_time["population"] == "X"][
+            "value"
+        ].values[0]
+        this_Psi = rows_this_time[rows_this_time["population"] == "Psi"][
+            "value"
+        ].values[0]
+        this_Mu = rows_this_time[rows_this_time["population"] == "Mu"][
+            "value"
+        ].values[0]
+
+        prev_meas_this_time = this_X
+        cumul_meas_this_time = this_X + this_Mu + this_Psi
+
+        num_r0_changes_so_far = len(
+            r0_change_times[r0_change_times <= this_meas_time]
+        )
+        r0_meas_this_time = params["r0"]["values"][num_r0_changes_so_far]
+
+        temp_data.append(
+            (
+                this_meas_time,
+                prev_meas_this_time,
+                cumul_meas_this_time,
+                r0_meas_this_time,
             )
         )
-        r0_change_times = pd.Series(params["r0"]["change_times"])
-
-        temp_data_headers = ",".join(
-            ["measurement_times", "prevalence", "cumulative", "reproductive_number"]
-        )
-        temp_data = []
-
-        for time_ind in range(NUM_TEMP_MEASUREMENTS):
-            this_meas_time = meas_times[time_ind]
-
-            most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
-            rows_this_time = traj_df[traj_df["t"] == most_recent_change_time]
-            this_X = rows_this_time[rows_this_time["population"] == "X"][
-                "value"
-            ].values[0]
-            this_Psi = rows_this_time[rows_this_time["population"] == "Psi"][
-                "value"
-            ].values[0]
-            this_Mu = rows_this_time[rows_this_time["population"] == "Mu"][
-                "value"
-            ].values[0]
-
-            prev_meas_this_time = this_X
-            cumul_meas_this_time = this_X + this_Mu + this_Psi
-
-            num_r0_changes_so_far = len(
-                r0_change_times[r0_change_times <= this_meas_time]
-            )
-            r0_meas_this_time = params["r0"]["values"][num_r0_changes_so_far]
-
-            temp_data.append(
-                (
-                    this_meas_time,
-                    prev_meas_this_time,
-                    cumul_meas_this_time,
-                    r0_meas_this_time,
-                )
-            )
 
         sim_result_dict["temporal_measurements"] = np.rec.fromrecords(
             temp_data, names=temp_data_headers
@@ -537,11 +524,10 @@ def create_database(pickle_files):
             params_grp.create_dataset(
                 "epidemic_duration", data=sim["parameters"]["epidemic_duration"]
             )
-            if REPORT_TEMPORAL_DATA:
-                params_grp.create_dataset(
-                    "temporal_measurements",
-                    data=sim["simulation_results"]["temporal_measurements"],
-                )
+            params_grp.create_dataset(
+                "temporal_measurements",
+                data=sim["simulation_results"]["temporal_measurements"],
+            )
 
             for key in parameter_keys:
                 param_grp = params_grp.create_group(key)
