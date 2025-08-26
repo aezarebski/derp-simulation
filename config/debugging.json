@@ -6,12 +6,12 @@
     "num_simulations": 20,
     "num_workers": 3,
     "simulation_hyperparameters": {
-	"duration_range": [20, 40],
-	"num_changes": [1, 2],
-	"shrinkage_factor": 0.99,
-	"r0_bounds": [1.4, 1.6],
+        "duration_range": [20, 40],
+        "num_changes": [1, 2],
+        "shrinkage_factor": 0.99,
+        "r0_bounds": [1.4, 1.6],
         "mean_infection_duration_bounds": [5.0, 9.0],
-	"sampling_prop_bounds": [0.10, 0.30],
+        "sampling_prop_bounds": [0.10, 0.30],
         "report_temporal_data": true,
         "num_temp_measurements": 128
     }
