@@ -98,8 +98,8 @@ def random_remaster_parameters():
     # Epidemic parameterisation
     p["r0"] = {
         "values": np.random.lognormal(
-            mean = hyperparams["r0"]["mean"],
-            sigma = hyperparams["r0"]["sigma"],
+            mean = hyperparams["r0"]["LN_mean"],
+            sigma = hyperparams["r0"]["LN_sigma"],
             size=p["num_changes"] + 1
         ),
         "change_times": cts,

@@ -10,8 +10,8 @@
         "num_changes": [1, 2],
         "shrinkage_factor": 0.99,
         "r0": {
-            "mean": 0.8,
-            "sigma": 0.5
+            "LN_mean": 0.8,
+            "LN_sigma": 0.5
         },
         "mean_infection_duration_bounds": [6.5, 7.5],
         "sampling_prop_bounds": [0.10, 0.30],
