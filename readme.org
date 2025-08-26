@@ -151,6 +151,21 @@ the size of the dataset.
 
 * FAQs
 
+** How do I get the configuration out of an HDF5 file?
+
+The configuration used to generate a dataset is stored as an attribute
+in the HDF5 file. You can recover a copy of the configuration with the
+following snippet of code.
+
+#+begin_src python
+  import h5py
+  import json
+  db_conn = h5py.File("out/debugging/dataset-demo.h5py", "r")
+  config_str = db_conn.attrs["config_json"]
+  with open("recovered-config.json", "w") as f:
+      f.write(config_str)
+#+end_src
+
 ** How do I set up a reproducible environment?
 
 There is a requirements file to install the relevant python packages

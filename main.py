@@ -502,7 +502,11 @@ def _tree_to_uint8(tree):
 
 
 def create_database(pickle_files):
-    db_conn = h5py.File(DB_PATH, "w")
+    if not os.path.exists(os.path.dirname(DB_PATH)):
+        raise Exception(f"The directory for the database file {DB_PATH} does not exist. Please check the path.")
+    else:
+        db_conn = h5py.File(DB_PATH, "r+")
+
     parameter_keys = [
         "birth_rate",
         "death_rate",
@@ -564,7 +568,15 @@ def create_database(pickle_files):
     db_conn.close()
 
 
+def log_config():
+    config_str = json.dumps(CONFIG, indent=4)
+    db_conn = h5py.File(DB_PATH, "w")
+    db_conn.attrs["config_json"] = config_str
+    db_conn.close()
+
+
 def main():
+    log_config()
     sim_pickles = run_simulations(NUM_SIMS)
     create_database(sim_pickles)
 
