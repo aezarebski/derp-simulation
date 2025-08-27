@@ -583,8 +583,17 @@ def create_database(pickle_files):
 
 
 def log_config():
-    config_str = json.dumps(CONFIG, indent=4)
+    if not os.path.exists(os.path.dirname(DB_PATH)):
+        print(f"The directory for the database file {DB_PATH} does not exist.")
+        response = prompt_user("Do you want to create the directory? [y/n]: ")
+        if response == "y":
+            os.makedirs(os.path.dirname(DB_PATH))
+            print(f"Created directory {os.path.dirname(DB_PATH)}.")
+        else:
+            raise Exception(f"The directory for the database file {DB_PATH} does not exist. Please check the path.")
+
     db_conn = h5py.File(DB_PATH, "w")
+    config_str = json.dumps(CONFIG, indent=4)
     db_conn.attrs["config_json"] = config_str
     db_conn.close()
 
