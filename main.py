@@ -63,11 +63,6 @@ def _update_attr(root, xpath: str, attr: str, val) -> None:
     tmp.attrib[attr] = str(val)
     return None
 
-
-def shrink(x, alpha):
-    return (1 - alpha) * x + alpha * x.mean()
-
-
 def random_remaster_parameters():
     """
     Generate random parameters for the remaster model.
