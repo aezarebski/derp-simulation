@@ -75,20 +75,25 @@ def random_remaster_parameters():
     NOTE that this makes use of the global `CONFIG` variable.
 
     NOTE that we are using a Dirichlet distribution to generate the
-    change times. This is to avoid the change times being too close
-    together, which is biological implausible. Also, to reduce the
-    variability in the parameter values, we shrink the values towards
-    their mean. This leads to smoother parameter trajectories but
-    maintains the average value.
+    change times (hard coded). This is to avoid the change times being 
+    too close together, which is biologically implausible.
     """
     hyperparams = CONFIG["simulation_hyperparameters"]
     p = {}
-    p["epidemic_duration"] = np.random.randint(
-        hyperparams["duration_range"][0], hyperparams["duration_range"][1] + 1
-    )
-    p["num_changes"] = np.random.randint(
-        hyperparams["num_changes"][0], hyperparams["num_changes"][1] + 1
-    )
+    if hyperparams["duration_range"]["dist"] == "uniform_int":
+        p["epidemic_duration"] = np.random.randint(
+            hyperparams["duration_range"]["lower_bound"], 
+            hyperparams["duration_range"]["upper_bound"] + 1
+        )
+    else:
+        raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for epidemic duration")
+    if hyperparams["num_changes"]["dist"] == "uniform_int":
+        p["num_changes"] = np.random.randint(
+            hyperparams["num_changes"]["lower_bound"], 
+            hyperparams["num_changes"]["upper_bound"] + 1
+        )
+    else:
+        raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for number of changes")
     alpha_param = 3
     cts = (
         p["epidemic_duration"]
@@ -96,14 +101,17 @@ def random_remaster_parameters():
     )
     p["change_times"] = cts
     # Epidemic parameterisation
-    p["r0"] = {
-        "values": np.random.lognormal(
-            mean = hyperparams["r0"]["LN_mean"],
-            sigma = hyperparams["r0"]["LN_sigma"],
-            size=p["num_changes"] + 1
-        ),
-        "change_times": cts,
-    }
+    if hyperparams["r0"]["dist"] == "lognormal":
+        p["r0"] = {
+            "values": np.random.lognormal(
+                mean = hyperparams["r0"]["LN_mean"],
+                sigma = hyperparams["r0"]["LN_sigma"],
+                size=p["num_changes"] + 1
+            ),
+            "change_times": cts,
+        }
+    else:
+        raise NotImplementedError("Currently, only the lognormal distribution is supported for r0")
     # The following sets up the remaining parameters which depend upon
     # whether there is contemporaneous sampling or not.
     if not hyperparams.get("contemporaneous_sample", False):
@@ -121,44 +129,46 @@ def _rand_remaster_params_serial(p, hyperparams):
     # this is the sum of the sampling and death rate; in the
     # epidemiological parameterisation it is the "net becoming
     # uninfectious rate"
-    p["net_removal_rate"] = {
-        "values": shrink(
-            1
-            / np.random.uniform(
-                hyperparams["mean_infection_duration_bounds"][0],
-                hyperparams["mean_infection_duration_bounds"][1],
-                size=1,
+    if hyperparams["net_removal_rate"]["dist"] == "lognormal":
+        p["net_removal_rate"] = {
+            "values": np.random.lognormal(
+                mean = hyperparams["net_removal_rate"]["LN_mean"],
+                sigma = hyperparams["net_removal_rate"]["LN_sigma"],
+                size = 1
             ),
-            hyperparams["shrinkage_factor"],
-        ),
-        "change_times": [],
-    }
-    if LIMITED_TIME_SAMPLING:
-        p["sampling_prop"] = {
-            "values": np.array(
-                [
-                    0.0,
-                    np.random.uniform(
-                        hyperparams["sampling_prop_bounds"][0],
-                        hyperparams["sampling_prop_bounds"][1]
-                    ),
-                ]
-            ),
-            # TODO: this just randomly selects ANY time uniformly - should be more specific
-            "change_times": np.array([p["epidemic_duration"]*np.random.uniform()]),
+            "change_times": [],
         }
     else:
-        p["sampling_prop"] = {
-            "values": shrink(
-                np.random.uniform(
-                    hyperparams["sampling_prop_bounds"][0],
-                    hyperparams["sampling_prop_bounds"][1],
+        raise NotImplementedError("Currently, only the lognormal distribution is supported for net removal rate")
+    if LIMITED_TIME_SAMPLING:
+        if hyperparams["sampling_prop"]["dist"] == "uniform":
+            p["sampling_prop"] = {
+                "values": np.array(
+                    [
+                        0.0,
+                        np.random.uniform(
+                            hyperparams["sampling_prop"]["lower_bound"],
+                            hyperparams["sampling_prop"]["upper_bound"]
+                        ),
+                    ]
+                ),
+                # TODO: this just randomly selects ANY time uniformly - should be more specific
+                "change_times": np.array([p["epidemic_duration"]*np.random.uniform()]),
+            }
+        else:
+            raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
+    else:
+        if hyperparams["sampling_prop"]["dist"] == "uniform":
+            p["sampling_prop"] = {
+                "values": np.random.uniform(
+                    hyperparams["sampling_prop"]["lower_bound"],
+                    hyperparams["sampling_prop"]["upper_bound"],
                     size=p["num_changes"] + 1,
                 ),
-                hyperparams["shrinkage_factor"],
-            ),
-            "change_times": p["change_times"],
-        }
+                "change_times": p["change_times"],
+            }
+        else:
+            raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
     # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
@@ -176,18 +186,17 @@ def _rand_remaster_params_serial(p, hyperparams):
 
 
 def _rand_remaster_params_contemporaneous(p, hyperparams):
-    p["net_removal_rate"] = {
-        "values": shrink(
-            1
-            / np.random.uniform(
-                hyperparams["mean_infection_duration_bounds"][0],
-                hyperparams["mean_infection_duration_bounds"][1],
-                size=1,
+    if hyperparams["net_removal_rate"]["dist"] == "lognormal":
+        p["net_removal_rate"] = {
+            "values": np.random.lognormal(
+                mean = hyperparams["net_removal_rate"]["LN_mean"],
+                sigma = hyperparams["net_removal_rate"]["LN_sigma"],
+                size = 1
             ),
-            hyperparams["shrinkage_factor"],
-        ),
-        "change_times": [],
-    }
+            "change_times": [],
+        }
+    else:
+        raise NotImplementedError("Currently, only the lognormal distribution is supported for net removal rate")
     p["sampling_prop"] = {
         "values": np.array([0]),
         "change_times": np.array([]),
@@ -206,14 +215,17 @@ def _rand_remaster_params_contemporaneous(p, hyperparams):
         "values": np.array([0]),
         "change_times": np.array([]),
     }
-    p["rho"] = {
-        "values": np.random.uniform(
-            hyperparams["sampling_prop_bounds"][0],
-            hyperparams["sampling_prop_bounds"][1],
-            size=1,
-        ),
-        "change_times": None,
-    }
+    if hyperparams["sampling_prop"]["dist"] == "uniform":
+        p["rho"] = {
+            "values": np.random.uniform(
+                hyperparams["sampling_prop"]["lower_bound"],
+                hyperparams["sampling_prop"]["upper_bound"],
+                size=1,
+            ),
+            "change_times": None,
+        }
+    else:
+        raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
     return p
 
 

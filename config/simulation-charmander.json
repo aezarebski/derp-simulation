@@ -6,13 +6,31 @@
     "num_simulations": 1000,
     "num_workers": 5,
     "simulation_hyperparameters": {
-        "duration_range": [30, 50],
-        "num_changes": [1, 2],
-        "shrinkage_factor": 0.99,
-        "r0_bounds": [1.0, 2.0],
-        "mean_infection_duration_bounds": [6.5, 7.5],
-        "sampling_prop_bounds": [0.10, 0.30],
-        "report_temporal_data": true,
+        "duration_range": {
+            "dist": "uniform_int",
+            "lower_bound": 30,
+            "upper_bound": 50
+        },
+        "num_changes": {
+            "dist": "uniform_int",
+            "lower_bound": 1,
+            "upper_bound": 2
+        },
+        "r0": {
+            "dist": "lognormal",
+            "LN_mean": 0.91,
+            "LN_sigma": 0.1
+        },
+        "net_removal_rate": {
+            "dist": "lognormal",
+            "LN_mean": -1.80,
+            "LN_sigma": 0.1
+        },
+        "sampling_prop": {
+            "dist": "uniform",
+            "lower_bound": 0.1,
+            "upper_bound": 0.3
+        },
         "num_temp_measurements": 10
     }
 }
