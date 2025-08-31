@@ -26,7 +26,6 @@ CONFIG_JSON = os.sys.argv[1]
 # constants
 with open(CONFIG_JSON, "r") as file:
     CONFIG = json.load(file)
-assert CONFIG['simulation_hyperparameters']['report_temporal_data'], "This script is only for configurations that report temporal data."
 SIM_DIR = f"out/{CONFIG['simulation_name']}/simulation/remaster"
 SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
