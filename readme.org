@@ -70,6 +70,13 @@ the prior distribution of some parameters need to be specified. The
 following describes how you can specify these prior distributions in
 the configuration.
 
+Note that since there are acceptance criteria on the simulations, the
+marginal distributions of the parameters will not exactly match the
+distribution specified in the configuration. This is because we are
+effectively conditioning the prior samples on the resulting epidemic
+simulations conforming to conditions regarding extinction and maximum
+number of observed cases.
+
 **** Discrete uniform
 
 If \(n\sim\text{Uniform}([3, 7])\) where \(n\in\mathbb{Z}\), then you
