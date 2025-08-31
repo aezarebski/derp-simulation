@@ -69,12 +69,11 @@ def random_remaster_parameters():
 
     NOTE that this makes use of the global `CONFIG` variable.
 
-    NOTE that we are using a Dirichlet distribution to generate the
-    change times (hard coded). This is to avoid the change times being 
-    too close together, which is biologically implausible.
+    NOTE that the change times are uniformly sampled between time 0.0
+    and the end of the epidemic duration.
     """
     hyperparams = CONFIG["simulation_hyperparameters"]
-    p = {}
+    p = {}                      # random parameter dictionary.
     if hyperparams["duration_range"]["dist"] == "uniform_int":
         p["epidemic_duration"] = np.random.randint(
             hyperparams["duration_range"]["lower_bound"], 
@@ -89,12 +88,16 @@ def random_remaster_parameters():
         )
     else:
         raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for number of changes")
-    alpha_param = 3
-    cts = (
-        p["epidemic_duration"]
-        * np.cumsum(np.random.dirichlet([alpha_param] * (p["num_changes"] + 1)))[0:-1]
+
+    # Sample random change times.
+    p["change_times"] = np.sort(
+        np.random.uniform(
+            low=0,
+            high=p["epidemic_duration"],
+            size=p["num_changes"]
+        )
     )
-    p["change_times"] = cts
+
     # Epidemic parameterisation
     if hyperparams["r0"]["dist"] == "lognormal":
         p["r0"] = {
@@ -103,7 +106,7 @@ def random_remaster_parameters():
                 sigma = hyperparams["r0"]["LN_sigma"],
                 size=p["num_changes"] + 1
             ),
-            "change_times": cts,
+            "change_times": p["change_times"]
         }
     else:
         raise NotImplementedError("Currently, only the lognormal distribution is supported for r0")

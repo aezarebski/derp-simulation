@@ -151,6 +151,15 @@ the size of the dataset.
 
 * FAQs
 
+** How are the change times of the parameters selected?
+
+If parameters change in a simulation, then the times at which this
+happens are selected uniformly at random between times 0.0 and the end
+of the epidemic duration in the simulation.
+
+You may be able to find additional information about this in the
+=random_remaster_parameters()= function.
+
 ** How do I get the simulation wall times out of the HDF5 file?
 
 #+begin_src python
