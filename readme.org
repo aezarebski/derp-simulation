@@ -151,6 +151,51 @@ the size of the dataset.
 
 * FAQs
 
+** How do I get the simulation wall times out of the HDF5 file?
+
+#+begin_src python
+import h5py
+import matplotlib.pyplot as plt
+import squarify
+
+def wall_time_and_label(db, path):
+    label = str(int(path.split("_")[-1]))
+    wall_time = db[path].attrs["simulation_wall_time"].item()
+    return (label, wall_time)
+
+with h5py.File("out/sim-charmander/dataset-charmander.hdf5", "r") as db:
+    times_and_labels = [wall_time_and_label(db, path) for path in db.keys()]
+    times_and_labels.sort(key=lambda x: x[1])
+    labels, times = zip(*times_and_labels)
+
+plt.figure(figsize=(8, 7), dpi=96)
+squarify.plot(sizes=times, color=len(times)*["#1b9e77"], pad=True)
+plt.axis("off")
+plt.title("Simulation Wall Times")
+plt.savefig("out/sim-charmander/plots/walltimes.png")
+#+end_src
+
+#+caption: Example simulation wall times from the Charmander database.
+#+name: fig:walltimes
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charmander/plots/walltimes.png]]
+
+** How do I get the configuration out of an HDF5 file?
+
+The configuration used to generate a dataset is stored as an attribute
+in the HDF5 file. You can recover a copy of the configuration with the
+following snippet of code.
+
+#+begin_src python
+  import h5py
+  import json
+  db_conn = h5py.File("out/debugging/dataset-demo.h5py", "r")
+  config_str = db_conn.attrs["config_json"]
+  with open("recovered-config.json", "w") as f:
+      f.write(config_str)
+#+end_src
+
 ** How do I set up a reproducible environment?
 
 There is a requirements file to install the relevant python packages

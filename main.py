@@ -309,9 +309,6 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         """
         print(f"Running simulation: {simulation_xml}")
 
-        # Find BEAST executable - first checks for an installation
-        # in this directory (as in a linux system) or in the
-        # Applications folder (on a mac)
         beast_executable_linux = "./lib/beast/bin/beast"
         beast_folder_mac = '/Applications/BEAST*'
         beast_fname_mac = 'bin/beast'
@@ -331,7 +328,14 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
             command.insert(1, "-packagedir")
             command.insert(2, maybe_package_dir)
 
+        sim_start_time = datetime.datetime.now()
         try:
+            # TODO the time out limit should be specified in the
+            # configuration.
+
+            # NOTE that the subprocess.run function is blocking, so it
+            # will wait until the command completes or times out
+            # before returning.
             result = subprocess.run(
                 command,
                 check=True,
@@ -339,17 +343,22 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
                 text=True,
                 timeout=300,
             )
-            return result.stdout
+            status = result.stdout
         except subprocess.TimeoutExpired:
-            return f"BEAST2 simulation for {simulation_xml} timed out."
+            status = f"BEAST2 simulation for {simulation_xml} timed out."
         except subprocess.CalledProcessError as e:
-            return f"""
+            status = f"""
             ========================================
             Error occurred while running BEAST2 simulation for {simulation_xml}: {e.stderr}
             Command that was attempted is: {command}
             Double check that you have remaster installed where beast can find it.
             ========================================
             """
+        finally:
+            elapsed_time = (datetime.datetime.now() - sim_start_time).total_seconds()
+            with open(simulation_xml.replace(".xml", ".time"), "w") as time_log:
+                time_log.write(f"{elapsed_time}\n")
+        return status
 
     with ThreadPoolExecutor(max_workers=num_jobs) as executor:
         future_to_xml = {
@@ -496,7 +505,11 @@ def _tree_to_uint8(tree):
 
 
 def create_database(pickle_files):
-    db_conn = h5py.File(DB_PATH, "w")
+    if not os.path.exists(os.path.dirname(DB_PATH)):
+        raise Exception(f"The directory for the database file {DB_PATH} does not exist. Please check the path.")
+    else:
+        db_conn = h5py.File(DB_PATH, "r+")
+
     parameter_keys = [
         "birth_rate",
         "death_rate",
@@ -518,6 +531,11 @@ def create_database(pickle_files):
             sim = pickle.load(f)
             rec_grp = db_conn.create_group(f"record_{ix_str}")
             rec_grp.attrs["simulation_xml"] = sim["simulation_xml"]
+
+            if os.path.exists(sim["simulation_xml"].replace(".xml", ".time")):
+                with open(sim["simulation_xml"].replace(".xml", ".time"), "r") as time_log:
+                    rec_grp.attrs["simulation_wall_time"] = float(time_log.read().strip())
+
             in_grp = rec_grp.create_group("input")
             in_grp.create_dataset(
                 "tree", data=_tree_to_uint8(sim["simulation_results"]["tree"])
@@ -557,7 +575,24 @@ def create_database(pickle_files):
     db_conn.close()
 
 
+def log_config():
+    if not os.path.exists(os.path.dirname(DB_PATH)):
+        print(f"The directory for the database file {DB_PATH} does not exist.")
+        response = prompt_user("Do you want to create the directory? [y/n]: ")
+        if response == "y":
+            os.makedirs(os.path.dirname(DB_PATH))
+            print(f"Created directory {os.path.dirname(DB_PATH)}.")
+        else:
+            raise Exception(f"The directory for the database file {DB_PATH} does not exist. Please check the path.")
+
+    db_conn = h5py.File(DB_PATH, "w")
+    config_str = json.dumps(CONFIG, indent=4)
+    db_conn.attrs["config_json"] = config_str
+    db_conn.close()
+
+
 def main():
+    log_config()
     sim_pickles = run_simulations(NUM_SIMS)
     create_database(sim_pickles)
 
