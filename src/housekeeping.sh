@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # -*- mode:sh; -*-
 
-conda env export > environment.yaml
-
-black visualisation.py
 black main.py
+
+# Run the demo scripts
+
+python src/demo-database-usage.py
+python src/demo-visualise-walltimes.py
