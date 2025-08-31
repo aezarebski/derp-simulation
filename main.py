@@ -27,16 +27,7 @@ NUM_SIMS = CONFIG["num_simulations"]
 SIM_DIR = f"out/{CONFIG['simulation_name']}/simulation/remaster"
 SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
-if not CONFIG["simulation_hyperparameters"].get("report_temporal_data", False):
-    REPORT_TEMPORAL_DATA = False
-else:
-    REPORT_TEMPORAL_DATA = True
-    try:
-        NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"][
-            "num_temp_measurements"
-        ]
-    except KeyError:
-        raise Exception("Check configuration: num_temp_measurements must be specified")
+NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"]["num_temp_measurements"]
 LIMITED_TIME_SAMPLING = CONFIG["simulation_hyperparameters"].get("limited_time_sampling", False)
 
 
@@ -72,11 +63,6 @@ def _update_attr(root, xpath: str, attr: str, val) -> None:
     tmp.attrib[attr] = str(val)
     return None
 
-
-def shrink(x, alpha):
-    return (1 - alpha) * x + alpha * x.mean()
-
-
 def random_remaster_parameters():
     """
     Generate random parameters for the remaster model.
@@ -84,20 +70,25 @@ def random_remaster_parameters():
     NOTE that this makes use of the global `CONFIG` variable.
 
     NOTE that we are using a Dirichlet distribution to generate the
-    change times. This is to avoid the change times being too close
-    together, which is biological implausible. Also, to reduce the
-    variability in the parameter values, we shrink the values towards
-    their mean. This leads to smoother parameter trajectories but
-    maintains the average value.
+    change times (hard coded). This is to avoid the change times being 
+    too close together, which is biologically implausible.
     """
     hyperparams = CONFIG["simulation_hyperparameters"]
     p = {}
-    p["epidemic_duration"] = np.random.randint(
-        hyperparams["duration_range"][0], hyperparams["duration_range"][1] + 1
-    )
-    p["num_changes"] = np.random.randint(
-        hyperparams["num_changes"][0], hyperparams["num_changes"][1] + 1
-    )
+    if hyperparams["duration_range"]["dist"] == "uniform_int":
+        p["epidemic_duration"] = np.random.randint(
+            hyperparams["duration_range"]["lower_bound"], 
+            hyperparams["duration_range"]["upper_bound"] + 1
+        )
+    else:
+        raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for epidemic duration")
+    if hyperparams["num_changes"]["dist"] == "uniform_int":
+        p["num_changes"] = np.random.randint(
+            hyperparams["num_changes"]["lower_bound"], 
+            hyperparams["num_changes"]["upper_bound"] + 1
+        )
+    else:
+        raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for number of changes")
     alpha_param = 3
     cts = (
         p["epidemic_duration"]
@@ -105,17 +96,17 @@ def random_remaster_parameters():
     )
     p["change_times"] = cts
     # Epidemic parameterisation
-    p["r0"] = {
-        "values": shrink(
-            np.random.uniform(
-                hyperparams["r0_bounds"][0],
-                hyperparams["r0_bounds"][1],
-                size=p["num_changes"] + 1,
+    if hyperparams["r0"]["dist"] == "lognormal":
+        p["r0"] = {
+            "values": np.random.lognormal(
+                mean = hyperparams["r0"]["LN_mean"],
+                sigma = hyperparams["r0"]["LN_sigma"],
+                size=p["num_changes"] + 1
             ),
-            hyperparams["shrinkage_factor"],
-        ),
-        "change_times": cts,
-    }
+            "change_times": cts,
+        }
+    else:
+        raise NotImplementedError("Currently, only the lognormal distribution is supported for r0")
     # The following sets up the remaining parameters which depend upon
     # whether there is contemporaneous sampling or not.
     if not hyperparams.get("contemporaneous_sample", False):
@@ -133,44 +124,46 @@ def _rand_remaster_params_serial(p, hyperparams):
     # this is the sum of the sampling and death rate; in the
     # epidemiological parameterisation it is the "net becoming
     # uninfectious rate"
-    p["net_removal_rate"] = {
-        "values": shrink(
-            1
-            / np.random.uniform(
-                hyperparams["mean_infection_duration_bounds"][0],
-                hyperparams["mean_infection_duration_bounds"][1],
-                size=1,
+    if hyperparams["net_removal_rate"]["dist"] == "lognormal":
+        p["net_removal_rate"] = {
+            "values": np.random.lognormal(
+                mean = hyperparams["net_removal_rate"]["LN_mean"],
+                sigma = hyperparams["net_removal_rate"]["LN_sigma"],
+                size = 1
             ),
-            hyperparams["shrinkage_factor"],
-        ),
-        "change_times": [],
-    }
-    if LIMITED_TIME_SAMPLING:
-        p["sampling_prop"] = {
-            "values": np.array(
-                [
-                    0.0,
-                    np.random.uniform(
-                        hyperparams["sampling_prop_bounds"][0],
-                        hyperparams["sampling_prop_bounds"][1]
-                    ),
-                ]
-            ),
-            # TODO: this just randomly selects ANY time uniformly - should be more specific
-            "change_times": np.array([p["epidemic_duration"]*np.random.uniform()]),
+            "change_times": [],
         }
     else:
-        p["sampling_prop"] = {
-            "values": shrink(
-                np.random.uniform(
-                    hyperparams["sampling_prop_bounds"][0],
-                    hyperparams["sampling_prop_bounds"][1],
+        raise NotImplementedError("Currently, only the lognormal distribution is supported for net removal rate")
+    if LIMITED_TIME_SAMPLING:
+        if hyperparams["sampling_prop"]["dist"] == "uniform":
+            p["sampling_prop"] = {
+                "values": np.array(
+                    [
+                        0.0,
+                        np.random.uniform(
+                            hyperparams["sampling_prop"]["lower_bound"],
+                            hyperparams["sampling_prop"]["upper_bound"]
+                        ),
+                    ]
+                ),
+                # TODO: this just randomly selects ANY time uniformly - should be more specific
+                "change_times": np.array([p["epidemic_duration"]*np.random.uniform()]),
+            }
+        else:
+            raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
+    else:
+        if hyperparams["sampling_prop"]["dist"] == "uniform":
+            p["sampling_prop"] = {
+                "values": np.random.uniform(
+                    hyperparams["sampling_prop"]["lower_bound"],
+                    hyperparams["sampling_prop"]["upper_bound"],
                     size=p["num_changes"] + 1,
                 ),
-                hyperparams["shrinkage_factor"],
-            ),
-            "change_times": p["change_times"],
-        }
+                "change_times": p["change_times"],
+            }
+        else:
+            raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
     # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
@@ -188,18 +181,17 @@ def _rand_remaster_params_serial(p, hyperparams):
 
 
 def _rand_remaster_params_contemporaneous(p, hyperparams):
-    p["net_removal_rate"] = {
-        "values": shrink(
-            1
-            / np.random.uniform(
-                hyperparams["mean_infection_duration_bounds"][0],
-                hyperparams["mean_infection_duration_bounds"][1],
-                size=1,
+    if hyperparams["net_removal_rate"]["dist"] == "lognormal":
+        p["net_removal_rate"] = {
+            "values": np.random.lognormal(
+                mean = hyperparams["net_removal_rate"]["LN_mean"],
+                sigma = hyperparams["net_removal_rate"]["LN_sigma"],
+                size = 1
             ),
-            hyperparams["shrinkage_factor"],
-        ),
-        "change_times": [],
-    }
+            "change_times": [],
+        }
+    else:
+        raise NotImplementedError("Currently, only the lognormal distribution is supported for net removal rate")
     p["sampling_prop"] = {
         "values": np.array([0]),
         "change_times": np.array([]),
@@ -218,14 +210,17 @@ def _rand_remaster_params_contemporaneous(p, hyperparams):
         "values": np.array([0]),
         "change_times": np.array([]),
     }
-    p["rho"] = {
-        "values": np.random.uniform(
-            hyperparams["sampling_prop_bounds"][0],
-            hyperparams["sampling_prop_bounds"][1],
-            size=1,
-        ),
-        "change_times": None,
-    }
+    if hyperparams["sampling_prop"]["dist"] == "uniform":
+        p["rho"] = {
+            "values": np.random.uniform(
+                hyperparams["sampling_prop"]["lower_bound"],
+                hyperparams["sampling_prop"]["upper_bound"],
+                size=1,
+            ),
+            "change_times": None,
+        }
+    else:
+        raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
     return p
 
 
@@ -409,50 +404,49 @@ def read_simulation_results(simulation_xml, params):
         "present_cumulative": last_Psi + last_Mu + last_X,
     }
 
-    if REPORT_TEMPORAL_DATA:
-        meas_times = np.sort(
-            np.random.uniform(
-                low=0.0, high=sim_result_dict["present"], size=NUM_TEMP_MEASUREMENTS
+    meas_times = np.sort(
+        np.random.uniform(
+            low=0.0, high=sim_result_dict["present"], size=NUM_TEMP_MEASUREMENTS
+        )
+    )
+    r0_change_times = pd.Series(params["r0"]["change_times"])
+
+    temp_data_headers = ",".join(
+        ["measurement_times", "prevalence", "cumulative", "reproductive_number"]
+    )
+    temp_data = []
+
+    for time_ind in range(NUM_TEMP_MEASUREMENTS):
+        this_meas_time = meas_times[time_ind]
+
+        most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
+        rows_this_time = traj_df[traj_df["t"] == most_recent_change_time]
+        this_X = rows_this_time[rows_this_time["population"] == "X"][
+            "value"
+        ].values[0]
+        this_Psi = rows_this_time[rows_this_time["population"] == "Psi"][
+            "value"
+        ].values[0]
+        this_Mu = rows_this_time[rows_this_time["population"] == "Mu"][
+            "value"
+        ].values[0]
+
+        prev_meas_this_time = this_X
+        cumul_meas_this_time = this_X + this_Mu + this_Psi
+
+        num_r0_changes_so_far = len(
+            r0_change_times[r0_change_times <= this_meas_time]
+        )
+        r0_meas_this_time = params["r0"]["values"][num_r0_changes_so_far]
+
+        temp_data.append(
+            (
+                this_meas_time,
+                prev_meas_this_time,
+                cumul_meas_this_time,
+                r0_meas_this_time,
             )
         )
-        r0_change_times = pd.Series(params["r0"]["change_times"])
-
-        temp_data_headers = ",".join(
-            ["measurement_times", "prevalence", "cumulative", "reproductive_number"]
-        )
-        temp_data = []
-
-        for time_ind in range(NUM_TEMP_MEASUREMENTS):
-            this_meas_time = meas_times[time_ind]
-
-            most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
-            rows_this_time = traj_df[traj_df["t"] == most_recent_change_time]
-            this_X = rows_this_time[rows_this_time["population"] == "X"][
-                "value"
-            ].values[0]
-            this_Psi = rows_this_time[rows_this_time["population"] == "Psi"][
-                "value"
-            ].values[0]
-            this_Mu = rows_this_time[rows_this_time["population"] == "Mu"][
-                "value"
-            ].values[0]
-
-            prev_meas_this_time = this_X
-            cumul_meas_this_time = this_X + this_Mu + this_Psi
-
-            num_r0_changes_so_far = len(
-                r0_change_times[r0_change_times <= this_meas_time]
-            )
-            r0_meas_this_time = params["r0"]["values"][num_r0_changes_so_far]
-
-            temp_data.append(
-                (
-                    this_meas_time,
-                    prev_meas_this_time,
-                    cumul_meas_this_time,
-                    r0_meas_this_time,
-                )
-            )
 
         sim_result_dict["temporal_measurements"] = np.rec.fromrecords(
             temp_data, names=temp_data_headers
@@ -555,11 +549,10 @@ def create_database(pickle_files):
             params_grp.create_dataset(
                 "epidemic_duration", data=sim["parameters"]["epidemic_duration"]
             )
-            if REPORT_TEMPORAL_DATA:
-                params_grp.create_dataset(
-                    "temporal_measurements",
-                    data=sim["simulation_results"]["temporal_measurements"],
-                )
+            params_grp.create_dataset(
+                "temporal_measurements",
+                data=sim["simulation_results"]["temporal_measurements"],
+            )
 
             for key in parameter_keys:
                 param_grp = params_grp.create_group(key)

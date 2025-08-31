@@ -24,68 +24,95 @@
       "type": "object",
       "properties": {
         "duration_range": {
-          "type": "array",
-          "items": [
-            {
-              "type": "integer"
+          "type": "object",
+          "properties": {
+            "dist": {
+              "type": "string"
             },
-            {
-              "type": "integer"
+            "lower_bound": {
+              "type": "string"
+            },
+            "upper_bound": {
+              "type": "string"
             }
+          },
+          "required": [
+            "dist"
           ]
         },
         "num_changes": {
-          "type": "array",
-          "items": [
-            {
-              "type": "integer"
+          "type": "object",
+          "properties": {
+            "dist": {
+              "type": "string"
             },
-            {
-              "type": "integer"
+            "lower_bound": {
+              "type": "string"
+            },
+            "upper_bound": {
+              "type": "string"
             }
+          },
+          "required": [
+            "dist"
           ]
         },
-        "shrinkage_factor": {
-          "type": "number"
-        },
-        "r0_bounds": {
-          "type": "array",
-          "items": [
-            {
-              "type": "number"
+        "r0": {
+          "type": "object",
+          "properties": {
+            "dist": {
+              "type": "string"
             },
-            {
-              "type": "number"
+            "LN_mean": {
+              "type": "string"
+            },
+            "LN_sigma": {
+              "type": "string"
             }
+          },
+          "required": [
+            "dist"
           ]
         },
-        "net_rem_rate_bounds": {
-          "type": "array",
-          "items": [
-            {
-              "type": "number"
+        "net_removal_rate": {
+          "type": "object",
+          "properties": {
+            "dist": {
+              "type": "string"
             },
-            {
-              "type": "number"
+            "LN_mean": {
+              "type": "string"
+            },
+            "LN_sigma": {
+              "type": "string"
             }
+          },
+          "required": [
+            "dist"
           ]
         },
-        "sampling_prop_bounds": {
-          "type": "array",
-          "items": [
-            {
-              "type": "number"
+        "sampling_prop": {
+          "type": "object",
+          "properties": {
+            "dist": {
+              "type": "string"
             },
-            {
-              "type": "number"
+            "lower_bound": {
+              "type": "string"
+            },
+            "upper_bound": {
+              "type": "string"
             }
+          },
+          "required": [
+            "dist"
           ]
         },
         "contemporaneous_sample": {
           "type": "boolean"
         },
-        "report_temporal_data": {
-            "type": "boolean"
+        "limited_time_sampling": {
+          "type": "boolean"
         },
         "num_temp_measurements": {
             "type": "integer"
@@ -94,10 +121,10 @@
       "required": [
         "duration_range",
         "num_changes",
-        "shrinkage_factor",
-        "r0_bounds",
-        "net_rem_rate_bounds",
-        "sampling_prop_bounds",
+        "r0",
+        "net_removal_rate",
+        "sampling_prop",
+        "num_temp_measurements"
       ]
     }
   },

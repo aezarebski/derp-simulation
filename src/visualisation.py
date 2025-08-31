@@ -83,7 +83,10 @@ tmp = pd.DataFrame(data_dicts).sample((50 if len(data_dicts) > 50 else len(data_
 
 def _r0_plot_df(subset_data_dicts_df, key_num):
     global CONFIG
-    max_sim_duration = CONFIG["simulation_hyperparameters"]["duration_range"][-1]
+    if CONFIG["simulation_hyperparameters"]["duration_range"]["dist"] == "uniform_int":
+        max_sim_duration = CONFIG["simulation_hyperparameters"]["duration_range"]["upper_bound"]
+    else:
+        raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for epidemic duration")
     foo = tmp[tmp.key_num == key_num].r0_change_times.item().tolist()
     foo.insert(0, 0)
     foo.insert(len(foo), max_sim_duration)
@@ -129,6 +132,11 @@ timelines_p9.save(f"{PLOT_DIR}/timelines.svg", width=10, height=10, dpi=300)
 # Simulation timelines:1 ends here
 
 # [[file:visualisation.org::*Distribution of last sequence times][Distribution of last sequence times:1]]
+if CONFIG["simulation_hyperparameters"]["duration_range"]["dist"] == "uniform_int":
+    duration_range_lb = CONFIG["simulation_hyperparameters"]["duration_range"]["lower_bound"]
+    duration_range_ub = CONFIG["simulation_hyperparameters"]["duration_range"]["upper_bound"]
+else:
+    raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for epidemic duration")
 last_seq_hist_p9 = (
     p9.ggplot()
     + p9.geom_histogram(
@@ -137,12 +145,12 @@ last_seq_hist_p9 = (
         bins=20,
     )
     + p9.geom_vline(
-        xintercept=CONFIG["simulation_hyperparameters"]["duration_range"],
+        xintercept=[duration_range_lb, duration_range_ub],
         linetype="dashed",
         color="red",
     )
     + p9.scale_x_continuous(
-        limits=(0, CONFIG["simulation_hyperparameters"]["duration_range"][-1] + 2),
+        limits=(0, duration_range_ub + 2),
         name="Time of last sequence",
     )
     + p9.theme_bw()
