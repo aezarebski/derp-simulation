@@ -94,7 +94,7 @@ def random_remaster_parameters():
         np.random.uniform(
             low=0,
             high=p["epidemic_duration"],
-            size = p["num_changes"]
+            size=p["num_changes"]
         )
     )
 
