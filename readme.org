@@ -63,6 +63,71 @@ are some example configurations provided:
 
 Additional information about these datasets is given [[file:./config/readme.org][here]].
 
+*** Prior distributions
+
+As part of the simulation hyperparameters in the configuration file,
+the prior distribution of some parameters need to be specified. The
+following describes how you can specify these prior distributions in
+the configuration.
+
+Note that since there are acceptance criteria on the simulations, the
+marginal distributions of the parameters will not exactly match the
+distribution specified in the configuration. This is because we are
+effectively conditioning the prior samples on the resulting epidemic
+simulations conforming to conditions regarding extinction and maximum
+number of observed cases.
+
+**** Discrete uniform
+
+If \(n\sim\text{Uniform}([3, 7])\) where \(n\in\mathbb{Z}\), then you
+specify this as
+
+#+begin_src json
+  {
+      "dist": "uniform_int",
+      "lower_bound": 3,
+      "upper_bound": 7
+  }
+#+end_src
+
+**** Uniform
+
+If \(n\sim\text{Uniform}([3.3, 6.8])\) where \(n\in\mathbb{R}\), then
+you specify this as
+
+#+begin_src json
+  {
+      "dist": "uniform",
+      "lower_bound": 3.3,
+      "upper_bound": 6.8
+  }
+#+end_src
+
+**** Lognormal
+
+\(\log(x)\sim\text{Normal}(0.1, 1.0)\), then you specify this as
+
+#+begin_src json
+  {
+      "dist": "lognormal",
+      "LN_mean": 0.1,
+      "LN_sigma": 1.0
+  }
+#+end_src
+
+**** Beta
+
+If \(p\sim\text{Beta}(\alpha=1.1,\beta=3.0)\) where \(p\in[0,1]\),
+then you specify this as
+
+#+begin_src json
+  {
+      "dist": "beta",
+      "alpha": 1.1,
+      "beta": 3.0
+  }
+#+end_src
+
 ** Visualising the data
 
 Two scripts, =visualisation.py= and =visualisation_temporal.py= in
