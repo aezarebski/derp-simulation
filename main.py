@@ -139,34 +139,54 @@ def _rand_remaster_params_serial(p, hyperparams):
     else:
         raise NotImplementedError("Currently, only the lognormal distribution is supported for net removal rate")
     if LIMITED_TIME_SAMPLING:
-        if hyperparams["sampling_prop"]["dist"] == "uniform":
-            p["sampling_prop"] = {
-                "values": np.array(
-                    [
-                        0.0,
-                        np.random.uniform(
-                            hyperparams["sampling_prop"]["lower_bound"],
-                            hyperparams["sampling_prop"]["upper_bound"]
-                        ),
-                    ]
-                ),
-                # TODO: this just randomly selects ANY time uniformly - should be more specific
-                "change_times": np.array([p["epidemic_duration"]*np.random.uniform()]),
-            }
-        else:
-            raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
+        match hyperparams["sampling_prop"]["dist"]:
+            # TODO: this just randomly selects ANY time uniformly - should be more specific
+            change_times_arr = np.array(
+                [p["epidemic_duration"] * np.random.uniform()]
+            )
+            case "uniform":
+                sampling_prop_values =np.random.uniform(
+                        hyperparams["sampling_prop"]["lower_bound"],
+                        hyperparams["sampling_prop"]["upper_bound"],
+                        size=1,
+                )
+            case "beta":
+                sampling_prop_values = np.random.beta(
+                        hyperparams["sampling_prop"]["alpha"],
+                        hyperparams["sampling_prop"]["beta"],
+                        size=1,
+                )
+            case _:
+                raise NotImplementedError(
+                    "Only 'uniform' and 'beta' distributions supported for sampling_prop in limited time sampling"
+                )
+        p["sampling_prop"] = {
+                "values": np.array([0.0, sampling_prop_values[0]]),
+                "change_times": change_times_arr,
+        }
     else:
-        if hyperparams["sampling_prop"]["dist"] == "uniform":
-            p["sampling_prop"] = {
-                "values": np.random.uniform(
+        match hyperparams["sampling_prop"]["dist"]:
+            case "uniform":
+                sampling_prop_values = np.random.uniform(
                     hyperparams["sampling_prop"]["lower_bound"],
                     hyperparams["sampling_prop"]["upper_bound"],
                     size=p["num_changes"] + 1,
-                ),
-                "change_times": p["change_times"],
-            }
-        else:
-            raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
+                )
+            case "beta":
+                sampling_prop_values = np.random.beta(
+                    hyperparams["sampling_prop"]["alpha"],
+                    hyperparams["sampling_prop"]["beta"],
+                    size=p["num_changes"] + 1,
+                )
+            case _:
+                raise NotImplementedError(
+                    "Only 'uniform' and 'beta' distributions supported for sampling_prop in full time sampling"
+                )
+        p["sampling_prop"] = {
+            "values": sampling_prop_values,
+            "change_times": p["change_times"],
+        }
+
     # Rate parameterisation
     p["birth_rate"] = {
         "values": p["r0"]["values"] * p["net_removal_rate"]["values"],
@@ -213,17 +233,28 @@ def _rand_remaster_params_contemporaneous(p, hyperparams):
         "values": np.array([0]),
         "change_times": np.array([]),
     }
-    if hyperparams["sampling_prop"]["dist"] == "uniform":
-        p["rho"] = {
-            "values": np.random.uniform(
+
+    match hyperparams["sampling_prop"]["dist"]:
+        case "uniform":
+            rho_val = np.random.uniform(
                 hyperparams["sampling_prop"]["lower_bound"],
                 hyperparams["sampling_prop"]["upper_bound"],
                 size=1,
-            ),
-            "change_times": None,
-        }
-    else:
-        raise NotImplementedError("Currently, only the uniform distribution is supported for sampling prop")
+            )
+        case "beta":
+            rho_val = np.random.beta(
+                hyperparams["sampling_prop"]["alpha"],
+                hyperparams["sampling_prop"]["beta"],
+                size=1,
+            )
+        case _:
+            raise NotImplementedError(
+                "Only 'uniform' and 'beta' distributions supported for sampling_prop"
+                )
+    p["rho"] = {
+        "values": rho_val,
+        "change_times": None,
+    }
     return p
 
 
