@@ -105,8 +105,7 @@ you specify this as
 
 **** Lognormal
 
-If \(x\) is drawn from this lognormal distribution then
-\(\exp(x)\sim\text{Normal}(0.1, 1.0)\), then you specify this as
+\(\log(x)\sim\text{Normal}(0.1, 1.0)\), then you specify this as
 
 #+begin_src json
   {
