@@ -140,10 +140,6 @@ def _rand_remaster_params_serial(p, hyperparams):
         raise NotImplementedError("Currently, only the lognormal distribution is supported for net removal rate")
     if LIMITED_TIME_SAMPLING:
         match hyperparams["sampling_prop"]["dist"]:
-            # TODO: this just randomly selects ANY time uniformly - should be more specific
-            change_times_arr = np.array(
-                [p["epidemic_duration"] * np.random.uniform()]
-            )
             case "uniform":
                 sampling_prop_values =np.random.uniform(
                         hyperparams["sampling_prop"]["lower_bound"],
@@ -160,6 +156,10 @@ def _rand_remaster_params_serial(p, hyperparams):
                 raise NotImplementedError(
                     "Only 'uniform' and 'beta' distributions supported for sampling_prop in limited time sampling"
                 )
+        # TODO: this just randomly selects ANY time uniformly - should be more specific
+        change_times_arr = np.array(
+            [p["epidemic_duration"] * np.random.uniform()]
+        )
         p["sampling_prop"] = {
                 "values": np.array([0.0, sampling_prop_values[0]]),
                 "change_times": change_times_arr,
