@@ -116,6 +116,19 @@ If \(x\) is drawn from this lognormal distribution then
   }
 #+end_src
 
+**** Beta
+
+If \(p\sim\text{Beta}(\alpha=1.1,\beta=3.0)\) where \(p\in[0,1]\),
+then you specify this as
+
+#+begin_src json
+  {
+      "dist": "beta",
+      "alpha": 1.1,
+      "beta": 3.0
+  }
+#+end_src
+
 ** Visualising the data
 
 Two scripts, =visualisation.py= and =visualisation_temporal.py= in
