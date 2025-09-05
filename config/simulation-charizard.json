@@ -28,8 +28,8 @@
         },
         "sampling_prop": {
             "dist": "beta",
-            "lower_bound": 1.1,
-            "upper_bound": 8.0
+            "alpha": 1.1,
+            "beta": 8.0
         },
         "num_temp_measurements": 128
     }
