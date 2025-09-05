@@ -216,6 +216,13 @@ the size of the dataset.
 
 * FAQs
 
+** Where did the prior distribution come from?
+
+[[https://doi.org/10.1093/ve/veab052][Douglas et al (2021)]].
+
+Note that because Douglas et al (2021) uses years as their unit of
+time, the net becoming uninfectious rate needed to be scaled.
+
 ** How are the change times of the parameters selected?
 
 If parameters change in a simulation, then the times at which this

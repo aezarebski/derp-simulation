@@ -18,18 +18,18 @@
         },
         "r0": {
             "dist": "lognormal",
-            "LN_mean": 0.91,
-            "LN_sigma": 0.1
+            "LN_mean": 1.0,
+            "LN_sigma": 0.7
         },
         "net_removal_rate": {
             "dist": "lognormal",
-            "LN_mean": -1.80,
-            "LN_sigma": 0.1
+            "LN_mean": -1.81,
+            "LN_sigma": 0.2
         },
         "sampling_prop": {
-            "dist": "uniform",
-            "lower_bound": 0.1,
-            "upper_bound": 0.3
+            "dist": "beta",
+            "alpha": 1.1,
+            "beta": 8.0
         },
         "num_temp_measurements": 10
     }
