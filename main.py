@@ -29,6 +29,13 @@ SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
 NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"]["num_temp_measurements"]
 LIMITED_TIME_SAMPLING = CONFIG["simulation_hyperparameters"].get("limited_time_sampling", False)
+if LIMITED_TIME_SAMPLING:
+    if "sampling_activation_time" in CONFIG["simulation_hyperparameters"].keys():
+        SPECIFIC_SAMPLING_ACTIVATION_TIME = True
+        SAMPLING_ACTIVATION_TIME = CONFIG["simulation_hyperparameters"]["sampling_activation_time"]
+        assert (0.0 <= SAMPLING_ACTIVATION_TIME <= 1.0), "sampling_activation_time must be between 0.0 and 1.0"
+    else:
+        SPECIFIC_SAMPLING_ACTIVATION_TIME = False
 
 
 def prompt_user(message):
