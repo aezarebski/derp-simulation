@@ -2,9 +2,7 @@
 #+author: Alexander E. Zarebski
 
 This repository contains the code to simulate a database of
-phylogenetic trees that will be used in a machine learning project in
-which a neural network will be trained to solve phylodynamics
-problems.
+phylogenetic trees that will be used in a machine learning project.
 
 * Usage
 
@@ -52,8 +50,7 @@ remaining time for each stage of the simulation.
 ** Configuring a simulation
 
 The way in which a dataset is simulated is configured with a JSON
-file. There is a schema for valid configurations described [[file:./config/readme.org][here]]. There
-are some example configurations provided:
+file. There are some example configurations provided:
 
 - [[file:./config/debugging.json][debugging]]
 - [[file:./config/simulation-charmander.json][Charmander]]
@@ -221,7 +218,8 @@ the size of the dataset.
 [[https://doi.org/10.1093/ve/veab052][Douglas et al (2021)]].
 
 Note that because Douglas et al (2021) uses years as their unit of
-time, the net becoming uninfectious rate needed to be scaled.
+time, the net becoming uninfectious rate needed to be scaled (to days
+which is what we use here).
 
 ** How are the change times of the parameters selected?
 

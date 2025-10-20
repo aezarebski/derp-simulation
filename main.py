@@ -13,7 +13,9 @@ import subprocess
 import glob
 
 if len(os.sys.argv) < 2:
-    raise Exception("Please provide the path to the configuration file. For example ./config/simulation-charmander.json")
+    raise Exception(
+        "Please provide the path to the configuration file. For example ./config/simulation-charmander.json"
+    )
 
 with open(os.sys.argv[1], "r") as file:
     CONFIG = json.load(file)
@@ -28,12 +30,18 @@ SIM_DIR = f"out/{CONFIG['simulation_name']}/simulation/remaster"
 SIM_PICKLE_DIR = f"out/{CONFIG['simulation_name']}/simulation/pickle"
 DB_PATH = f"out/{CONFIG['simulation_name']}/{CONFIG['output_hdf5']}"
 NUM_TEMP_MEASUREMENTS = CONFIG["simulation_hyperparameters"]["num_temp_measurements"]
-LIMITED_TIME_SAMPLING = CONFIG["simulation_hyperparameters"].get("limited_time_sampling", False)
+LIMITED_TIME_SAMPLING = CONFIG["simulation_hyperparameters"].get(
+    "limited_time_sampling", False
+)
 if LIMITED_TIME_SAMPLING:
     if "sampling_activation_time" in CONFIG["simulation_hyperparameters"].keys():
         SPECIFIC_SAMPLING_ACTIVATION_TIME = True
-        SAMPLING_ACTIVATION_TIME = CONFIG["simulation_hyperparameters"]["sampling_activation_time"]
-        assert (0.0 <= SAMPLING_ACTIVATION_TIME <= 1.0), "sampling_activation_time must be between 0.0 and 1.0"
+        SAMPLING_ACTIVATION_TIME = CONFIG["simulation_hyperparameters"][
+            "sampling_activation_time"
+        ]
+        assert (
+            0.0 <= SAMPLING_ACTIVATION_TIME <= 1.0
+        ), "sampling_activation_time must be between 0.0 and 1.0"
     else:
         SPECIFIC_SAMPLING_ACTIVATION_TIME = False
 
@@ -70,6 +78,7 @@ def _update_attr(root, xpath: str, attr: str, val) -> None:
     tmp.attrib[attr] = str(val)
     return None
 
+
 def random_remaster_parameters():
     """
     Generate random parameters for the remaster model.
@@ -77,46 +86,50 @@ def random_remaster_parameters():
     NOTE that this makes use of the global `CONFIG` variable.
 
     NOTE that the change times are uniformly sampled between time 0.0
-    and the end of the epidemic duration.
+    and the end of the epidemic duration. The sampling is all done
+    using numpy functions, and the numpy random seed was set based on
+    the config at the start of this program.
     """
     hyperparams = CONFIG["simulation_hyperparameters"]
-    p = {}                      # random parameter dictionary.
+    p = {}  # random parameter dictionary.
     if hyperparams["duration_range"]["dist"] == "uniform_int":
         p["epidemic_duration"] = np.random.randint(
-            hyperparams["duration_range"]["lower_bound"], 
-            hyperparams["duration_range"]["upper_bound"] + 1
+            hyperparams["duration_range"]["lower_bound"],
+            hyperparams["duration_range"]["upper_bound"] + 1,
         )
     else:
-        raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for epidemic duration")
+        raise NotImplementedError(
+            "Currently, only the uniform (integer) distribution is supported for epidemic duration"
+        )
     if hyperparams["num_changes"]["dist"] == "uniform_int":
         p["num_changes"] = np.random.randint(
-            hyperparams["num_changes"]["lower_bound"], 
-            hyperparams["num_changes"]["upper_bound"] + 1
+            hyperparams["num_changes"]["lower_bound"],
+            hyperparams["num_changes"]["upper_bound"] + 1,
         )
     else:
-        raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for number of changes")
+        raise NotImplementedError(
+            "Currently, only the uniform (integer) distribution is supported for number of changes"
+        )
 
     # Sample random change times.
     p["change_times"] = np.sort(
-        np.random.uniform(
-            low=0,
-            high=p["epidemic_duration"],
-            size=p["num_changes"]
-        )
+        np.random.uniform(low=0, high=p["epidemic_duration"], size=p["num_changes"])
     )
 
     # Epidemic parameterisation
     if hyperparams["r0"]["dist"] == "lognormal":
         p["r0"] = {
             "values": np.random.lognormal(
-                mean = hyperparams["r0"]["LN_mean"],
-                sigma = hyperparams["r0"]["LN_sigma"],
-                size=p["num_changes"] + 1
+                mean=hyperparams["r0"]["LN_mean"],
+                sigma=hyperparams["r0"]["LN_sigma"],
+                size=p["num_changes"] + 1,
             ),
-            "change_times": p["change_times"]
+            "change_times": p["change_times"],
         }
     else:
-        raise NotImplementedError("Currently, only the lognormal distribution is supported for r0")
+        raise NotImplementedError(
+            "Currently, only the lognormal distribution is supported for r0"
+        )
     # The following sets up the remaining parameters which depend upon
     # whether there is contemporaneous sampling or not.
     if not hyperparams.get("contemporaneous_sample", False):
@@ -137,27 +150,29 @@ def _rand_remaster_params_serial(p, hyperparams):
     if hyperparams["net_removal_rate"]["dist"] == "lognormal":
         p["net_removal_rate"] = {
             "values": np.random.lognormal(
-                mean = hyperparams["net_removal_rate"]["LN_mean"],
-                sigma = hyperparams["net_removal_rate"]["LN_sigma"],
-                size = 1
+                mean=hyperparams["net_removal_rate"]["LN_mean"],
+                sigma=hyperparams["net_removal_rate"]["LN_sigma"],
+                size=1,
             ),
             "change_times": [],
         }
     else:
-        raise NotImplementedError("Currently, only the lognormal distribution is supported for net removal rate")
+        raise NotImplementedError(
+            "Currently, only the lognormal distribution is supported for net removal rate"
+        )
     if LIMITED_TIME_SAMPLING:
         match hyperparams["sampling_prop"]["dist"]:
             case "uniform":
-                sampling_prop_values =np.random.uniform(
-                        hyperparams["sampling_prop"]["lower_bound"],
-                        hyperparams["sampling_prop"]["upper_bound"],
-                        size=1,
+                sampling_prop_values = np.random.uniform(
+                    hyperparams["sampling_prop"]["lower_bound"],
+                    hyperparams["sampling_prop"]["upper_bound"],
+                    size=1,
                 )
             case "beta":
                 sampling_prop_values = np.random.beta(
-                        hyperparams["sampling_prop"]["alpha"],
-                        hyperparams["sampling_prop"]["beta"],
-                        size=1,
+                    hyperparams["sampling_prop"]["alpha"],
+                    hyperparams["sampling_prop"]["beta"],
+                    size=1,
                 )
             case _:
                 raise NotImplementedError(
@@ -169,8 +184,8 @@ def _rand_remaster_params_serial(p, hyperparams):
             activation_time = np.random.uniform(0.0, p["epidemic_duration"])
         change_times_arr = np.array([activation_time])
         p["sampling_prop"] = {
-                "values": np.array([0.0, sampling_prop_values[0]]),
-                "change_times": change_times_arr,
+            "values": np.array([0.0, sampling_prop_values[0]]),
+            "change_times": change_times_arr,
         }
     else:
         match hyperparams["sampling_prop"]["dist"]:
@@ -206,7 +221,7 @@ def _rand_remaster_params_serial(p, hyperparams):
     }
     p["sampling_rate"] = {
         "values": p["net_removal_rate"]["values"] * p["sampling_prop"]["values"],
-        "change_times": p["sampling_prop"]["change_times"]
+        "change_times": p["sampling_prop"]["change_times"],
     }
     return p
 
@@ -215,14 +230,16 @@ def _rand_remaster_params_contemporaneous(p, hyperparams):
     if hyperparams["net_removal_rate"]["dist"] == "lognormal":
         p["net_removal_rate"] = {
             "values": np.random.lognormal(
-                mean = hyperparams["net_removal_rate"]["LN_mean"],
-                sigma = hyperparams["net_removal_rate"]["LN_sigma"],
-                size = 1
+                mean=hyperparams["net_removal_rate"]["LN_mean"],
+                sigma=hyperparams["net_removal_rate"]["LN_sigma"],
+                size=1,
             ),
             "change_times": [],
         }
     else:
-        raise NotImplementedError("Currently, only the lognormal distribution is supported for net removal rate")
+        raise NotImplementedError(
+            "Currently, only the lognormal distribution is supported for net removal rate"
+        )
     p["sampling_prop"] = {
         "values": np.array([0]),
         "change_times": np.array([]),
@@ -233,9 +250,11 @@ def _rand_remaster_params_contemporaneous(p, hyperparams):
     }
     p["death_rate"] = {
         "values": p["net_removal_rate"]["values"],
-        "change_times": np.array([])
-        if not p["net_removal_rate"]["change_times"]
-        else p["net_removal_rate"]["change_times"],
+        "change_times": (
+            np.array([])
+            if not p["net_removal_rate"]["change_times"]
+            else p["net_removal_rate"]["change_times"]
+        ),
     }
     p["sampling_rate"] = {
         "values": np.array([0]),
@@ -258,7 +277,7 @@ def _rand_remaster_params_contemporaneous(p, hyperparams):
         case _:
             raise NotImplementedError(
                 "Only 'uniform' and 'beta' distributions supported for sampling_prop"
-                )
+            )
     p["rho"] = {
         "values": rho_val,
         "change_times": None,
@@ -339,7 +358,7 @@ def write_simulation_xml(simulation_xml, parameters):
     remaster_xml_obj.write(simulation_xml, pretty_print=True)
 
 
-def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
+def run_beast2_simulations_parallel(simulation_xml_list, num_jobs, beast_seed_str):
     def run_beast2(simulation_xml):
         """
         Run a BEAST2 simulation using the provided XML file.
@@ -347,24 +366,32 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         If the simulation does not finish within 5 minutes, it is
         considered to have timed out.
 
-        $ ./lib/beast/bin/beast -seed 1 -overwrite <simulation_xml>
+        $ ./lib/beast/bin/beast -seed <seed> -overwrite <simulation_xml>
         """
         print(f"Running simulation: {simulation_xml}")
 
         beast_executable_linux = "./lib/beast/bin/beast"
-        beast_folder_mac = '/Applications/BEAST*'
-        beast_fname_mac = 'bin/beast'
+        beast_folder_mac = "/Applications/BEAST*"
+        beast_fname_mac = "bin/beast"
         if os.path.exists(beast_executable_linux):
             beast_executable = beast_executable_linux
         elif glob.glob(beast_folder_mac):
             latest_beast_ver_mac = sorted(glob.glob(beast_folder_mac))[-1]
             beast_executable = os.path.join(latest_beast_ver_mac, beast_fname_mac)
         else:
-            raise Exception("BEAST2 executable not found. You might find the src/setupbeast2.py script helpful.")
-        command = [beast_executable, "-seed", "1", "-overwrite", simulation_xml]
+            raise Exception(
+                "BEAST2 executable not found. You might find the src/setupbeast2.py script helpful."
+            )
+        command = [
+            beast_executable,
+            "-seed",
+            beast_seed_str,
+            "-overwrite",
+            simulation_xml,
+        ]
 
         # If there is a local packages directory, then the command
-        # should be ammended to use that as the package directory.
+        # should be amended to use that as the package directory.
         maybe_package_dir = "./lib/packages"
         if os.path.exists(maybe_package_dir):
             command.insert(1, "-packagedir")
@@ -463,22 +490,18 @@ def read_simulation_results(simulation_xml, params):
 
         most_recent_change_time = traj_df[traj_df["t"] <= this_meas_time]["t"].max()
         rows_this_time = traj_df[traj_df["t"] == most_recent_change_time]
-        this_X = rows_this_time[rows_this_time["population"] == "X"][
-            "value"
-        ].values[0]
+        this_X = rows_this_time[rows_this_time["population"] == "X"]["value"].values[0]
         this_Psi = rows_this_time[rows_this_time["population"] == "Psi"][
             "value"
         ].values[0]
-        this_Mu = rows_this_time[rows_this_time["population"] == "Mu"][
-            "value"
-        ].values[0]
+        this_Mu = rows_this_time[rows_this_time["population"] == "Mu"]["value"].values[
+            0
+        ]
 
         prev_meas_this_time = this_X
         cumul_meas_this_time = this_X + this_Mu + this_Psi
 
-        num_r0_changes_so_far = len(
-            r0_change_times[r0_change_times <= this_meas_time]
-        )
+        num_r0_changes_so_far = len(r0_change_times[r0_change_times <= this_meas_time])
         r0_meas_this_time = params["r0"]["values"][num_r0_changes_so_far]
 
         temp_data.append(
@@ -523,7 +546,7 @@ def run_pickling_parallel(pickle_files, sim_xml_list, params_list):
     return [f for f in completed_files if f is not None]
 
 
-def run_simulations(num_sims):
+def run_simulations(num_sims, beast_seed_str):
     params_list = [random_remaster_parameters() for _ in range(num_sims)]
     if not os.path.exists(SIM_DIR):
         os.makedirs(SIM_DIR)
@@ -533,7 +556,9 @@ def run_simulations(num_sims):
     for sim_xml, params in zip(sim_xml_list, params_list):
         write_simulation_xml(sim_xml, params)
 
-    run_beast2_simulations_parallel(sim_xml_list, num_jobs=NUM_WORKERS)
+    run_beast2_simulations_parallel(
+        sim_xml_list, num_jobs=NUM_WORKERS, beast_seed_str=beast_seed_str
+    )
     if not os.path.exists(SIM_PICKLE_DIR):
         os.makedirs(SIM_PICKLE_DIR)
     pickle_files = [
@@ -548,7 +573,9 @@ def _tree_to_uint8(tree):
 
 def create_database(pickle_files):
     if not os.path.exists(os.path.dirname(DB_PATH)):
-        raise Exception(f"The directory for the database file {DB_PATH} does not exist. Please check the path.")
+        raise Exception(
+            f"The directory for the database file {DB_PATH} does not exist. Please check the path."
+        )
     else:
         db_conn = h5py.File(DB_PATH, "r+")
 
@@ -575,8 +602,12 @@ def create_database(pickle_files):
             rec_grp.attrs["simulation_xml"] = sim["simulation_xml"]
 
             if os.path.exists(sim["simulation_xml"].replace(".xml", ".time")):
-                with open(sim["simulation_xml"].replace(".xml", ".time"), "r") as time_log:
-                    rec_grp.attrs["simulation_wall_time"] = float(time_log.read().strip())
+                with open(
+                    sim["simulation_xml"].replace(".xml", ".time"), "r"
+                ) as time_log:
+                    rec_grp.attrs["simulation_wall_time"] = float(
+                        time_log.read().strip()
+                    )
 
             in_grp = rec_grp.create_group("input")
             in_grp.create_dataset(
@@ -625,7 +656,9 @@ def log_config():
             os.makedirs(os.path.dirname(DB_PATH))
             print(f"Created directory {os.path.dirname(DB_PATH)}.")
         else:
-            raise Exception(f"The directory for the database file {DB_PATH} does not exist. Please check the path.")
+            raise Exception(
+                f"The directory for the database file {DB_PATH} does not exist. Please check the path."
+            )
 
     db_conn = h5py.File(DB_PATH, "w")
     config_str = json.dumps(CONFIG, indent=4)
@@ -635,7 +668,7 @@ def log_config():
 
 def main():
     log_config()
-    sim_pickles = run_simulations(NUM_SIMS)
+    sim_pickles = run_simulations(NUM_SIMS, str(CONFIG["seed"]))
     create_database(sim_pickles)
 
 
