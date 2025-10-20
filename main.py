@@ -391,7 +391,7 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs, beast_seed_st
         ]
 
         # If there is a local packages directory, then the command
-        # should be ammended to use that as the package directory.
+        # should be amended to use that as the package directory.
         maybe_package_dir = "./lib/packages"
         if os.path.exists(maybe_package_dir):
             command.insert(1, "-packagedir")
