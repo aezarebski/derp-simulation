@@ -2,7 +2,8 @@ import h5py
 import matplotlib.pyplot as plt
 import squarify
 
-example_name = "charizard"
+# example_name = "charizard"
+example_name = "charmander"
 
 def wall_time_and_label(db, path):
     label = str(int(path.split("_")[-1]))
@@ -23,8 +24,9 @@ plt.savefig(f"out/sim-{example_name}/plots/walltimes.png")
 # make a histogram of the walltimes with a logarithmic x axis
 plt.figure(figsize=(8, 5), dpi=96)
 plt.hist(times, bins=20, color="#1b9e77", edgecolor="black")
-plt.xscale("log")
-plt.xlabel("Wall Time (seconds, log scale)")
+# plt.xscale("log")
+# plt.xlabel("Wall Time (seconds, log scale)")
+plt.xlabel("Wall Time (seconds)")
 plt.ylabel("Number of Simulations")
 plt.title("Histogram of Simulation Wall Times")
 plt.savefig(f"out/sim-{example_name}/plots/walltime_histogram.png")
