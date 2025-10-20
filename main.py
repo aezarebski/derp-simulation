@@ -77,20 +77,22 @@ def random_remaster_parameters():
     NOTE that this makes use of the global `CONFIG` variable.
 
     NOTE that the change times are uniformly sampled between time 0.0
-    and the end of the epidemic duration.
+    and the end of the epidemic duration. The sampling is all done
+    using numpy functions, and the numpy random seed was set based on
+    the config at the start of this program.
     """
     hyperparams = CONFIG["simulation_hyperparameters"]
     p = {}                      # random parameter dictionary.
     if hyperparams["duration_range"]["dist"] == "uniform_int":
         p["epidemic_duration"] = np.random.randint(
-            hyperparams["duration_range"]["lower_bound"], 
+            hyperparams["duration_range"]["lower_bound"],
             hyperparams["duration_range"]["upper_bound"] + 1
         )
     else:
         raise NotImplementedError("Currently, only the uniform (integer) distribution is supported for epidemic duration")
     if hyperparams["num_changes"]["dist"] == "uniform_int":
         p["num_changes"] = np.random.randint(
-            hyperparams["num_changes"]["lower_bound"], 
+            hyperparams["num_changes"]["lower_bound"],
             hyperparams["num_changes"]["upper_bound"] + 1
         )
     else:
@@ -339,7 +341,7 @@ def write_simulation_xml(simulation_xml, parameters):
     remaster_xml_obj.write(simulation_xml, pretty_print=True)
 
 
-def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
+def run_beast2_simulations_parallel(simulation_xml_list, num_jobs, beast_seed_str):
     def run_beast2(simulation_xml):
         """
         Run a BEAST2 simulation using the provided XML file.
@@ -347,7 +349,7 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
         If the simulation does not finish within 5 minutes, it is
         considered to have timed out.
 
-        $ ./lib/beast/bin/beast -seed 1 -overwrite <simulation_xml>
+        $ ./lib/beast/bin/beast -seed <seed> -overwrite <simulation_xml>
         """
         print(f"Running simulation: {simulation_xml}")
 
@@ -361,7 +363,7 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs):
             beast_executable = os.path.join(latest_beast_ver_mac, beast_fname_mac)
         else:
             raise Exception("BEAST2 executable not found. You might find the src/setupbeast2.py script helpful.")
-        command = [beast_executable, "-seed", "1", "-overwrite", simulation_xml]
+        command = [beast_executable, "-seed", beast_seed_str, "-overwrite", simulation_xml]
 
         # If there is a local packages directory, then the command
         # should be ammended to use that as the package directory.
@@ -523,7 +525,7 @@ def run_pickling_parallel(pickle_files, sim_xml_list, params_list):
     return [f for f in completed_files if f is not None]
 
 
-def run_simulations(num_sims):
+def run_simulations(num_sims, beast_seed_str):
     params_list = [random_remaster_parameters() for _ in range(num_sims)]
     if not os.path.exists(SIM_DIR):
         os.makedirs(SIM_DIR)
@@ -533,7 +535,7 @@ def run_simulations(num_sims):
     for sim_xml, params in zip(sim_xml_list, params_list):
         write_simulation_xml(sim_xml, params)
 
-    run_beast2_simulations_parallel(sim_xml_list, num_jobs=NUM_WORKERS)
+    run_beast2_simulations_parallel(sim_xml_list, num_jobs=NUM_WORKERS, beast_seed_str=beast_seed_str)
     if not os.path.exists(SIM_PICKLE_DIR):
         os.makedirs(SIM_PICKLE_DIR)
     pickle_files = [
@@ -635,7 +637,7 @@ def log_config():
 
 def main():
     log_config()
-    sim_pickles = run_simulations(NUM_SIMS)
+    sim_pickles = run_simulations(NUM_SIMS, str(CONFIG["seed"]))
     create_database(sim_pickles)
 
 
