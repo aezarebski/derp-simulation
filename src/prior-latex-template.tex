@@ -1,4 +1,4 @@
-\documentclass[preview,varwidth=true]{standalone}
+\documentclass[preview,varwidth=11.8cm]{standalone}
 %% Usage
 %% -----
 %%
@@ -8,19 +8,18 @@
 \usepackage{amssymb}
 
 \begin{document}
-
 \begin{table}[]
 \begin{tabular}{llr}
 \hline
-\textbf{Quantity}           & \textbf{Prior} & \multicolumn{1}{l}{\textbf{\begin{tabular}[c]{@{}l@{}}Dataset median\\ (95\% interval)\end{tabular}}} \\ \hline
-\textbf{Model parameters}   &                &                                         \\
-Reproduction number         & dist1          & summ1                                   \\
-Net removal rate            & dist2          & summ2                                   \\
-Sampled proportion          & dist3          & summ3                                   \\
-Simulation duration         & dist4          & summ4                                   \\
-\textbf{Output}             &                &                                         \\
-Final prevalence            &                & summ5                                   \\
-Final cumulative infections &                & summ6                                   \\ \hline
+\textbf{Quantity}                                                      & \textbf{Prior} & \multicolumn{1}{l}{\textbf{\begin{tabular}[c]{@{}l@{}}Dataset median\\ (95\% interval)\end{tabular}}} \\ \hline
+\textbf{Model parameters}                                              &                & \multicolumn{1}{l}{}                                                                                  \\
+Reproduction number         & $\text{lognormal}(X,Y)$ & summ1                                   \\
+Net removal rate            & $\text{lognormal}(X,Y)$ & summ2                                   \\
+Sampled proportion          & $\text{Beta}(X,Y)$      & summ3                                   \\
+Simulation duration         & $\text{U}(X,Y)$         & summ4                                   \\
+\textbf{Output}                                                        &                &                                                                                                       \\
+Final prevalence                                                       &                & summ5                                                                                                 \\
+\begin{tabular}[c]{@{}l@{}}Final cumulative \\ infections\end{tabular} &                & summ6                                                                                                 \\ \hline
 \end{tabular}
 \end{table}
 
