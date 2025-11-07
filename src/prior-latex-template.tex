@@ -1,0 +1,27 @@
+\documentclass[preview,varwidth=true]{standalone}
+%% Usage
+%% -----
+%%
+%% pdflatex prior-latex-template.tex
+%%
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\begin{document}
+
+\begin{table}[]
+\begin{tabular}{llr}
+\hline
+\textbf{Quantity}           & \textbf{Prior} & \multicolumn{1}{l}{\textbf{\begin{tabular}[c]{@{}l@{}}Dataset median\\ (95\% interval)\end{tabular}}} \\ \hline
+\textbf{Model parameters}   &                &                                         \\
+Reproduction number         & dist1          & summ1                                   \\
+Net removal rate            & dist2          & summ2                                   \\
+Sampled proportion          & dist3          & summ3                                   \\
+Simulation duration         & dist4          & summ4                                   \\
+\textbf{Output}             &                &                                         \\
+Final prevalence            &                & summ5                                   \\
+Final cumulative infections &                & summ6                                   \\ \hline
+\end{tabular}
+\end{table}
+
+\end{document}
