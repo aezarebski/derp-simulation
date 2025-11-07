@@ -61,6 +61,24 @@ file. There are some example configurations provided:
 
 Additional information about these datasets is given [[file:./config/readme.org][here]].
 
+*** Conditioning
+
+The simulations are conditioned to stop at a maximum time, or as soon
+as either the prevalence reaches 50,000 or the number of sequences
+reaches 1,000. Simulations are also conditioned to have more than one
+sequence, and for the pathogen not to have gone extinct.
+
+This conditioning is coded through the following attributes in the
+remaster XML template.
+
+#+begin_src xml
+  <trajectory id="trajectory"
+              spec="StochasticTrajectory"
+              maxTime="50"
+	      endsWhen="X==50000 || Psi==1000"
+              mustHave="Psi&lt;1001 &amp;&amp; Psi>1 &amp;&amp; X>1">
+#+end_src
+
 *** Prior distributions
 
 As part of the simulation hyperparameters in the configuration file,
