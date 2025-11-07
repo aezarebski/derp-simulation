@@ -93,6 +93,8 @@ def random_remaster_parameters():
     hyperparams = CONFIG["simulation_hyperparameters"]
     p = {}  # random parameter dictionary.
     if hyperparams["duration_range"]["dist"] == "uniform_int":
+        # NOTE the +1 is here because the randint method samples from
+        # the interval [low, high).
         p["epidemic_duration"] = np.random.randint(
             hyperparams["duration_range"]["lower_bound"],
             hyperparams["duration_range"]["upper_bound"] + 1,
