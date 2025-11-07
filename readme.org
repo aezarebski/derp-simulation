@@ -1,5 +1,6 @@
 #+title: DERP Simulation
 #+author: Alexander E. Zarebski
+#+subauthor: Thomas Williams
 
 This repository contains the code to simulate a database of
 phylogenetic trees that will be used in a machine learning project.
@@ -212,6 +213,11 @@ attributes in the HDF5 file. This includes the date of creation and
 the size of the dataset.
 
 * FAQs
+
+** How do I communicate the prior distribution?
+
+There is a script =src/make-prior-latex-table.R= that might be
+helpful: it produces a table in LaTeX explaining the prior.
 
 ** Where did the prior distribution come from?
 
