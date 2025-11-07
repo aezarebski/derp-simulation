@@ -1,7 +1,7 @@
 library(hdf5r)
 library(xtable)
 
-sim_hdf5 <- "out/sim-charmander/dataset-charmander.hdf5"
+sim_hdf5 <- "out/sim-charizard/dataset-charizard.hdf5"
 db_conn <- H5File$new(sim_hdf5, mode = "r")
 sim_names <- db_conn$ls()$name
 

@@ -235,7 +235,14 @@ the size of the dataset.
 ** How do I communicate the prior distribution?
 
 There is a script =src/make-prior-latex-table.R= that might be
-helpful: it produces a table in LaTeX explaining the prior.
+helpful: it produces a table in LaTeX explaining the prior. This
+produces a table like the one shown below.
+
+#+caption: Example summary table
+#+name: fig:summary-table
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charizard/demo-prior-table.png]]
 
 ** Where did the prior distribution come from?
 
