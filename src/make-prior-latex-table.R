@@ -51,7 +51,7 @@ for (sx in sim_names) {
   r0_vals_vec <- c(r0_vals_vec, rec[[r0_vals_q]][])
   net_rem_rate_vec <- c(net_rem_rate_vec, rec[[net_rem_rate_q]][])
   sampling_prop_vec <- c(sampling_prop_vec, rec[[sampling_prop_q]][])
-  epi_dur_col <- c(epi_dur_col, rec[["input/present"]][] )
+  epi_dur_col <- c(epi_dur_col, rec[[epi_dur_q]][] )
   final_prev_col <- c(final_prev_col, rec[[final_prev_q]][] )
   final_cuminf_col <- c(final_cuminf_col, rec[[final_cuminf_q]][] )
   wall_times_col <- c(wall_times_col, wall_time_q(rec))
