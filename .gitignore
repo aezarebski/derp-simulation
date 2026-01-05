@@ -4,3 +4,8 @@ out/sim-*/dataset-*.hdf5
 lib
 venv
 *~
+src/prior-latex-*png
+src/prior-latex-*pdf
+src/prior-latex-*log
+src/prior-latex-*aux
+src/prior-latex-table.tex
