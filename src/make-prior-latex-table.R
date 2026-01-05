@@ -44,7 +44,7 @@ wall_times_col <- c()
 
 pb <- progress::progress_bar$new(format = " [:bar] :percent eta: :eta",
                                  total = length(sim_names),
-                                 clear = FALSE, width= 60)
+                                 clear = FALSE, width = 60)
 for (sx in sim_names) {
   pb$tick()
   rec <- db_conn[[sx]]
