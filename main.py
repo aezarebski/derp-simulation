@@ -399,6 +399,9 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs, beast_seed_st
         are cleaned up and the simulation is retried with an incremented
         seed, up to max_retries attempts.
 
+        On success, a .time file is written containing the total elapsed
+        time across all attempts (including any failed retries).
+
         $ ./lib/beast/bin/beast -seed <seed> -overwrite <simulation_xml>
         """
         beast_executable_linux = "./lib/beast/bin/beast"
@@ -423,6 +426,7 @@ def run_beast2_simulations_parallel(simulation_xml_list, num_jobs, beast_seed_st
         total_elapsed_time = 0.0
 
         for attempt in range(1, max_retries + 1):
+            # Seed starts at base_seed for first attempt, then increments for each retry
             current_seed = str(base_seed + attempt - 1)
             print(f"Running simulation: {simulation_xml} (attempt {attempt}/{max_retries}, seed {current_seed})")
 
