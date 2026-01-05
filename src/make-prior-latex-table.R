@@ -1,5 +1,4 @@
 library(hdf5r)
-library(xtable)
 
 sim_hdf5 <- "out/sim-charizard/dataset-charizard.hdf5"
 TEMPLATE_FILE <- "./src/prior-latex-template.tex"
