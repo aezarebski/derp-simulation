@@ -2,6 +2,20 @@ library(hdf5r)
 library(xtable)
 
 sim_hdf5 <- "out/sim-charizard/dataset-charizard.hdf5"
+TEMPLATE_FILE <- "./src/prior-latex-template.tex"
+OUTPUT_FILE <- "./src/prior-latex-table.tex"
+
+## check that the hdf5 file exists
+if (!file.exists(sim_hdf5)) {
+  stop(sprintf("HDF5 file %s does not exist; cannot proceed", sim_hdf5))
+}
+## check that the template file exists
+if (!file.exists(TEMPLATE_FILE)) {
+  stop(sprintf("Template file %s does not exist; cannot proceed", TEMPLATE_FILE))
+}
+
+## open the hdf5 file and message the user that this can take a little while
+message("Opening HDF5 file; this may take a little while...")
 db_conn <- H5File$new(sim_hdf5, mode = "r")
 sim_names <- db_conn$ls()$name
 
@@ -83,8 +97,9 @@ summary_str <- function(var, n=2, as_e=FALSE) {
   return(result)
 }
 
-## read the lines of the file "prior-latex-template.tex"
-template_lines <- readLines("./src/prior-latex-template.tex")
+## read the lines of the TEMPLATE_FILE which contain the definition of
+## a LaTeX table.
+template_lines <- readLines(TEMPLATE_FILE)
 
 ## replace the patterns in the template with the summary statistics
 template_lines <- gsub("summ1", summary_str("r0"), template_lines)
@@ -94,5 +109,13 @@ template_lines <- gsub("summ4", summary_str("epi_duration"), template_lines)
 template_lines <- gsub("summ5", summary_str("final_prevalence", n = 1, as_e = TRUE), template_lines)
 template_lines <- gsub("summ6", summary_str("final_cumulative_infections", n = 1, as_e = TRUE), template_lines)
 
-## write the modified lines to a new file "prior-latex-table.tex"
-writeLines(template_lines, "./src/prior-latex-table.tex")
+## write the modified lines to a new file OUTPUT_FILE which contains the
+## LaTeX table with the prior summaries.
+writeLines(template_lines, con = OUTPUT_FILE)
+
+## message the user to tell them that the file has been written and
+## can be included in a LaTeX document
+message(sprintf("Wrote prior summary LaTeX table to %s", OUTPUT_FILE))
+
+## close the hdf5 connection
+db_conn$close_all()
