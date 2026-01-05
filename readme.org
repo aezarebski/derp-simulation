@@ -1,5 +1,6 @@
 #+title: DERP Simulation
 #+author: Alexander E. Zarebski
+#+subauthor: Thomas Williams
 
 This repository contains the code to simulate a database of
 phylogenetic trees that will be used in a machine learning project.
@@ -59,6 +60,24 @@ file. There are some example configurations provided:
 - [[file:./config/simulation-charizard.json][Charizard]]
 
 Additional information about these datasets is given [[file:./config/readme.org][here]].
+
+*** Conditioning
+
+The simulations are conditioned to stop at a maximum time, or as soon
+as either the prevalence reaches 50,000 or the number of sequences
+reaches 1,000. Simulations are also conditioned to have more than one
+sequence, and for the pathogen not to have gone extinct.
+
+This conditioning is coded through the following attributes in the
+remaster XML template.
+
+#+begin_src xml
+  <trajectory id="trajectory"
+              spec="StochasticTrajectory"
+              maxTime="50"
+	      endsWhen="X==50000 || Psi==1000"
+              mustHave="Psi&lt;1001 &amp;&amp; Psi>1 &amp;&amp; X>1">
+#+end_src
 
 *** Prior distributions
 
@@ -212,6 +231,18 @@ attributes in the HDF5 file. This includes the date of creation and
 the size of the dataset.
 
 * FAQs
+
+** How do I communicate the prior distribution?
+
+There is a script =src/make-prior-latex-table.R= that might be
+helpful: it produces a table in LaTeX explaining the prior. This
+produces a table like the one shown below.
+
+#+caption: Example summary table
+#+name: fig:summary-table
+#+attr_org: :width 500px
+#+attr_html: :width 400px
+[[./out/sim-charizard/demo-prior-table.png]]
 
 ** Where did the prior distribution come from?
 
