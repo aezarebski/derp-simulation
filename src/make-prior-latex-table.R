@@ -32,7 +32,7 @@ sampling_prop_q <- "output/parameters/sampling_prop/values"
 epi_dur_q <- "input/present"
 final_prev_q <- "output/present_prevalence"
 final_cuminf_q <- "output/present_cumulative"
-wall_time_q <- \(g) h5attr(g,"simulation_wall_time")
+wall_time_q <- \(g) h5attr(g, "simulation_wall_time")
 
 r0_vals_vec <- c()
 net_rem_rate_vec <- c()
