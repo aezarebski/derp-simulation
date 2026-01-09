@@ -32,6 +32,6 @@
             "beta": 8.0
         },
         "num_temp_measurements": 10,
-	"limited_time_sampling": false
+	"limited_time_sampling": true
     }
 }
