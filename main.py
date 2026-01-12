@@ -17,8 +17,11 @@ if len(os.sys.argv) < 2:
         "Please provide the path to the configuration file. For example ./config/simulation-charmander.json"
     )
 
-with open(os.sys.argv[1], "r") as file:
+CONFIG_JSON = os.sys.argv[1]
+with open(CONFIG_JSON, "r") as file:
     CONFIG = json.load(file)
+del CONFIG_JSON
+
 
 np.random.seed(CONFIG["seed"])
 
@@ -183,7 +186,7 @@ def _rand_remaster_params_serial(p, hyperparams):
         if SPECIFIC_SAMPLING_ACTIVATION_TIME:
             activation_time = SAMPLING_ACTIVATION_TIME * p["epidemic_duration"]
         else:
-            activation_time = np.random.uniform(0.0, p["epidemic_duration"])
+            activation_time = np.random.beta(2, 2, size = 1)[0] * p["epidemic_duration"]
         change_times_arr = np.array([activation_time])
         p["sampling_prop"] = {
             "values": np.array([0.0, sampling_prop_values[0]]),
