@@ -296,7 +296,7 @@ fig.tight_layout()
 fig.savefig("./out/sim-psyduck/plots/demo-tree-change-times.png")
 #+end_src
 
-** Why in limited time sampling is a Beta(2,2) distribution used?
+** Why is the Beta(2,2) distribution used in limited time sampling?
 
 A \(\text{Beta}(2,2)\) distribution is used for the proportion of the
 epidemic that occurs without sampling because this prevents the
