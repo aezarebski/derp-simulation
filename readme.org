@@ -243,7 +243,7 @@ epidemic duration drawn from a \(\text{Beta}(2,2)\) distribution. You can see an
 example of this in the following figure.
 
 #+caption: Example tree from Psyduck database with the plot showing the corresponding time of when the sampling activated.
-#+name: fig:thing
+#+name: fig:psyduck-sampling-activation
 #+attr_org: :width 500px
 #+attr_html: :width 400px
 [[./out/sim-psyduck/plots/demo-tree-change-times.png]]
