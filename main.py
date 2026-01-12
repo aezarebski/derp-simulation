@@ -17,10 +17,10 @@ if len(os.sys.argv) < 2:
         "Please provide the path to the configuration file. For example ./config/simulation-charmander.json"
     )
 
-CONFIG_YAML = os.sys.argv[1]
-with open(CONFIG_YAML, "r") as file:
+CONFIG_JSON = os.sys.argv[1]
+with open(CONFIG_JSON, "r") as file:
     CONFIG = json.load(file)
-del CONFIG_YAML
+del CONFIG_JSON
 
 
 np.random.seed(CONFIG["seed"])
