@@ -30,9 +30,9 @@ ax1.axvline(-mr_ca_time, color="red", linestyle="-", linewidth=1.2, alpha=0.9)
 ax1.axvline(epidemic_duration - mr_ca_time, color="red", linestyle="-", linewidth=1.2, alpha=0.9)
 
 x = np.linspace(0.0, 1.0, 200)
-beta_pdf = 6.0 * x * (1.0 - x)
-ax2.plot(x, beta_pdf, color="blue")
-ax2.set_title("Beta(2, 2) distribution")
+uniform_pdf = np.where((x >= 0.3) & (x <= 0.7), 1.0 / 0.6, 0.0)
+ax2.plot(x, uniform_pdf, color="blue")
+ax2.set_title("Uniform(0.3, 0.7) distribution")
 ax2.set_xlabel("x")
 ax2.set_ylabel("density")
 if sampling_prop_change_times.size > 0 and epidemic_duration != 0:

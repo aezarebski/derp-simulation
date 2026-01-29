@@ -239,7 +239,7 @@ hyperparameters in the configuration JSON, this will sample a random
 time throughout the duration of the simulation, and only turn the
 sampling on after that time (after which it is constant). The random
 time at which sampling is activated is a proportion of the total
-epidemic duration drawn from a \(\text{Beta}(2,2)\) distribution. You can see an
+epidemic duration drawn from a \(\text{Uniform}(0.3,0.7)\) distribution. You can see an
 example of this in the following figure.
 
 #+caption: Example tree from Psyduck database with the plot showing the corresponding time of when the sampling activated.
@@ -281,9 +281,9 @@ ax1.axvline(-mr_ca_time, color="red", linestyle="-", linewidth=1.2, alpha=0.9)
 ax1.axvline(epidemic_duration - mr_ca_time, color="red", linestyle="-", linewidth=1.2, alpha=0.9)
 
 x = np.linspace(0.0, 1.0, 200)
-beta_pdf = 6.0 * x * (1.0 - x)
-ax2.plot(x, beta_pdf, color="blue")
-ax2.set_title("Beta(2, 2) distribution")
+uniform_pdf = np.where((x >= 0.3) & (x <= 0.7), 1.0 / 0.6, 0.0)
+ax2.plot(x, uniform_pdf, color="blue")
+ax2.set_title("Uniform(0.3, 0.7) distribution")
 ax2.set_xlabel("x")
 ax2.set_ylabel("density")
 if sampling_prop_change_times.size > 0 and epidemic_duration != 0:
@@ -296,9 +296,9 @@ fig.tight_layout()
 fig.savefig("./out/sim-psyduck/plots/demo-tree-change-times.png")
 #+end_src
 
-** Why is the Beta(2,2) distribution used in limited time sampling?
+** Why is the Uniform(0.3,0.7) distribution used in limited time sampling?
 
-A \(\text{Beta}(2,2)\) distribution is used for the proportion of the
+A \(\text{Uniform}(0.3,0.7)\) distribution is used for the proportion of the
 epidemic that occurs without sampling because this prevents the
 activation time falling too close to the start or the end of the
 epidemic which makes the simulations very time consuming to perform.

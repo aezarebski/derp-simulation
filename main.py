@@ -186,7 +186,7 @@ def _rand_remaster_params_serial(p, hyperparams):
         if SPECIFIC_SAMPLING_ACTIVATION_TIME:
             activation_time = SAMPLING_ACTIVATION_TIME * p["epidemic_duration"]
         else:
-            activation_time = np.random.beta(2, 2, size = 1)[0] * p["epidemic_duration"]
+            activation_time = np.random.uniform(0.3, 0.7, size = 1)[0] * p["epidemic_duration"]
         change_times_arr = np.array([activation_time])
         p["sampling_prop"] = {
             "values": np.array([0.0, sampling_prop_values[0]]),
