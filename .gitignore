@@ -9,3 +9,5 @@ src/prior-latex-*pdf
 src/prior-latex-*log
 src/prior-latex-*aux
 src/prior-latex-table.tex
+__pycache__/
+*.pyc
